@@ -1,3 +1,3 @@
 class Game {
-  println("Hallo")
+  println("sup1")
 }
