@@ -9,7 +9,7 @@ class WuerfelTest extends WordSpec with Matchers{
       wuerfel.eyecount should be > 0
       wuerfel.eyecount should be < 7
     }
-    "when throwen should have the same or a different Number between 1 and 6 " in {
+    "when thrown should have the same or a different Number between 1 and 6 " in {
       val newWuerfel = wuerfel.throwDice()
       newWuerfel.eyecount should be > 0
       newWuerfel.eyecount should be < 7
