@@ -1,12 +1,14 @@
-import model.Player
+import model.{Player, Wuerfel}
 
 object Game {
   def main(args: Array[String]): Unit = {
     val player = Player("Önder")
-    println("Hello, "+player.name)
+    println(player)
 
-    val player2 = Player("Vincent")
-    println("Hello, "+player.name)
+    var dice = Wuerfel()
+    dice = dice.throwDice()
+    dice.checkPash(dice)
+    println(dice)
   }
 }
 

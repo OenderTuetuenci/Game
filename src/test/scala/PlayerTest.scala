@@ -8,7 +8,7 @@ class PlayerTest extends WordSpec with Matchers {
       player.name should be("Önder")
     }
     "have a cool String representation" in {
-      player.toString should be("Önder")
+      player.toString should be("Önder: 0")
     }
     "Have the Position 0" in {
       player.position should be(0)
