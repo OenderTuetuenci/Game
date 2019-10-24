@@ -14,8 +14,13 @@ class WuerfelTest extends WordSpec with Matchers{
       newWuerfel.eyecount should be > 0
       newWuerfel.eyecount should be < 7
     }
-    "Have a should have cool String representation" in{
+    "should have a cool String representation" in{
       wuerfel.toString() should be (wuerfel.eyecount.toString)
+    }
+    "A Pash if 2 dices have the same eyecount" in {
+      wuerfel.checkPash(wuerfel) should be (true)
+      val aDice = Wuerfel()
+      wuerfel.checkPash(aDice) should be (false)
     }
   }
   }
