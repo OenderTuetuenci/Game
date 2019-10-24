@@ -1,8 +1,10 @@
+import model.Player
+
 object Game {
   def main(args: Array[String]): Unit = {
-    println("sup1")
+    val player = Player("Önder")
+    println("Hello, "+player.name)
   }
 }
-
 
 
