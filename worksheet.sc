@@ -1,3 +1,5 @@
+import model.Dice
+
 println("hallo")
 
 case class Default(x:Int){
@@ -5,6 +7,7 @@ case class Default(x:Int){
 }
 val d = Default(5)
 val b = d.add(5)
+
 
 42.toBinaryString
 42.toHexString

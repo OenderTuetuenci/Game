@@ -5,10 +5,9 @@ object Game {
     val player = Player("Önder")
     println(player)
 
-    var dice = Dice()
-    dice = dice.throwDice()
-    dice.checkPash(dice)
-    println(dice)
+    val dice = Dice()
+    val x = dice.throwDice()
+    println(dice.checkPash(x,x))
   }
 }
 
