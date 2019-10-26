@@ -1,4 +1,4 @@
-import model.Dice
+import model.{Dice, Player}
 
 println("hallo")
 
@@ -17,3 +17,5 @@ val b = 5
 val s = "Önder Tütünci"
 s.indexOf("P")
 val t = s.splitAt(5)
+var player = Player("Önder")
+player = player.move(5)
