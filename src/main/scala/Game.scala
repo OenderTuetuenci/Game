@@ -22,15 +22,15 @@ object Game {
     // start game
     while (!gameOver) {
       println("\nRunde " + runde + " beginnt!\n")
-      for (i <- 0 until playerCount) {
+      for (amZug <- 0 until playerCount) {
         // jeder der noch geld hat darf wuerfeln
-        if (players(i).getmoney > 0) {
+        if (players(amZug).getmoney > 0) {
           // init pasch
           var pasch = true
           var paschCount = 0
           // wuerfeln
           while (pasch) {
-            print("\nSpieler: " + players(i).toString + ") wuerfeln: ")
+            print("\nSpieler: " + players(amZug).toString + ") wuerfeln: ")
             val diceThrow1 = dice.throwDice
             val diceThrow2 = dice.throwDice
             val sumDiceThrow = diceThrow1 + diceThrow2
@@ -45,7 +45,7 @@ object Game {
             //3x pasch gleich jail
             if (paschCount == 3) {
               println("3x Pash -> jail")
-              players(i) = players(i).moveToJail()
+              players(amZug) = players(amZug).moveToJail
             }
             //todo if player in jail else move player
             if (false) {
@@ -53,19 +53,19 @@ object Game {
               print("todo jail")
             } else {
               // move player
-              players(i) = players(i).move(sumDiceThrow)
-              val betretenesFeld = spielBrett(players(i).getposition())
+              players(amZug) = players(amZug).move(sumDiceThrow)
+              val betretenesFeld = spielBrett(players(amZug).getposition)
               // optionen für das feld holen
               val option = betretenesFeld.onPlayerEntered() //todo type.onPlayerEntered
               println("option: " + option)
               // option ausführen
               if (option == "buy") {
                 // wer geld hat kauft die straße
-                if (players(i).getmoney() >= spielBrett(i).getPreis) {
+                if (players(amZug).getmoney >= spielBrett(amZug).getPreis) {
                   println("buy street")
-                  players(i) = players(i).decMoney(betretenesFeld.getPreis)
-                  spielBrett(players(i).getposition()) = betretenesFeld.setOwner(players(i).getname())
-                  println(players(i).getmoney())
+                  players(amZug) = players(amZug).decMoney(betretenesFeld.getPreis)
+                  spielBrett(players(amZug).getposition) = betretenesFeld.setOwner(players(amZug).getname)
+                  println(players(amZug).getmoney)
                 } else {
                   println("Can´t afford street")
                 }
@@ -76,22 +76,26 @@ object Game {
                 println("pay rent: " + rent)
 
                 // miete beim besitzer hinzufügen
-                for (j <- 0 until playerCount) {
-                  if (players(j).getname == betretenesFeld.getOwner) {
-                    if (players(j).getmoney() >= 0) {
-                      // betrag zahlen
-                      players(i) = players(i).decMoney(rent)
-                      players(j) = players(j).incMoney(rent)
-                      // wenn bankrott straßen freigeben
-                      if (players(i).getmoney() <= 0) {
-                        for (k <- 0 to 9) {
-                          if (spielBrett(k).getOwner == players(i).getname()) spielBrett(k) = spielBrett(k).setOwner("")
-                        }
-                        // print player ausgeschieden
-                        println(players(i).getname() + " ist pleite.")
-                        //Thread.sleep(3000)
-
+                for (owner <- 0 until playerCount) {
+                  if (players(owner).getname == betretenesFeld.getOwner) {
+                    // betrag zahlen
+                    players(amZug) = players(amZug).decMoney(rent)
+                    players(owner) = players(owner).incMoney(rent)
+                    // wenn bankrott straßen an owner übergeben wenn hypotheken und verkaufen nicht geht
+                    if (players(amZug).getmoney <= 0) {
+                      //todo check hypotheken oder verkaufe straße
+                      //todo else straßen abgeben
+                      for (k <- 0 until 10) {
+                        // straßen freigeben
+                        //if (spielBrett(k).getOwner == players(amZug).getname())
+                        // spielBrett(k) = spielBrett(k).setOwner("")
+                        // strassen an spieler geben wo schulden gemacht wurden
+                        if (spielBrett(k).getOwner == players(amZug).getname)
+                          spielBrett(k) = spielBrett(k).setOwner(players(owner).getname)
                       }
+                      // print player ausgeschieden
+                      println(players(amZug).getname() + " ist pleite.")
+                      //Thread.sleep(3000)
                     }
                   }
                 }
@@ -99,7 +103,7 @@ object Game {
             }
             // zugende
             //Thread.sleep(1000) // wait for 1000 millisecond between player moves
-            println("new pos: " + players(i).getposition)
+            println("new pos: " + players(amZug).getposition)
           }
         }
       }
