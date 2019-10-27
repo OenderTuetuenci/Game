@@ -12,10 +12,10 @@ val b = d.add(5)
 42.toBinaryString
 42.toHexString
 scala.math.sqrt(9)
-val b = 5
+val bb = 5
 
-val s = "Önder Tütünci"
-s.indexOf("P")
-val t = s.splitAt(5)
+val ss = "Önder Tütünci"
+ss.indexOf("P")
+val t = ss.splitAt(5)
 var player = Player("Önder")
 player = player.move(5)
