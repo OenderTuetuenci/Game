@@ -30,10 +30,7 @@ object Game {
           var paschCount = 0
           // wuerfeln
           while (pasch) {
-            print("\nSpieler: " + players(i).getname()
-              + " (pos: " + players(i).getposition
-              + " money: " + players(i).getmoney()
-              + ") wuerfeln: ")
+            print("\nSpieler: " + players(i).toString + ") wuerfeln: ")
             val diceThrow1 = dice.throwDice
             val diceThrow2 = dice.throwDice
             val sumDiceThrow = diceThrow1 + diceThrow2
@@ -81,7 +78,7 @@ object Game {
                 // miete beim besitzer hinzufügen
                 for (j <- 0 until playerCount) {
                   if (players(j).getname == betretenesFeld.getOwner) {
-                    if (players(j).getmoney() > 0) {
+                    if (players(j).getmoney() >= 0) {
                       // betrag zahlen
                       players(i) = players(i).decMoney(rent)
                       players(j) = players(j).incMoney(rent)
