@@ -1,6 +1,6 @@
 package model
 
-case class Player(name: String, position:Int = 0,money:Int = 5000){
+case class Player(name: String, position:Int = 0,money:Int = 20000){
   override def toString: String = "name:" + name + " pos: " + position +" money: "+money
   //Moves player about x places
   def move(x:Int) : Player = {

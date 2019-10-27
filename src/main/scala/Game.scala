@@ -61,7 +61,7 @@ object Game {
               // option ausführen
               if (option == "buy") {
                 // wer geld hat kauft die straße
-                if (players(amZug).getmoney >= spielBrett(amZug).getPreis) {
+                if (players(amZug).getmoney >= spielBrett(players(amZug).getposition).getPreis) {
                   println("buy street")
                   players(amZug) = players(amZug).decMoney(betretenesFeld.getPreis)
                   spielBrett(players(amZug).getposition) = betretenesFeld.setOwner(players(amZug).getname)
