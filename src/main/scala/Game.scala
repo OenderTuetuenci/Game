@@ -94,7 +94,7 @@ object Game {
                           spielBrett(k) = spielBrett(k).setOwner(players(owner).getname)
                       }
                       // print player ausgeschieden
-                      println(players(amZug).getname() + " ist pleite.")
+                      println(players(amZug).getname + " ist pleite.")
                       //Thread.sleep(3000)
                     }
                   }
@@ -130,7 +130,7 @@ object Game {
     print("Spielende: ")
     for (player <- players)
       if (player.getmoney > 0)
-        print(player.getname() + " is the winner!")
+        print(player.getname + " is the winner!")
   }
 
   def createSpielBrett(): Array[Strasse] = {
