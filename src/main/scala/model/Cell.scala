@@ -1,6 +1,6 @@
 package model
 
-abstract class Feld(name: String,number: Int){
+abstract class Cell(name: String, number: Int){
 
   def onPlayerEntered(): String ={
     "\nplayer entered the field\n"
@@ -9,22 +9,22 @@ abstract class Feld(name: String,number: Int){
   override def toString: String = name + ' ' + number
 }
 
-case class Strasse(name: String,number: Int,price: Int,owner: String,rent: Int,home:Int) extends Feld(name,number) {
+case class Street(name: String, number: Int, price: Int, owner: String, rent: Int, home:Int) extends Cell(name,number) {
   override def onPlayerEntered(): String = {
     println("\nplayer entered " + this.name + ". owner: " + this.owner)
     if (this.owner == "") "buy"
     else "pay"
 
   }
-  def setOwner(x:String) : Strasse = Strasse(name,number,price,x,rent,home)
+  def setOwner(x:String) : Street = Street(name,number,price,x,rent,home)
   //Functions to buy or sell homes to increase rent
-  def buyHome(x:Int) : Strasse ={
+  def buyHome(x:Int) : Street ={
     val newRent = rent+(home * 200)
-    Strasse(name,number,price,owner,newRent,home+x)
+    Street(name,number,price,owner,newRent,home+x)
   }
-  def sellHome(x:Int) : Strasse={
+  def sellHome(x:Int) : Street={
     val newRent = rent-(x*200)
-    Strasse(name,number,price,owner,newRent,home-x)
+    Street(name,number,price,owner,newRent,home-x)
   }
 
   override def toString: String = {
@@ -36,7 +36,7 @@ case class Strasse(name: String,number: Int,price: Int,owner: String,rent: Int,h
 
 }
 
-case class Ereignis(name: String,number: Int) extends Feld(name,number) {
+case class Eventcell(name: String,number: Int) extends Cell(name,number) {
   override def onPlayerEntered(): String = {
     "\nplayer entered an event"
   }

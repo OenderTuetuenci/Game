@@ -1,6 +1,6 @@
 import model.Player
-import model.Strasse
-import model.Ereignis
+import model.Street
+import model.Eventcell
 import model.Dice
 import io.StdIn._
 
@@ -133,9 +133,9 @@ object Game {
         print(player.name + " is the winner!")
   }
 
-  def createSpielBrett(): Array[Strasse] = {
+  def createSpielBrett(): Array[Street] = {
     // todo array of any unterklasse of feld ??
-    val feld = Array.ofDim[Strasse](10)
+    val feld = Array.ofDim[Street](10)
 
     //    spielBrett(0) = Strasse("Strasse1",0,100,"",100)
     //    spielBrett(1) = Ereignis("Ereignis1",0)
@@ -148,16 +148,16 @@ object Game {
     //    spielBrett(8) = Strasse("Strasse9",0,100,"",100)
     //    spielBrett(9) = Ereignis("Ereignis5",0)
 
-    feld(0) = Strasse("Strasse1", 0, 100, "", 100)
-    feld(1) = Strasse("Strasse2", 0, 200, "", 200)
-    feld(2) = Strasse("Strasse3", 0, 500, "", 300)
-    feld(3) = Strasse("Strasse4", 0, 750, "", 450)
-    feld(4) = Strasse("Strasse5", 0, 1000, "", 500)
-    feld(5) = Strasse("Strasse6", 0, 1500, "", 800)
-    feld(6) = Strasse("Strasse7", 0, 2000, "", 1000)
-    feld(7) = Strasse("Strasse8", 0, 2500, "", 2500)
-    feld(8) = Strasse("Strasse9", 0, 3000, "", 3000)
-    feld(9) = Strasse("Strasse10", 0, 4000, "", 4000)
+    feld(0) = Street("Strasse1", 0, 100, "", 100,0)
+    feld(1) = Street("Strasse2", 0, 200, "", 200,0)
+    feld(2) = Street("Strasse3", 0, 500, "", 300,0)
+    feld(3) = Street("Strasse4", 0, 750, "", 450,0)
+    feld(4) = Street("Strasse5", 0, 1000, "", 500,0)
+    feld(5) = Street("Strasse6", 0, 1500, "", 800,0)
+    feld(6) = Street("Strasse7", 0, 2000, "", 1000,0)
+    feld(7) = Street("Strasse8", 0, 2500, "", 2500,0)
+    feld(8) = Street("Strasse9", 0, 3000, "", 3000,0)
+    feld(9) = Street("Strasse10", 0, 4000, "", 4000,0)
 
     feld
   }
