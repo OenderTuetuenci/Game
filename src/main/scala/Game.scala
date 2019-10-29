@@ -56,8 +56,9 @@ object Game {
               players(amZug) = players(amZug).move(sumDiceThrow)
               val betretenesFeld = spielBrett(players(amZug).position)
               // optionen für das feld holen
-              val option = betretenesFeld.onPlayerEntered() //todo type.onPlayerEntered
+              val option = betretenesFeld.onPlayerEntered(players(amZug)) //todo type.onPlayerEntered
               println("option: " + option)
+
               // option ausführen
               if (option == "buy") {
                 // wer geld hat kauft die straße
@@ -99,6 +100,10 @@ object Game {
                     }
                   }
                 }
+              }
+              else if(option == "buy home"){
+                players(amZug).decMoney(200)
+                spielBrett(players(amZug).position) = spielBrett(players(amZug).position).buyHome(1)
               }
             }
             // zugende

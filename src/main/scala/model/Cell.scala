@@ -2,7 +2,7 @@ package model
 
 abstract class Cell(name: String, number: Int){
 
-  def onPlayerEntered(): String ={
+  def onPlayerEntered(x:Player): String ={
     "\nplayer entered the field\n"
   }
 
@@ -10,9 +10,10 @@ abstract class Cell(name: String, number: Int){
 }
 
 case class Street(name: String, number: Int, price: Int, owner: String, rent: Int, home:Int) extends Cell(name,number) {
-  override def onPlayerEntered(): String = {
+  override def onPlayerEntered(x:Player): String = {
     println("\nplayer entered " + this.name + ". owner: " + this.owner)
     if (this.owner == "") "buy"
+    else if(this.owner == x.name) "buy home"
     else "pay"
 
   }
@@ -37,7 +38,7 @@ case class Street(name: String, number: Int, price: Int, owner: String, rent: In
 }
 
 case class Eventcell(name: String,number: Int) extends Cell(name,number) {
-  override def onPlayerEntered(): String = {
+  override def onPlayerEntered(x:Player): String = {
     "\nplayer entered an event"
   }
 
