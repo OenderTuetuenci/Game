@@ -164,7 +164,7 @@ object Game {
 
   def createPlayers(n: Int): Array[Player] = {
     val feld = Array.ofDim[Player](n)
-    // spieler mit namen einlesen
+    // spieler mit namen einlesens
     for (i <- 0 until n) {
       println("Enter name player" + (i + 1) + ":")
       feld(i) = Player(readLine())
