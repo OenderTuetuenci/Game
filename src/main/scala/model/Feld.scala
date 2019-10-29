@@ -9,24 +9,17 @@ abstract class Feld(name: String,number: Int){
   override def toString: String = name + ' ' + number
 }
 
-case class Strasse(name: String,number: Int,preis: Int,besitzer: String,miete: Int) extends Feld(name,number) {
+case class Strasse(name: String,number: Int,price: Int,owner: String,rent: Int) extends Feld(name,number) {
   override def onPlayerEntered(): String = {
-    println("\nplayer entered " + this.name + ". owner: " + this.besitzer)
-    if (this.besitzer == "") "buy"
+    println("\nplayer entered " + this.name + ". owner: " + this.owner)
+    if (this.owner == "") "buy"
     else "pay"
 
   }
-
-  def getPreis: Int = preis
-
-  def getMiete: Int = miete
-
-  def getOwner: String = besitzer
-
-  def setOwner(x:String) : Strasse = Strasse(name,number,preis,x,miete)
+  def setOwner(x:String) : Strasse = Strasse(name,number,price,x,rent)
 
   override def toString: String = {
-    name + ' ' + number + ' ' + preis + ' ' + miete + " Owner: " + besitzer
+    name + ' ' + number + ' ' + price + ' ' + rent + " Owner: " + owner
   }
 
 }

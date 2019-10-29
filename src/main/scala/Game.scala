@@ -24,7 +24,7 @@ object Game {
       println("\nRunde " + runde + " beginnt!\n")
       for (amZug <- 0 until playerCount) {
         // jeder der noch geld hat darf wuerfeln
-        if (players(amZug).getmoney > 0) {
+        if (players(amZug).money > 0) {
           // init pasch
           var pasch = true
           var paschCount = 0
@@ -54,35 +54,35 @@ object Game {
             } else {
               // move player
               players(amZug) = players(amZug).move(sumDiceThrow)
-              val betretenesFeld = spielBrett(players(amZug).getposition)
+              val betretenesFeld = spielBrett(players(amZug).position)
               // optionen für das feld holen
               val option = betretenesFeld.onPlayerEntered() //todo type.onPlayerEntered
               println("option: " + option)
               // option ausführen
               if (option == "buy") {
                 // wer geld hat kauft die straße
-                if (players(amZug).getmoney >= spielBrett(players(amZug).getposition).getPreis) {
+                if (players(amZug).money >= spielBrett(players(amZug).position).price) {
                   println("buy street")
-                  players(amZug) = players(amZug).decMoney(betretenesFeld.getPreis)
-                  spielBrett(players(amZug).getposition) = betretenesFeld.setOwner(players(amZug).getname)
-                  println(players(amZug).getmoney)
+                  players(amZug) = players(amZug).decMoney(betretenesFeld.price)
+                  spielBrett(players(amZug).position) = betretenesFeld.setOwner(players(amZug).name)
+                  println(players(amZug).money)
                 } else {
                   println("Can´t afford street")
                 }
               //ansonsten miete zahlen
               } else if (option == "pay") {
                 // mietpreis holen
-                val rent = betretenesFeld.getMiete
+                val rent = betretenesFeld.rent
                 println("pay rent: " + rent)
 
                 // miete beim besitzer hinzufügen
                 for (owner <- 0 until playerCount) {
-                  if (players(owner).getname == betretenesFeld.getOwner) {
+                  if (players(owner).name == betretenesFeld.owner) {
                     // betrag zahlen
                     players(amZug) = players(amZug).decMoney(rent)
                     players(owner) = players(owner).incMoney(rent)
                     // wenn bankrott straßen an owner übergeben wenn hypotheken und verkaufen nicht geht
-                    if (players(amZug).getmoney <= 0) {
+                    if (players(amZug).money <= 0) {
                       //todo check hypotheken oder verkaufe straße
                       //todo else straßen abgeben
                       for (k <- 0 until 10) {
@@ -90,11 +90,11 @@ object Game {
                         //if (spielBrett(k).getOwner == players(amZug).getname())
                         // spielBrett(k) = spielBrett(k).setOwner("")
                         // strassen an spieler geben wo schulden gemacht wurden
-                        if (spielBrett(k).getOwner == players(amZug).getname)
-                          spielBrett(k) = spielBrett(k).setOwner(players(owner).getname)
+                        if (spielBrett(k).owner == players(amZug).name)
+                          spielBrett(k) = spielBrett(k).setOwner(players(owner).name)
                       }
                       // print player ausgeschieden
-                      println(players(amZug).getname + " ist pleite.")
+                      println(players(amZug).name + " ist pleite.")
                       //Thread.sleep(3000)
                     }
                   }
@@ -103,7 +103,7 @@ object Game {
             }
             // zugende
             //Thread.sleep(1000) // wait for 1000 millisecond between player moves
-            println("new pos: " + players(amZug).getposition)
+            println("new pos: " + players(amZug).position)
           }
         }
       }
@@ -120,7 +120,7 @@ object Game {
       // Spielende abfragen
       var playersWithMoney = playerCount
       for (i <- 0 until playerCount) {
-        if (players(i).getmoney <= 0)
+        if (players(i).money <= 0)
           playersWithMoney -= 1
       }
       if (playersWithMoney <= 1)
@@ -129,8 +129,8 @@ object Game {
     // print winner
     print("Spielende: ")
     for (player <- players)
-      if (player.getmoney > 0)
-        print(player.getname + " is the winner!")
+      if (player.money > 0)
+        print(player.name + " is the winner!")
   }
 
   def createSpielBrett(): Array[Strasse] = {
