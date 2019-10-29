@@ -23,6 +23,13 @@ class PlayerTest extends WordSpec with Matchers {
         player.position should be(5)
       }
     }
+    "set to a new name" should{
+      val player = Player("Name")
+      val player2 = player.setname("Önder")
+      "return new name" in{
+        player2.name should be ("Önder")
+      }
+    }
     "gains or loses money" should{
       val player = Player("Name")
       val player2 = player.incMoney(500)
