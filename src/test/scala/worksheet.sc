@@ -20,3 +20,14 @@ val t = ss.splitAt(5)
 var player = Player("Önder")
 player = player.move(5)
 println(player)
+
+class test{
+
+}
+class test2(name:String) extends test{
+  def getName : String = name
+}
+
+val array = new Array[test](3)
+array(0) = new test2("hallo")
+println(array(0))

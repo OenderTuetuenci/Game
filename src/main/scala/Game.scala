@@ -1,18 +1,18 @@
-import model.Player
-import model.Street
-import model.Eventcell
-import model.Dice
+import model.{Cell, Dice, Eventcell, Player, Street}
+
 import io.StdIn._
 
 object Game {
+  //spielBrett erstellen
+  val spielBrett:Array[Cell] = createSpielBrett()
+  var players:Array[Player] = createPlayers(0)
+
   def main(args: Array[String]): Unit = {
-    // spielBrett erstellen
-    val spielBrett = createSpielBrett()
 
     // spieleranzahl und namen einlesen
     print("wie viele spieler? : ")
     val playerCount = readInt()
-    val players = createPlayers(playerCount)
+    players = createPlayers(playerCount)
 
     // init game
     val dice = Dice()
@@ -55,55 +55,10 @@ object Game {
               // move player
               players(amZug) = players(amZug).move(sumDiceThrow)
               val betretenesFeld = spielBrett(players(amZug).position)
-              // optionen für das feld holen
-              val option = betretenesFeld.onPlayerEntered(players(amZug)) //todo type.onPlayerEntered
-              println("option: " + option)
-
-              // option ausführen
-              if (option == "buy") {
-                // wer geld hat kauft die straße
-                if (players(amZug).money >= spielBrett(players(amZug).position).price) {
-                  println("buy street")
-                  players(amZug) = players(amZug).decMoney(betretenesFeld.price)
-                  spielBrett(players(amZug).position) = betretenesFeld.setOwner(players(amZug).name)
-                  println(players(amZug).money)
-                } else {
-                  println("Can´t afford street")
-                }
-              //ansonsten miete zahlen
-              } else if (option == "pay") {
-                // mietpreis holen
-                val rent = betretenesFeld.rent
-                println("pay rent: " + rent)
-
-                // miete beim besitzer hinzufügen
-                for (owner <- 0 until playerCount) {
-                  if (players(owner).name == betretenesFeld.owner) {
-                    // betrag zahlen
-                    players(amZug) = players(amZug).decMoney(rent)
-                    players(owner) = players(owner).incMoney(rent)
-                    // wenn bankrott straßen an owner übergeben wenn hypotheken und verkaufen nicht geht
-                    if (players(amZug).money <= 0) {
-                      //todo check hypotheken oder verkaufe straße
-                      //todo else straßen abgeben
-                      for (k <- 0 until 10) {
-                        // straßen freigeben
-                        //if (spielBrett(k).getOwner == players(amZug).getname())
-                        // spielBrett(k) = spielBrett(k).setOwner("")
-                        // strassen an spieler geben wo schulden gemacht wurden
-                        if (spielBrett(k).owner == players(amZug).name)
-                          spielBrett(k) = spielBrett(k).setOwner(players(owner).name)
-                      }
-                      // print player ausgeschieden
-                      println(players(amZug).name + " ist pleite.")
-                      //Thread.sleep(3000)
-                    }
-                  }
-                }
-              }
-              else if(option == "buy home"){
-                players(amZug).decMoney(200)
-                spielBrett(players(amZug).position) = spielBrett(players(amZug).position).buyHome(1)
+              betretenesFeld match {
+                case s:Street => activateStreet(players(amZug).position,amZug)
+                //case e:Eventcell => activateEvent()
+                case _ =>
               }
             }
             // zugende
@@ -118,7 +73,13 @@ object Game {
       println("\nSpieler: ")
       for (player <- players) println(player.toString)
       println("\nStraßen: ")
-      for (strasse <- spielBrett) println(strasse.toString)
+      for(i <- spielBrett.indices){
+        spielBrett(i) match {
+          case s:Street if s.owner != -1 => println(s.toString + " Owner: "+players(s.owner).name)
+          case e:Eventcell => println(e.toString)
+          case _ =>
+        }
+      }
 
       Thread.sleep(1000) // wait for 1000 millisecond between rounds
 
@@ -137,34 +98,69 @@ object Game {
       if (player.money > 0)
         print(player.name + " is the winner!")
   }
+  def activateStreet(streetNR:Int, playerNR: Int) : Unit = {
+    //Hilfsvariablen
+    val street = spielBrett(streetNR).asInstanceOf[Street]
 
-  def createSpielBrett(): Array[Street] = {
-    // todo array of any unterklasse of feld ??
-    val feld = Array.ofDim[Street](10)
+    val option = spielBrett(streetNR).onPlayerEntered(playerNR)
+    println("option: " + option)
 
-    //    spielBrett(0) = Strasse("Strasse1",0,100,"",100)
-    //    spielBrett(1) = Ereignis("Ereignis1",0)
-    //    spielBrett(2) = Strasse("Strasse3",0,100,"",100)
-    //    spielBrett(3) = Ereignis("Ereignis2",0)
-    //    spielBrett(4) = Strasse("Strasse5",0,100,"",100)
-    //    spielBrett(5) = Ereignis("Ereignis3",0)
-    //    spielBrett(6) = Strasse("Strasse7",0,100,"",100)
-    //    spielBrett(7) = Ereignis("Ereignis4",0)
-    //    spielBrett(8) = Strasse("Strasse9",0,100,"",100)
-    //    spielBrett(9) = Ereignis("Ereignis5",0)
+    if (option == "buy") {
+      // wer geld hat kauft die straße
+      if (players(playerNR).money >= street.price) {
+        println("buy street")
+        players(playerNR) = players(playerNR).decMoney(street.price)
+        spielBrett(streetNR) = street.setOwner(playerNR)
+        println(players(playerNR).money)
+      } else {
+        println("Can´t afford street")
+      }
+      //ansonsten miete zahlen
+    } else if (option == "pay") {
+      // mietpreis holen
+      val rent = street.rent
+      println("pay rent: " + rent)
+      //miete abziehen
+      players(playerNR) = players(playerNR).decMoney(rent)
+      players(street.owner) = players(street.owner).incMoney(rent)
 
-    feld(0) = Street("Strasse1", 0, 100, "", 100,0)
-    feld(1) = Street("Strasse2", 0, 200, "", 200,0)
-    feld(2) = Street("Strasse3", 0, 500, "", 300,0)
-    feld(3) = Street("Strasse4", 0, 750, "", 450,0)
-    feld(4) = Street("Strasse5", 0, 1000, "", 500,0)
-    feld(5) = Street("Strasse6", 0, 1500, "", 800,0)
-    feld(6) = Street("Strasse7", 0, 2000, "", 1000,0)
-    feld(7) = Street("Strasse8", 0, 2500, "", 2500,0)
-    feld(8) = Street("Strasse9", 0, 3000, "", 3000,0)
-    feld(9) = Street("Strasse10", 0, 4000, "", 4000,0)
+      if (players(playerNR).money <= 0) {
+        //todo check hypotheken oder verkaufe straße
+        //todo else straßen abgebe// todo array of any unterklasse of feld ??n
+        //Straßen an Besitzer abgeben
+        for (k <- spielBrett.indices) {
+          spielBrett(k) match {
+            case s: Street => spielBrett(k) = spielBrett(k).asInstanceOf[Street].setOwner(street.owner)
+            //case e:Eventcell =>
+            case _ =>
+          }
+        }
+        println(players(playerNR).name + " ist pleite")
+      }
+    }else if(option == "buy home"){
+      if(players(playerNR).money > 200)
+        players(playerNR).decMoney(200)
+      spielBrett(streetNR) = spielBrett(streetNR).asInstanceOf[Street].buyHome(1)
+    }
+  }
 
-    feld
+
+  def createSpielBrett(): Array[Cell] = {
+    val spielBrett = new Array[Cell](11)
+
+    spielBrett(0) = Street("Strasse1", 0, 100, -1, 100,0)
+    spielBrett(1) = Street("Strasse2", 0, 200, -1, 200,0)
+    spielBrett(2) = Street("Strasse3", 0, 500, -1, 300,0)
+    spielBrett(3) = Street("Strasse4", 0, 750, -1, 450,0)
+    spielBrett(4) = Street("Strasse5", 0, 1000, -1, 500,0)
+    spielBrett(5) = Street("Strasse6", 0, 1500, -1, 800,0)
+    spielBrett(6) = Street("Strasse7", 0, 2000, -1, 1000,0)
+    spielBrett(7) = Street("Strasse8", 0, 2500, -1, 2500,0)
+    spielBrett(8) = Street("Strasse9", 0, 3000, -1, 3000,0)
+    spielBrett(9) = Street("Strasse10", 0, 4000, -1, 4000,0)
+    spielBrett(10) = Eventcell("Ereignis1",0)
+
+    spielBrett
   }
 
   def createPlayers(n: Int): Array[Player] = {
