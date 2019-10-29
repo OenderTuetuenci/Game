@@ -127,7 +127,7 @@ object Game {
       if (players(playerNR).money <= 0) {
         //todo check hypotheken oder verkaufe straße
         //todo else straßen abgebe// todo array of any unterklasse of feld ??n
-        //Straßen an Besitzer abgeben
+        //Straßen an Besitzer abgebenx
         for (k <- spielBrett.indices) {
           spielBrett(k) match {
             case s: Street => spielBrett(k) = spielBrett(k).asInstanceOf[Street].setOwner(street.owner)
