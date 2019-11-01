@@ -5,7 +5,7 @@ case class Player(name: String, position:Int = 0,money:Int = 20000){
   //Moves player about x places
   def move(x:Int) : Player = {
     var pos = this.position + x
-    while (pos >= 10) pos -= 10
+    while (pos >= 40) pos -= 40
     Player(name,pos,money)
   }
   def setname(x:String) : Player = Player(x,position,money)

@@ -13,8 +13,8 @@ class DiceTest extends WordSpec with Matchers{
   }
     "can check" should {
       val dice = Dice()
-      val x = dice.throwDice(1)
-      val z = dice.throwDice(2)
+      val x = dice.throwDice
+      val z = dice.throwDice
       "if it has a Pash with another Dice" in{
         dice.checkPash(x,x) should be (true)
         dice.checkPash(x,z) should be (false)
