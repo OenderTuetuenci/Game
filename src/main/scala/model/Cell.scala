@@ -47,6 +47,7 @@ case class Eventcell(name: String, group: Int) extends Cell(name, group) {
   }
 }
 
+
 case class CommunityChest(name: String, group: Int) extends Cell(name, group) {
   override def onPlayerEntered(enteredPlayer: Int): String = {
     println("\nplayer entered CommunityChest")
@@ -80,32 +81,12 @@ case class Elektrizitaetswerk(name: String, group: Int,price: Int, owner: Int, r
 }
 
 
-case class SouthTrainstation(name: String,group: Int,price: Int, owner: Int, rent: Int) extends Cell(name,group) {
+case class Trainstation(name: String,group: Int,price: Int, owner: Int, rent: Int) extends Cell(name,group) {
   override def onPlayerEntered(enteredPlayer: Int): String = {
-    println("\nplayer entered SouthTrainstation")
+    println("\nplayer entered " + name)
     "\nplayer entered SouthTrainstation"
   }
-}
-
-case class WestTrainstation(name: String,group: Int,price: Int, owner: Int, rent: Int) extends Cell(name, group) {
-  override def onPlayerEntered(enteredPlayer: Int): String = {
-    println("\nplayer entered WestTrainstation")
-    "\nplayer entered WestTrainstation"
-  }
-}
-
-case class NorthTrainstation(name: String,group: Int,price: Int, owner: Int, rent: Int) extends Cell(name, group) {
-  override def onPlayerEntered(enteredPlayer: Int): String = {
-    println("\nplayer entered NorthTrainstation")
-    "\nplayer entered NorthTrainstation"
-  }
-}
-
-case class MainTrainstation(name: String,group: Int,price: Int, owner: Int, rent: Int) extends Cell(name, group) {
-  override def onPlayerEntered(enteredPlayer: Int): String = {
-    println("\nplayer entered MainTrainstation")
-    "\nplayer entered MainTrainstation"
-  }
+  def setOwner(x:Int) : Trainstation = Trainstation(name,group,price,x,rent)
 }
 
 case class Los(name: String, group: Int) extends Cell(name, group) {
