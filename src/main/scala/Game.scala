@@ -3,13 +3,13 @@ import model._
 import io.StdIn._
 
 
-class Gamelogic {
+class Game {
     //spielBrett erstellen
     val spielBrett: Array[Cell] = createSpielBrett
     var playerCount = 0
     var players: Array[Player] = getPlayers
     var amzug = 0 // aktueller spieler
-    val dice = Dice()
+    val dice = Dice() // todo
     var runde = 1
 
     def createSpielBrett: Array[Cell] = {
@@ -67,11 +67,12 @@ class Gamelogic {
         print("wie viele spieler? : ")
         playerCount = readInt()
         val feld = Array.ofDim[Player](playerCount)
-        // spieler mit namen einlesens
+        // spieler mit namen einlesensr
         for (i <- 0 until playerCount) {
             println("Enter name player" + (i + 1) + ":")
             feld(i) = Player(readLine())
         }
+        // todo alle spieler dürfen für reihenfolge würfeln
         feld
     }
 
@@ -80,11 +81,16 @@ class Gamelogic {
             println("\nRunde " + runde + " beginnt!\n")
             for (i <- 0 until playerCount) {
                 amzug = i
-                // jeder der noch geld hat darf wuerfeln
+                // jeder der noch geld hat darf seinen zug ausfuehren
                 if (players(amzug).money > 0) {
-                    // Todo handeln haeuser bauen strassen verkaufen etc vor dem wuerfeln
-                    wuerfeln
-                    // auch noch nach dem wuerfeln handeln etc
+                    println("\nSpieler: " + players(amzug).toString + " ist am zug!")
+                    // schauen ob spieler frei oder im jail ist
+                    if (players(amzug).jailCount > -1) playerInJail //todo kann man im jail traden?
+                    else {
+                        // Todo handeln, strassen verkaufen,hypothek bezahlen etc vor dem wuerfeln
+                        normalerZug
+                        // todo falls der spieler nicht pleite geht und nicht im jail landet darf er noch handeln
+                    }
                     // zugende
                     //Thread.sleep(1000) // wait for 1000 millisecond between player moves
                 }
@@ -94,7 +100,7 @@ class Gamelogic {
             printPlayersAndStreets
             runde += 1
             Thread.sleep(1000) // wait for 1000 millisecond between rounds
-        } while (!gameOver)
+        } while (!gameOver) // Spielende abfragen
         printWinner
     }
 
@@ -103,7 +109,7 @@ class Gamelogic {
         for (player <- players) println(player.toString)
         println("\nStraßen: ")
         for (i <- spielBrett.indices) {
-            spielBrett(i) match {
+            spielBrett(i) match { // todo komplettes spielfeld iwi ausgeben
                 case s: Street if s.owner != -1 => println(s.toString + " Owner: " + players(s.owner).name)
                 case s: Trainstation if s.owner != -1 => println(s.toString + " Owner: " + players(s.owner).name)
                 case s: Elektrizitaetswerk if s.owner != -1 => println(s.toString + " Owner: " + players(s.owner).name)
@@ -122,7 +128,6 @@ class Gamelogic {
     }
 
     def gameOver: Boolean = {
-        // Spielende abfragen
         var playersWithMoney = playerCount
         for (i <- 0 until playerCount) {
             print(players(i).money)
@@ -133,35 +138,73 @@ class Gamelogic {
         false
     }
 
-    def wuerfeln: Unit = {
+    def wuerfeln: (Int, Int, Boolean) = {
+        print("wuerfeln: ")
+        val diceThrow1 = dice.throwDice
+        val diceThrow2 = dice.throwDice
+        var pasch = false
+        println("Gewuerfelt: " + diceThrow1 + " " + diceThrow2)
+        // schauen ob pasch gewuerfelt wurde
+        if (dice.checkPash(diceThrow1, diceThrow2)) pasch = true
+        (diceThrow1, diceThrow2, pasch)
+    }
+
+    def normalerZug: Unit = {
         // init pasch
         var pasch = true
         var paschCount = 0
         // wuerfeln
         while (pasch) {
-            print("\nSpieler: " + players(amzug).toString + ") wuerfeln: ")
-            val diceThrow1 = dice.throwDice
-            val diceThrow2 = dice.throwDice
-            println("Gewuerfelt: " + diceThrow1 + " " + diceThrow2)
-            // schauen ob pasch gewuerfelt wurde
-            if (dice.checkPash(diceThrow1, diceThrow2)) {
-                println("Pasch")
-                paschCount += 1
-            } else {
-                pasch = false
-            }
-            //3x pasch gleich jail
+            val throwDices = wuerfeln // 1 = wurf1, 2 = wurf 2, 3 = pasch
+            if (throwDices._3) paschCount += 1
+            else pasch = false
+            //3x pasch gleich jail sonst move player
             if (paschCount == 3) {
                 println("3x Pash -> jail")
                 players(amzug) = players(amzug).moveToJail
-            }
-            //todo if player in jail else move player
-            if (false) {
-                //todo direkt freikaufen wenns geht oder würfeln für pasch oder jailcount3 oder freikarte
-                // player is in jail
-                print("todo jail")
+            } else movePlayer(throwDices._1 + throwDices._2)
+        }
+    }
+
+    def playerInJail: Unit = {
+        print("player is in jail")
+        print("Jailcount: " + (players(amzug).jailCount + 1))
+        print("options for jail: buyOut, useCard, rollDice")
+        //var options = "buyOut useCard rollDice"
+
+        val option = "rollDice" // todo options holen
+        // Folgende optionen: man kann 200 zahlen...
+        if (option == "buyOut") {
+            players(amzug) = players(amzug).decMoney(200)
+            checkMoney(-1) // owner = bank
+            players(amzug) = players(amzug).resetJailCount
+            print("player is free again")
+            normalerZug
+        }
+        // ...die freikarte benutzen....
+        if (option == "useCard") {
+            print("player is free again")
+            normalerZug
+        }
+        // ...oder pasch wuerfeln.
+        if (option == "rollDice") {
+            val throwDices = wuerfeln
+            if (throwDices._3) {
+                // bei gewuerfelten pasch kommt man raus und moved
+                players(amzug) = players(amzug).resetJailCount
+                print("player is free again")
+                movePlayer(throwDices._1 + throwDices._2)
             } else {
-                movePlayer(diceThrow1 + diceThrow2)
+                //sonst jailcount +1
+                players(amzug) = players(amzug).incJailTime
+                // wenn man 3 runden im jail ist kommt man raus, zahlt und moved
+                if (players(amzug).jailCount == 3) {
+                    players(amzug) = players(amzug).resetJailCount
+                    players(amzug) = players(amzug).decMoney(200)
+                    checkMoney(-1) // owner is bank
+                    print("player is free again")
+                    movePlayer(throwDices._1 + throwDices._2)
+                } else print("player remains in jail")
             }
         }
     }
@@ -170,7 +213,7 @@ class Gamelogic {
         // spieler bewegen
         players(amzug) = players(amzug).move(sumDiceThrow)
         println("new pos: " + players(amzug).position)
-        // schauen ob auf oder über los gegangen
+        // schauen ob über los gegangen
         if (players(amzug).position >= 40) {
             players(amzug) = players(amzug).incMoney(200)
             players(amzug) = players(amzug).moveBack(40)
@@ -195,101 +238,157 @@ class Gamelogic {
         }
     }
 
-    def activateStreet(field :Street): Unit = {
+    // activate street
+
+    def activateStreet(field: Street): Unit = {
         val option = field.onPlayerEntered(amzug)
         println("option: " + option)
         if (option == "buy") {
             // wer geld hat kauft die straße
-            if (players(amzug).money >= field.price) {
-                println("buy street")
-                players(amzug) = players(amzug).decMoney(field.price)
-                spielBrett(players(amzug).position) = field.setOwner(amzug)
-                println(players(amzug).money)
-            } else {
-                println("Can´t afford street")
-            }
+            buyStreet(field)
             //ansonsten miete zahlen
         } else if (option == "pay") {
-            // mietpreis holen
-            val rent = field.rent
-            println("pay rent: " + rent)
-            //miete abziehen
-            players(amzug) = players(amzug).decMoney(rent)
-            players(field.owner) = players(field.owner).incMoney(rent)
-
-            if (players(amzug).money <= 0) {
-
-//todo          // hotels haeuser hypothek dann straßen verkaufen bis uber 0
-                // wenn immernoch pleite dann game over
-                if (players(amzug).money <= 0) {
-                    //Straßen an Besitzer abgeben
-                    for (k <- spielBrett.indices) {
-                        spielBrett(k) match {
-                            case s: Street => spielBrett(k) = spielBrett(k).asInstanceOf[Street].setOwner(field.owner)
-                            case s: Trainstation => spielBrett(k) = spielBrett(k).asInstanceOf[Trainstation].setOwner(field.owner)
-                            //case e:Eventcell =>
-                            case _ =>
-                        }
-                    }
-                    println(players(amzug).name + " ist pleite")
-                }
-            }
+            payRent(field)
         } else if (option == "buy home") {
-            if (players(amzug).money > 200)
-                players(amzug).decMoney(200)
-            // todo if player owns group of streets buy house
-            // todo if housecount = street.maxhouses buy hotel
-            spielBrett(players(amzug).position) = spielBrett(players(amzug).position).asInstanceOf[Street].buyHome(1)
+            buyHome(field)
         }
     }
-    def activateStart(field :Los): Unit = {
+
+    def buyStreet(field: Street): Unit = {
+        if (players(amzug).money >= field.price) {
+            println("buy street")
+            players(amzug) = players(amzug).decMoney(field.price)
+            spielBrett(players(amzug).position) = field.setOwner(amzug)
+            println(players(amzug).money)
+        } else {
+            println("Can´t afford street")
+        }
+    }
+
+    def buyHome(field: Street): Unit = {
+        if (players(amzug).money > 200)
+            players(amzug).decMoney(200)
+        // todo if player owns group of streets buy house
+        // todo if housecount = street.maxhouses buy hotel
+        spielBrett(players(amzug).position) = spielBrett(players(amzug).position).asInstanceOf[Street].buyHome(1)
+    }
+
+    def payRent(field: Street): Unit = {
+        // mietpreis holen
+        val rent = field.rent
+        println("pay rent: " + rent)
+        //miete abziehen
+        players(amzug) = players(amzug).decMoney(rent)
+        players(field.owner) = players(field.owner).incMoney(rent)
+        // schauen ob player ins minus gekommen ist
+        checkMoney(field.owner)
+    }
+
+    def checkMoney(owner: Int): Unit = {
+        if (players(amzug).money <= 0) {
+            //todo          // hotels haeuser hypothek dann straßen verkaufen bis uber 0
+            println("Spieler ist im minus: " + players(amzug).money)
+            for (i <- spielBrett.indices) {
+                spielBrett(i) match {
+                    // besitz suchen und verkaufen bis über 0
+                    //todo straßen, karten, ... verkaufen, später an spieler oder bank
+                    case s: Street =>
+                        // an bank verkaufen
+                        if (spielBrett(i).asInstanceOf[Street].owner == amzug) {
+                            spielBrett(i) = spielBrett(i).asInstanceOf[Street].setOwner(-1)
+                            players(amzug) = players(amzug).incMoney(s.price)
+                            println(players(amzug).name + " verkaufte: " + spielBrett(i).asInstanceOf[Street].name + " an die Bank")
+                            println("neuer kontostand: " + players(amzug).money)
+                        }
+                    case s: Trainstation =>
+                        if (spielBrett(i).asInstanceOf[Trainstation].owner == amzug) {
+                            // an bank verkaufen
+                            spielBrett(i) = spielBrett(i).asInstanceOf[Trainstation].setOwner(-1)
+                            players(amzug) = players(amzug).incMoney(s.price)
+                            println(players(amzug).name + " verkaufte: " + spielBrett(i).asInstanceOf[Trainstation].name + " an die Bank")
+                            println("neuer kontostand: " + players(amzug).money)
+                        }
+                    case _ =>
+                }
+            }
+            // wenn immernoch pleite dann game over oder todo "declare bankrupt" später
+            if (players(amzug).money <= 0) {
+                playerGameOver(owner)
+            }
+        }
+    }
+
+    def playerGameOver(owner: Int): Unit = {
+        //Straßen an Besitzer oder bank abgeben (je nachdem wer owner ist)
+        for (i <- spielBrett.indices) {
+            spielBrett(i) match {
+                //todo bahnhöfe, karten,
+                case s: Street =>
+                    if (spielBrett(i).asInstanceOf[Street].owner == amzug) {
+                        spielBrett(i) = spielBrett(i).asInstanceOf[Street].setOwner(owner)
+                        println(players(amzug).name + " gab: " + spielBrett(i).asInstanceOf[Street].name + " an " + owner)
+                    }
+                case s: Trainstation =>
+                    if (spielBrett(i).asInstanceOf[Trainstation].owner == amzug) {
+                        spielBrett(i) = spielBrett(i).asInstanceOf[Trainstation].setOwner(owner)
+                        println(players(amzug).name + " gab: " + spielBrett(i).asInstanceOf[Street].name + " an " + owner)
+                    }
+                //case e:Eventcell =>
+                case _ =>
+            }
+        }
+        println(players(amzug).name + " ist pleite")
+    }
+
+    // todo activate the different fields
+
+    def activateStart(field: Los): Unit = {
         field.onPlayerEntered(amzug)
         players(amzug) = players(amzug).incMoney(200)
     }
 
-    def activateEvent(field :Eventcell): Unit = {
+    def activateEvent(field: Eventcell): Unit = {
         field.onPlayerEntered(amzug)
     }
 
-    def activateJail(field :Jail): Unit = {
+    def activateJail(field: Jail): Unit = {
+        field.onPlayerEntered(amzug)
+        players(amzug).moveToJail
+    }
+
+    def activateGoToJail(field: GoToJail): Unit = {
         field.onPlayerEntered(amzug)
     }
 
-    def activateGoToJail(field :GoToJail): Unit = {
+    def activateFreiParken(field: FreiParken): Unit = {
         field.onPlayerEntered(amzug)
     }
 
-    def activateFreiParken(field :FreiParken): Unit = {
+    def activateCommunityChest(field: CommunityChest): Unit = {
         field.onPlayerEntered(amzug)
     }
 
-    def activateCommunityChest(field :CommunityChest): Unit = {
+    def activateIncomeTax(field: IncomeTax): Unit = {
         field.onPlayerEntered(amzug)
     }
 
-    def activateIncomeTax(field :IncomeTax): Unit = {
+    def activateJailVisit(field: JailVisit): Unit = {
         field.onPlayerEntered(amzug)
     }
 
-    def activateJailVisit(field :JailVisit): Unit = {
+    def activateElektrizitaetswerk(field: Elektrizitaetswerk): Unit = {
         field.onPlayerEntered(amzug)
     }
 
-    def activateElektrizitaetswerk(field :Elektrizitaetswerk): Unit = {
+    def activateTrainstation(field: Trainstation): Unit = {
         field.onPlayerEntered(amzug)
     }
 
-
-
-    def activateTrainstation(field :Trainstation): Unit = {
+    def activateWasserwerk(field: Wasserwerk): Unit = {
         field.onPlayerEntered(amzug)
     }
 
-    def activateWasserwerk(field :Wasserwerk): Unit = {
-        field.onPlayerEntered(amzug)
-    }
-
-    def activateZusatzsteuer(field :Zusatzsteuer): Unit = {
+    def activateZusatzsteuer(field: Zusatzsteuer): Unit = {
         field.onPlayerEntered(amzug)
     }
 }
@@ -297,7 +396,7 @@ class Gamelogic {
 
 object Game {
     def main(args: Array[String]): Unit = {
-        new Gamelogic().run // Companion Class
+        new Game().run // Companion Class
     }
 
 }
