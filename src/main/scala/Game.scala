@@ -81,28 +81,40 @@ class Gamelogic {
             for (i <- 0 until playerCount) {
                 amzug = i
                 // jeder der noch geld hat darf wuerfeln
-                if (players(amzug).money > 0) wuerfeln
+                if (players(amzug).money > 0) {
+                    // Todo handeln haeuser bauen strassen verkaufen etc vor dem wuerfeln
+                    wuerfeln
+                    // auch noch nach dem wuerfeln handeln etc
+                    // zugende
+                    //Thread.sleep(1000) // wait for 1000 millisecond between player moves
+                }
             }
             // Rundenende
             println("\n\nRunde " + runde + " vorbei:")
+            printPlayersAndStreets
             runde += 1
-            // draw
-            println("\nSpieler: ")
-            for (player <- players) println(player.toString)
-            println("\nStraßen: ")
-            for (i <- spielBrett.indices) {
-                spielBrett(i) match {
-                    case s: Street if s.owner != -1 => println(s.toString + " Owner: " + players(s.owner).name)
-                    case s: Trainstation if s.owner != -1 => println(s.toString + " Owner: " + players(s.owner).name)
-                    case s: Elektrizitaetswerk if s.owner != -1 => println(s.toString + " Owner: " + players(s.owner).name)
-                    case s: Wasserwerk if s.owner != -1 => println(s.toString + " Owner: " + players(s.owner).name)
-                    //case e: Eventcell => println(e.toString)
-                    case _ =>
-                }
-            }
             Thread.sleep(1000) // wait for 1000 millisecond between rounds
         } while (!gameOver)
-        // print winner
+        printWinner
+    }
+
+    def printPlayersAndStreets: Unit = {
+        println("\nSpieler: ")
+        for (player <- players) println(player.toString)
+        println("\nStraßen: ")
+        for (i <- spielBrett.indices) {
+            spielBrett(i) match {
+                case s: Street if s.owner != -1 => println(s.toString + " Owner: " + players(s.owner).name)
+                case s: Trainstation if s.owner != -1 => println(s.toString + " Owner: " + players(s.owner).name)
+                case s: Elektrizitaetswerk if s.owner != -1 => println(s.toString + " Owner: " + players(s.owner).name)
+                case s: Wasserwerk if s.owner != -1 => println(s.toString + " Owner: " + players(s.owner).name)
+                //case e: Eventcell => println(e.toString)
+                case _ =>
+            }
+        }
+    }
+
+    def printWinner: Unit = {
         print("Spielende: ")
         for (player <- players)
             if (player.money > 0)
@@ -145,14 +157,13 @@ class Gamelogic {
             }
             //todo if player in jail else move player
             if (false) {
+                //todo direkt freikaufen wenns geht oder würfeln für pasch oder jailcount3 oder freikarte
                 // player is in jail
                 print("todo jail")
             } else {
                 movePlayer(diceThrow1 + diceThrow2)
             }
         }
-        // zugende
-        //Thread.sleep(1000) // wait for 1000 millisecond between player moves
     }
 
     def movePlayer(sumDiceThrow: Int): Unit = {
@@ -164,6 +175,7 @@ class Gamelogic {
             players(amzug) = players(amzug).incMoney(200)
             players(amzug) = players(amzug).moveBack(40)
         }
+        // aktion fuer betretetenes feld ausloesen
         val field = spielBrett(players(amzug).position)
         field match {
             case e: Los => activateStart(field.asInstanceOf[Los])
@@ -232,6 +244,7 @@ class Gamelogic {
     }
     def activateStart(field :Los): Unit = {
         field.onPlayerEntered(amzug)
+        players(amzug) = players(amzug).incMoney(200)
     }
 
     def activateEvent(field :Eventcell): Unit = {
