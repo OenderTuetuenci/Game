@@ -11,7 +11,7 @@ class Game {
     var amzug = 0 // aktueller spieler
     val dice = Dice() // todo
     var runde = 1
-
+//sss
     def createSpielBrett: Array[Cell] = {
         val spielBrett = new Array[Cell](40)
 
