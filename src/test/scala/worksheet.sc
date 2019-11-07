@@ -31,3 +31,5 @@ class test2(name:String) extends test{
 val array = new Array[test](3)
 array(0) = new test2("hallo")
 println(array(0))
+val z = Player("Name")
+z.toString

@@ -8,13 +8,16 @@ class PlayerTest extends WordSpec with Matchers {
       player.name should be("Önder")
     }
     "have a cool String representation" in {
-      player.toString should be("name: Önder pos: 0 money: 20000")
+      player.toString should be("name: Önder pos: 0 money: 5000 -1")
     }
     "Have the Position 0" in {
       player.position should be(0)
     }
     "Have the start capacity " in {
-      player.money should be (20000)
+      player.money should be (5000)
+    }
+    "Have the jailcount" in {
+      player.jailCount should be(-1)
     }
   }
     "set to a specific Position"should{
@@ -45,7 +48,18 @@ class PlayerTest extends WordSpec with Matchers {
         player2.position should be (0)
       }
       "return the position 5" in{
-        player3.position should be (5)
+        player3.position should be (30)
+      }
+    }
+    "knows his own jailtime" should{
+      val player = Player("Name")
+      val player2 = player.incJailTime
+      val player3 = player2.resetJailCount
+      "if he has jailtime return a number >= 0" in{
+        player2.jailCount should be >= 0
+      }
+      "if he returns from jail return -1" in {
+        player3.jailCount should be (-1)
       }
     }
 
