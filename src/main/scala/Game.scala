@@ -9,7 +9,6 @@ class Game {
     var playerCount = 0
     var players: Array[Player] = getPlayers
     var amzug = 0 // aktueller spieler
-    val dice = Dice() // todo
     var runde = 1
 
     def createSpielBrett: Array[Cell] = {
@@ -25,7 +24,7 @@ class Game {
         spielBrett(7) = Eventcell("Ereignisfeld1", 0)
         spielBrett(8) = Street("Strasse4", 2, 100, -1, 200, 0)
         spielBrett(9) = Street("Strasse5", 2, 120, -1, 200, 0)
-        spielBrett(10) = JailVisit("Zu besuch im Gefaengnis", 0)
+        spielBrett(10) = Jail("Zu besuch oder im Gefaengnis", 0)
 
         spielBrett(11) = Street("Strasse6", 3, 140, -1, 200, 0)
         spielBrett(12) = Elektrizitaetswerk("Elektrizitaetswerk", 10, 150, -1, 200)
@@ -77,8 +76,10 @@ class Game {
     }
 
     def run: Unit = {
+        println("Spiel beginnt: \n")
+        printPlayersAndStreets
         do {
-            println("\nRunde " + runde + " beginnt!\n")
+            println("\n\n\nRunde " + runde + " beginnt!\n")
             for (i <- 0 until playerCount) {
                 amzug = i
                 // jeder der noch geld hat darf seinen zug ausfuehren
@@ -107,16 +108,51 @@ class Game {
     def printPlayersAndStreets: Unit = {
         println("\nSpieler: ")
         for (player <- players) println(player.toString)
-        println("\nStraßen: ")
+        println("\nSpielfeld: ")
         for (i <- spielBrett.indices) {
+            // spieler die noch in der runde sind raussuchen
+            var playersOnThisField = ""
+            for (player <- players) {
+                if (player.money > 0 && player.position == i) {
+                    playersOnThisField += player.name + " "
+                }
+            }
+            // felder anzeigen
             spielBrett(i) match { // todo komplettes spielfeld iwi ausgeben
-                case s: Street if s.owner != -1 => println(s.toString + " Owner: " + players(s.owner).name)
-                case s: Trainstation if s.owner != -1 => println(s.toString + " Owner: " + players(s.owner).name)
-                case s: Elektrizitaetswerk if s.owner != -1 => println(s.toString + " Owner: " + players(s.owner).name)
-                case s: Wasserwerk if s.owner != -1 => println(s.toString + " Owner: " + players(s.owner).name)
-                //case e: Eventcell => println(e.toString)
+                case s: Los => print(s.toString)
+                case s: Eventcell => print(s.toString)
+                case s: CommunityChest => print(s.toString)
+                case s: IncomeTax => print(s.toString)
+                case s: Jail => print(s.toString)
+                case s: Elektrizitaetswerk => print(s.toString)
+                case s: Wasserwerk => print(s.toString)
+                case s: Zusatzsteuer => print(s.toString)
+                case s: FreiParken => print(s.toString)
+                case s: GoToJail => print(s.toString)
+                case s: Street =>
+                    // besitzer des feldes suchen
+                    var owner = s.owner.toString
+                    if (s.owner != -1) owner = players(s.owner).name
+                    print(s.toString + " | Owner: " + owner)
+                case s: Trainstation =>
+                    // besitzer des feldes suchen
+                    var owner = s.owner.toString
+                    if (s.owner != -1) owner = players(s.owner).name
+                    print(s.toString + " | Owner: " + owner)
+                case s: Elektrizitaetswerk =>
+                    // besitzer des feldes suchen
+                    var owner = s.owner.toString
+                    if (s.owner != -1) owner = players(s.owner).name
+                    print(s.toString + " | Owner: " + owner)
+                case s: Wasserwerk =>
+                    // besitzer des feldes suchen
+                    var owner = s.owner.toString
+                    if (s.owner != -1) owner = players(s.owner).name
+                    print(s.toString + " | Owner: " + owner)
                 case _ =>
             }
+            if (playersOnThisField != "") print(" | players on this field: " + playersOnThisField)
+            print("\n")
         }
     }
 
@@ -140,13 +176,16 @@ class Game {
 
     def wuerfeln: (Int, Int, Boolean) = {
         print("wuerfeln: ")
-        val diceThrow1 = dice.throwDice
-        val diceThrow2 = dice.throwDice
+        val dice = Dice().roll
+        val dice2 = Dice().roll
         var pasch = false
-        println("Gewuerfelt: " + diceThrow1 + " " + diceThrow2)
+        println("Gewuerfelt: " + dice.eyeCount + " " + dice2.eyeCount)
         // schauen ob pasch gewuerfelt wurde
-        if (dice.checkPash(diceThrow1, diceThrow2)) pasch = true
-        (diceThrow1, diceThrow2, pasch)
+        if (dice.checkPash(dice.eyeCount, dice2.eyeCount)) {
+            println("Pasch gewuerfelt")
+            pasch = true
+        }
+        (dice.eyeCount, dice2.eyeCount, pasch)
     }
 
     def normalerZug: Unit = {
@@ -212,12 +251,13 @@ class Game {
     def movePlayer(sumDiceThrow: Int): Unit = {
         // spieler bewegen
         players(amzug) = players(amzug).move(sumDiceThrow)
-        println("new pos: " + players(amzug).position)
         // schauen ob über los gegangen
         if (players(amzug).position >= 40) {
             players(amzug) = players(amzug).incMoney(200)
             players(amzug) = players(amzug).moveBack(40)
         }
+        // neue position ausgeben
+        println("new pos: " + players(amzug).position)
         // aktion fuer betretetenes feld ausloesen
         val field = spielBrett(players(amzug).position)
         field match {
@@ -227,7 +267,6 @@ class Game {
             case e: Eventcell => activateEvent(field.asInstanceOf[Eventcell])
             case e: CommunityChest => activateCommunityChest(field.asInstanceOf[CommunityChest])
             case e: IncomeTax => activateIncomeTax(field.asInstanceOf[IncomeTax])
-            case e: JailVisit => activateJailVisit(field.asInstanceOf[JailVisit])
             case e: Elektrizitaetswerk => activateElektrizitaetswerk(field.asInstanceOf[Elektrizitaetswerk])
             case e: Wasserwerk => activateWasserwerk(field.asInstanceOf[Wasserwerk])
             case e: Zusatzsteuer => activateZusatzsteuer(field.asInstanceOf[Zusatzsteuer])
@@ -369,10 +408,6 @@ class Game {
     }
 
     def activateIncomeTax(field: IncomeTax): Unit = {
-        field.onPlayerEntered(amzug)
-    }
-
-    def activateJailVisit(field: JailVisit): Unit = {
         field.onPlayerEntered(amzug)
     }
 

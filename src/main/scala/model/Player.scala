@@ -1,7 +1,7 @@
 package model
 
 case class Player(name: String, position: Int = 0, money: Int = 5000, jailCount: Int = -1) {
-  override def toString: String = "name: " + this.name + " pos: " + this.position +" money: "+ this.money + " " + this.jailCount
+  override def toString: String = "name: " + this.name + " pos: " + this.position + " money: " + this.money + " roundsInJail: " + this.jailCount
   //Moves player about x places
   def move(x:Int) : Player = {
     Player(name, this.position + x, money,jailCount)
@@ -22,6 +22,6 @@ case class Player(name: String, position: Int = 0, money: Int = 5000, jailCount:
   def moveToStart : Player = Player(name,0,money,jailCount)
 
   def moveToJail: Player = {
-        Player(name, 30, money, 0)
+    Player(name, 10, money, 0)
   }
 }

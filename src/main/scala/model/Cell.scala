@@ -30,9 +30,9 @@ case class Street(name: String, group: Int, price: Int, owner: Int, rent: Int, h
 
   override def toString: String = {
     if(home > 0)
-      name + ' ' + group + ' ' + price + ' ' + rent + " homecount: "+home
+        name + " group: " + group + " price: " + price + " rent: " + rent + " homecount: " + home
     else
-      name + ' ' + group + ' ' + price + ' ' + rent
+        name + " group: " + group + " price: " + price + " rent: " + rent
   }
 }
 
@@ -45,6 +45,10 @@ case class Eventcell(name: String, group: Int) extends Cell(name, group) {
   def drawEventCard(): Unit = {
     println("draw a card")
   }
+
+    override def toString: String = {
+        name
+    }
 }
 
 
@@ -57,6 +61,10 @@ case class CommunityChest(name: String, group: Int) extends Cell(name, group) {
   def drawEventCard(): Unit = {
     println("draw a card")
   }
+
+    override def toString: String = {
+        name
+    }
 }
 
 case class IncomeTax(name: String, group: Int) extends Cell(name, group) {
@@ -64,13 +72,10 @@ case class IncomeTax(name: String, group: Int) extends Cell(name, group) {
     println("\nplayer entered IncomeTax")
     "\nplayer entered IncomeTax"
   }
-}
 
-case class JailVisit(name: String, group: Int) extends Cell(name, group) {
-  override def onPlayerEntered(enteredPlayer: Int): String = {
-    println("\nplayer entered JailVisit")
-    "\nplayer entered JailVisit"
-  }
+    override def toString: String = {
+        name
+    }
 }
 
 case class Elektrizitaetswerk(name: String, group: Int,price: Int, owner: Int, rent: Int) extends Cell(name,group) {
@@ -78,6 +83,10 @@ case class Elektrizitaetswerk(name: String, group: Int,price: Int, owner: Int, r
     println("\nplayer entered JailVisit")
     "\nplayer entered JailVisit"
   }
+
+    override def toString: String = {
+        name
+    }
 }
 
 
@@ -87,6 +96,10 @@ case class Trainstation(name: String,group: Int,price: Int, owner: Int, rent: In
     "\nplayer entered SouthTrainstation"
   }
   def setOwner(x:Int) : Trainstation = Trainstation(name,group,price,x,rent)
+
+    override def toString: String = {
+        name + " group: " + group + " price: " + price + " rent: " + rent
+    }
 }
 
 case class Los(name: String, group: Int) extends Cell(name, group) {
@@ -94,6 +107,10 @@ case class Los(name: String, group: Int) extends Cell(name, group) {
     println("\nplayer entered start")
     "\nplayer entered start"
   }
+
+    override def toString: String = {
+        name
+    }
 }
 
 case class GoToJail(name: String, group: Int) extends Cell(name, group) {
@@ -101,6 +118,10 @@ case class GoToJail(name: String, group: Int) extends Cell(name, group) {
     println("\nplayer entered jail")
     "\nplayer entered GoToJail"
   }
+
+    override def toString: String = {
+        name
+    }
 }
 
 case class Wasserwerk(name: String, group: Int,price: Int, owner: Int, rent: Int) extends Cell(name, group) {
@@ -108,6 +129,10 @@ case class Wasserwerk(name: String, group: Int,price: Int, owner: Int, rent: Int
     println("\nplayer entered Wasserwerk")
     "\nplayer entered Wasserwerk"
   }
+
+    override def toString: String = {
+        name
+    }
 }
 
 case class Jail(name: String, group: Int) extends Cell(name, group) {
@@ -115,6 +140,10 @@ case class Jail(name: String, group: Int) extends Cell(name, group) {
     println("\nplayer entered jail")
     "\nplayer entered jail"
   }
+
+    override def toString: String = {
+        name
+    }
 }
 
 case class FreiParken(name: String, group: Int) extends Cell(name, group) {
@@ -122,6 +151,10 @@ case class FreiParken(name: String, group: Int) extends Cell(name, group) {
     println("\nplayer entered FreiParken")
     "\nplayer entered FreiParken"
   }
+
+    override def toString: String = {
+        name
+    }
 }
 
 case class Zusatzsteuer(name: String, group: Int) extends Cell(name, group) {
@@ -129,4 +162,8 @@ case class Zusatzsteuer(name: String, group: Int) extends Cell(name, group) {
     println("\nplayer entered Zusatzsteuer")
     "\nplayer entered Zusatzsteuer"
   }
+
+    override def toString: String = {
+        name
+    }
 }
