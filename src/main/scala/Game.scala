@@ -151,6 +151,7 @@ class Game {
                     print(s.toString + " | Owner: " + owner)
                 case _ =>
             }
+            // spieler die sich auf dem aktuellen feld befinden werden angezeigt
             if (playersOnThisField != "") print(" | players on this field: " + playersOnThisField)
             print("\n")
         }
@@ -193,7 +194,7 @@ class Game {
         var pasch = true
         var paschCount = 0
         // wuerfeln
-        while (pasch) {
+        while (pasch && players(amzug).money > 0) {
             val throwDices = wuerfeln // 1 = wurf1, 2 = wurf 2, 3 = pasch
             if (throwDices._3) paschCount += 1
             else pasch = false
