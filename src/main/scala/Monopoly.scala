@@ -7,5 +7,9 @@ object Monopoly {
   def main(args: Array[String]): Unit = {
     tui.getPlayerCount()
     controller.notifyObservers
+    //todo
+    //do{
+    //
+    //}while(controller.gameOver)
   }
 }

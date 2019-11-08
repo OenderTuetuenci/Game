@@ -65,6 +65,17 @@ class Controller extends Observable {
     }
   }
 
+  def gameOver: Boolean = {
+    var playersWithMoney = playerCount
+    for (i <- 0 until playerCount) {
+      print(players(i).money)
+      if (players(i).money <= 0) playersWithMoney -= 1
+    }
+    if (playersWithMoney <= 1)
+      return true
+    false
+  }
+
   def getPlayerAndBoardToString: String = {
     var string = ""
     string += "\nSpieler: "
