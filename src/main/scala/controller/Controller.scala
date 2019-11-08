@@ -1,7 +1,8 @@
 package controller
 
 import util.Observable
+import view.Tui
 
-class Controller extends Observable {
+class Controller(tui:Tui) extends Observable {
 
 }
