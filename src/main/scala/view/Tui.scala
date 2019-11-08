@@ -10,12 +10,12 @@ class Tui(controller: Controller) extends Observer{
   controller.add(this)
   override def update(e:Event) = {
     e match {
-      case e:GameOverEvent => controller.getGameOverString(e)
-      case e:payRentEvent => controller.getPayRentString(e)
-      case e:buyEvent => controller.getBuyEventString(e)
-      case e:playerInJailEvent => controller.getPlayerInJailString(e)
-      case e:normalTurnEvent => controller.getNormalTurnString(e)
-      case e:diceEvent => controller.getDiceString(e)
+      case e:GameOverEvent =>println(controller.getGameOverString(e))
+      case e:payRentEvent =>println(controller.getPayRentString(e))
+      case e:buyEvent => println(controller.getBuyEventString(e))
+      case e:playerInJailEvent => println(controller.getPlayerInJailString(e))
+      case e:normalTurnEvent => println(controller.getNormalTurnString(e))
+      case e:diceEvent => println(controller.getDiceString(e))
       case e:_ =>println(controller.getPlayerAndBoardToString)
     }
   }
