@@ -1,7 +1,9 @@
 package util
 
+import model.Event
+
 trait Observer{
-  def update(z:Int) :Unit
+  def update(z:Event) :Unit
 }
 
 class Observable {

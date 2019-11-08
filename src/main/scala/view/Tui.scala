@@ -1,14 +1,25 @@
 package view
 
 import controller.Controller
+import model.{Event, GameOverEvent, buyEvent, diceEvent, normalTurnEvent, payRentEvent, playerInJailEvent}
 import util.Observer
 
 import io.StdIn._
 
 class Tui(controller: Controller) extends Observer{
   controller.add(this)
-  //todo int in event machen und dann in update checken updATE(EVENT)
-  override def update(z:Int) Unit = println(controller.getPlayerAndBoardToString)
+  override def update(e:Event) = {
+    e match {
+      case e:GameOverEvent => controller.getGameOverString(e)
+      case e:payRentEvent => controller.getPayRentString(e)
+      case e:buyEvent => controller.getBuyEventString(e)
+      case e:playerInJailEvent => controller.getPlayerInJailString(e)
+      case e:normalTurnEvent => controller.getNormalTurnString(e)
+      case e:diceEvent => controller.getDiceString(e)
+      case e:_ =>println(controller.getPlayerAndBoardToString)
+    }
+  }
+
   def getPlayerCount():Unit = {
     println("Playercount?")
     val playerCount = readInt()
