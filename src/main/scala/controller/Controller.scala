@@ -1,10 +1,9 @@
 package controller
 
-import model.{Cell, CommunityChest, Elektrizitaetswerk, Eventcell, FreiParken, GameOverEvent, GoToJail, IncomeTax, Jail, Los, Player, Street, Trainstation, Wasserwerk, Zusatzsteuer, brokeEvent, buyStreetEvent, diceEvent, normalTurnEvent, payRentEvent, playerInJailEvent}
+import model.{Cell, CommunityChest, Elektrizitaetswerk, Event, Eventcell, FreiParken, GameOverEvent, GoToJail, IncomeTax, Jail, Los, Player, Street, Trainstation, Wasserwerk, Zusatzsteuer, brokeEvent, buyStreetEvent, diceEvent, endRoundEvent, newRoundEvent, normalTurnEvent, payRentEvent, playerInJailEvent, playerSellsStreetEvent}
 import util.Observable
 
 class Controller extends Observable {
-
   var spielBrett: Array[Cell] = createSpielBrett
   var playerCount = 0
   var players:Array[Player] = _
@@ -169,4 +168,12 @@ class Controller extends Observable {
 
   def getBrokeEventString(e: brokeEvent): String = e.player.name+" is broke!!"
 
+  def getPlayerSellsStreetString(e: playerSellsStreetEvent): String = {
+    var string = e.from.name +" sells "+e.street.name+" to " +e.to.name+"\n"
+    string += "new creditbalance: "+e.from.money
+    string
+  }
+  def getEndRoundString(e:endRoundEvent): String = "\n\n\nround "+ e.round +" ends"
+
+  def getNewRoundString(e:newRoundEvent): String = "\n\nround "+ e.round +" starts"
 }

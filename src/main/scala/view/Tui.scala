@@ -1,7 +1,7 @@
 package view
 
 import controller.Controller
-import model.{Event, GameOverEvent, brokeEvent, buyEvent, buyStreetEvent, diceEvent, normalTurnEvent, payRentEvent, playerInJailEvent}
+import model.{Event, GameOverEvent, brokeEvent, buyEvent, buyStreetEvent, diceEvent, endRoundEvent, newRoundEvent, normalTurnEvent, payRentEvent, playerInJailEvent, playerSellsStreetEvent}
 import util.Observer
 
 import io.StdIn._
@@ -17,6 +17,9 @@ class Tui(controller: Controller) extends Observer{
       case e:playerInJailEvent => println(controller.getPlayerInJailString(e))
       case e:normalTurnEvent => println(controller.getNormalTurnString(e))
       case e:diceEvent => println(controller.getRollString(e))
+      case e:playerSellsStreetEvent =>println(controller.getPlayerSellsStreetString(e))
+      case e:newRoundEvent => println(controller.getNewRoundString(e))
+      case e:endRoundEvent => println(controller.getEndRoundString(e))
       case e:_ =>println(controller.getPlayerAndBoardToString)
     }
   }
