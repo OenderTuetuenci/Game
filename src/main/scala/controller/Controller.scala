@@ -1,6 +1,6 @@
 package controller
 
-import model.{Cell, CommunityChest, Elektrizitaetswerk, Event, Eventcell, FreiParken, GameOverEvent, GoToJail, IncomeTax, Jail, Los, Player, Street, Trainstation, Wasserwerk, Zusatzsteuer, brokeEvent, buyStreetEvent, diceEvent, endRoundEvent, newRoundEvent, normalTurnEvent, payRentEvent, playerInJailEvent, playerSellsStreetEvent}
+import model.{Cell, CommunityChest, Dice, Elektrizitaetswerk, Event, Eventcell, FreiParken, GameOverEvent, GoToJail, IncomeTax, Jail, Los, Player, Street, Trainstation, Wasserwerk, Zusatzsteuer, brokeEvent, buyStreetEvent, diceEvent, endRoundEvent, newRoundEvent, normalTurnEvent, optionEvent, payRentEvent, playerInJailEvent, playerIsFreeEvent, playerMoveEvent, playerMoveToJail, playerRemainsInJail, playerSellsStreetEvent, printEverythingEvent}
 import util.Observable
 
 class Controller extends Observable {
@@ -63,16 +63,31 @@ class Controller extends Observable {
     for (i <-players.indices){
       players(i) =Player(playerNames(i))
     }
+    this.playerCount = playerCount
+  }
+
+  def getWinner:Player = {
+    var winner:Player = players(0)//todo find better solution
+    for (player <- players){
+      if(player.money > 0)
+        winner = player
+    }
+    winner
   }
 
   def gameOver: Boolean = {
     var playersWithMoney = playerCount
     for (i <- 0 until playerCount) {
-      print(players(i).money)
-      if (players(i).money <= 0) playersWithMoney -= 1
+      if (players(i).money <= 0) {
+        playersWithMoney -= 1
+      }
+
     }
-    if (playersWithMoney <= 1)
+    if (playersWithMoney <= 1) {
+      val winner = getWinner
+      notifyObservers(GameOverEvent(winner))
       return true
+    }
     false
   }
 
@@ -129,15 +144,108 @@ class Controller extends Observable {
     }
     string
   }
+  def wuerfeln: (Int, Int, Boolean) = {
+    val dice = Dice().roll
+    val dice2 = Dice().roll
+    var pasch = false
+    if (dice.checkPash(dice.eyeCount, dice2.eyeCount)) {
+      pasch = true
+    }
+    (dice.eyeCount, dice2.eyeCount, pasch)
+  }
+  def movePlayer(sumDiceThrow: Int): Unit = {
+    // spieler bewegen
+    players(isturn) = players(isturn).move(sumDiceThrow)
+    // schauen ob über los gegangen
+    if (players(isturn).position >= 40) {
+      players(isturn) = players(isturn).incMoney(200)
+      players(isturn) = players(isturn).moveBack(40)
+    }
+    // neue position ausgeben
+    notifyObservers(playerMoveEvent(players(isturn)))
+    // aktion fuer betretetenes feld ausloesen
+    val field = spielBrett(players(isturn).position)
+    field match {
+      case e: Los => activateStart(field.asInstanceOf[Los])
+      case e: Street => activateStreet(field.asInstanceOf[Street])
+      case e: Trainstation => activateTrainstation(field.asInstanceOf[Trainstation])
+      case e: Eventcell => activateEvent(field.asInstanceOf[Eventcell])
+      case e: CommunityChest => activateCommunityChest(field.asInstanceOf[CommunityChest])
+      case e: IncomeTax => activateIncomeTax(field.asInstanceOf[IncomeTax])
+      case e: Elektrizitaetswerk => activateElektrizitaetswerk(field.asInstanceOf[Elektrizitaetswerk])
+      case e: Wasserwerk => activateWasserwerk(field.asInstanceOf[Wasserwerk])
+      case e: Zusatzsteuer => activateZusatzsteuer(field.asInstanceOf[Zusatzsteuer])
+      case e: FreiParken => activateFreiParken(field.asInstanceOf[FreiParken])
+      case e: GoToJail => activateGoToJail(field.asInstanceOf[GoToJail])
+      case e: Jail => activateJail(field.asInstanceOf[Jail])
+      case _ =>
+    }
+  }
+  def normalerZug: Unit = {
+    // init pasch
+    var pasch = true
+    var paschCount = 0
+    // wuerfeln
+    while (pasch && players(isturn).money > 0) {
+      val throwDices = wuerfeln // 1 = wurf1, 2 = wurf 2, 3 = pasch
+      notifyObservers(diceEvent(throwDices._1,throwDices._2,throwDices._3))
+      if (throwDices._3) paschCount += 1
+      else pasch = false
+      //3x pasch gleich jail sonst move player
+      if (paschCount == 3) {
+        players(isturn) = players(isturn).moveToJail
+        notifyObservers(playerMoveToJail(players(isturn)))
+      } else movePlayer(throwDices._1 + throwDices._2)
+    }
+  }
+
+  def playerInJail(): Unit = {
+    val option = "rollDice"
+    if (option == "buyOut") {
+      players(isturn) = players(isturn).decMoney(200)
+      checkMoney(-1) // owner = bank
+      players(isturn) = players(isturn).resetJailCount
+      notifyObservers(playerIsFreeEvent(players(isturn)))
+      normalerZug
+    }
+    // ...die freikarte benutzen....
+    if (option == "useCard") {
+      notifyObservers(playerIsFreeEvent(players(isturn)))
+      normalerZug
+    }
+    // ...oder pasch wuerfeln.
+    if (option == "rollDice") {
+      val throwDices = wuerfeln
+      if (throwDices._3) {
+        // bei gewuerfelten pasch kommt man raus und moved
+        players(isturn) = players(isturn).resetJailCount
+        notifyObservers(playerIsFreeEvent(players(isturn)))
+        movePlayer(throwDices._1 + throwDices._2)
+      } else {
+        //sonst jailcount +1
+        players(isturn) = players(isturn).incJailTime
+        // wenn man 3 runden im jail ist kommt man raus, zahlt und moved
+        if (players(isturn).jailCount == 3) {
+          players(isturn) = players(isturn).resetJailCount
+          players(isturn) = players(isturn).decMoney(200)
+          checkMoney(-1) // owner is bank
+          notifyObservers(playerIsFreeEvent(players(isturn)))
+          movePlayer(throwDices._1 + throwDices._2)
+        } else notifyObservers(playerRemainsInJail(players(isturn)))
+      }
+    }
+  }
+
   def runRound():Unit = {
       notifyObservers(newRoundEvent(round))
       for (i <- 0 until playerCount) {
         isturn = i
         // jeder der noch geld hat darf seinen zug ausfuehren
         if (players(isturn).money > 0) {
-          println("\nSpieler: " + players(isturn).toString + " ist am zug!")
+          notifyObservers(normalTurnEvent(players(isturn)))
           // schauen ob spieler frei oder im jail ist
-          if (players(isturn).jailCount > -1) playerInJail //todo kann man im jail traden?
+          //todo kann man im jail traden?
+          if (players(isturn).jailCount > -1)playerInJail()
           else {
             // Todo handeln, strassen verkaufen,hypothek bezahlen etc vor dem wuerfeln
             normalerZug
@@ -148,22 +256,133 @@ class Controller extends Observable {
         }
       }
       // Rundenende
-      println("\n\nRunde " + round + " vorbei:")
-      printPlayersAndStreets
+      notifyObservers(endRoundEvent(round))
+      notifyObservers(printEverythingEvent())
       round += 1
       //Thread.sleep(1000) // wait for 1000 millisecond between rounds
+  }
+  def buyStreet(field: Street): Unit = {
+    if (players(isturn).money >= field.price) {
+      players(isturn) = players(isturn).decMoney(field.price)
+      spielBrett(players(isturn).position) = field.setOwner(isturn)
+    }
+    notifyObservers(buyStreetEvent(players(isturn),field))
+  }
+  def checkMoney(owner: Int): Unit = {
+    if (players(isturn).money <= 0) {
+      //todo          // hotels haeuser hypothek dann straßen verkaufen bis uber 0
+      for (i <- spielBrett.indices) {
+        spielBrett(i) match {
+          // besitz suchen und verkaufen bis über 0
+          //todo straßen, karten, ... verkaufen, später an spieler oder bank
+          case s: Street =>
+            // an bank verkaufen
+            if (spielBrett(i).asInstanceOf[Street].owner == isturn) {
+              spielBrett(i) = spielBrett(i).asInstanceOf[Street].setOwner(-1)
+              players(isturn) = players(isturn).incMoney(s.price)
+              notifyObservers(playerSellsStreetEvent(players(isturn),spielBrett(i).asInstanceOf[Street]))
+            }
+          case s: Trainstation =>
+            if (spielBrett(i).asInstanceOf[Trainstation].owner == isturn) {
+              // an bank verkaufen
+              spielBrett(i) = spielBrett(i).asInstanceOf[Trainstation].setOwner(-1)
+              players(isturn) = players(isturn).incMoney(s.price)
+              notifyObservers(playerSellsStreetEvent(players(isturn),spielBrett(i).asInstanceOf[Street]))
+            }
+          case _ =>
+        }
+      }
+      // wenn immernoch pleite dann game over oder todo "declare bankrupt" später
+      if (players(isturn).money <= 0) {
+        notifyObservers(brokeEvent(players(isturn)))
+      }
+    }
+  }
+  def payRent(field: Street): Unit = {
+    // mietpreis holen
+    val rent = field.rent
+    //miete abziehen
+    players(isturn) = players(isturn).decMoney(rent)
+    players(field.owner) = players(field.owner).incMoney(rent)
+    notifyObservers(payRentEvent(players(isturn),players(field.owner)))
+    // schauen ob player ins minus gekommen ist
+    checkMoney(field.owner)
+  }
+  def activateStreet(field: Street): Unit = {
+    val option = field.onPlayerEntered(isturn)
+    notifyObservers(optionEvent(option))
+    if (option == "buy") {
+      // wer geld hat kauft die straße
+      buyStreet(field)
+      //ansonsten miete zahlen
+    } else if (option == "pay") {
+      payRent(field)
+    } else if (option == "buy home") {
+      buyHome(field)
+    }
+  }
+  def buyHome(field: Street): Unit = {
+    if (players(isturn).money > 200)
+      players(isturn).decMoney(200)
+    // todo if player owns group of streets buy house
+    // todo if housecount = street.maxhouses buy hotel
+    spielBrett(players(isturn).position) = spielBrett(players(isturn).position).asInstanceOf[Street].buyHome(1)
+  }
+  def activateStart(field: Los): Unit = {
+    field.onPlayerEntered(isturn)
+    players(isturn) = players(isturn).incMoney(200)
+  }
+
+  def activateEvent(field: Eventcell): Unit = {
+    field.onPlayerEntered(isturn)
+  }
+
+  def activateJail(field: Jail): Unit = {
+    field.onPlayerEntered(isturn)
+    players(isturn).moveToJail
+  }
+
+  def activateGoToJail(field: GoToJail): Unit = {
+    field.onPlayerEntered(isturn)
+  }
+
+  def activateFreiParken(field: FreiParken): Unit = {
+    field.onPlayerEntered(isturn)
+  }
+
+  def activateCommunityChest(field: CommunityChest): Unit = {
+    field.onPlayerEntered(isturn)
+  }
+
+  def activateIncomeTax(field: IncomeTax): Unit = {
+    field.onPlayerEntered(isturn)
+  }
+
+  def activateElektrizitaetswerk(field: Elektrizitaetswerk): Unit = {
+    field.onPlayerEntered(isturn)
+  }
+
+  def activateTrainstation(field: Trainstation): Unit = {
+    field.onPlayerEntered(isturn)
+  }
+
+  def activateWasserwerk(field: Wasserwerk): Unit = {
+    field.onPlayerEntered(isturn)
+  }
+
+  def activateZusatzsteuer(field: Zusatzsteuer): Unit = {
+    field.onPlayerEntered(isturn)
   }
   def getRollString(e: diceEvent): String = {
     var string = "throwing Dice:\n"
     string += "rolled :"+e.eyeCount1+" "+e.eyeCount2+"\n"
-    if(e.pasch == true)
+    if(e.pasch)
       string += "rolled pasch!"
     string
   }
 
   def getNormalTurnString(e: normalTurnEvent): String = {
     var string = "Its "+e.player.name+" turn!\n"
-    string += e.player.name + "walked to " +e.player.position
     string
   }
 
@@ -178,9 +397,9 @@ class Controller extends Observable {
   }
 
   def getBuyStreetEventString(e: buyStreetEvent): String = {
-    var string =""
-    if(e.player.money < e.street.price)
-      string += "buy street"
+    var string =e.player.money+"\n"
+    if(e.player.money > e.street.price)
+      string += "bought "+e.street.name
     else
       string += "can´t afford street"
     string
@@ -193,11 +412,13 @@ class Controller extends Observable {
   def getBrokeEventString(e: brokeEvent): String = e.player.name+" is broke!!"
 
   def getPlayerSellsStreetString(e: playerSellsStreetEvent): String = {
-    var string = e.from.name +" sells "+e.street.name+" to " +e.to.name+"\n"
+    var string = e.from.name +" sells "+e.street.name+"\n"
     string += "new creditbalance: "+e.from.money
     string
   }
   def getEndRoundString(e:endRoundEvent): String = "\n\n\nround "+ e.round +" ends"
 
   def getNewRoundString(e:newRoundEvent): String = "\n\nround "+ e.round +" starts"
+  def getPlayerMoveToJailString(e: playerMoveToJail): String = e.player.name+" moved to Jail!"
+  def getPlayerMovedString(e: playerMoveEvent): String = e.player.name +" moved to "+ e.player.position
 }

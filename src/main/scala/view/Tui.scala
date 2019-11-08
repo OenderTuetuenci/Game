@@ -1,7 +1,7 @@
 package view
 
 import controller.Controller
-import model.{Event, GameOverEvent, brokeEvent, buyEvent, buyStreetEvent, diceEvent, endRoundEvent, newRoundEvent, normalTurnEvent, payRentEvent, playerInJailEvent, playerSellsStreetEvent}
+import model.{Event, GameOverEvent, brokeEvent, buyStreetEvent, diceEvent, endRoundEvent, newRoundEvent, normalTurnEvent, optionEvent, payRentEvent, playerInJailEvent, playerIsFreeEvent, playerMoveEvent, playerMoveToJail, playerRemainsInJail, playerSellsStreetEvent, printEverythingEvent}
 import util.Observer
 
 import io.StdIn._
@@ -20,11 +20,18 @@ class Tui(controller: Controller) extends Observer{
       case e:playerSellsStreetEvent =>println(controller.getPlayerSellsStreetString(e))
       case e:newRoundEvent => println(controller.getNewRoundString(e))
       case e:endRoundEvent => println(controller.getEndRoundString(e))
-      case e:_ =>println(controller.getPlayerAndBoardToString)
+      case e:playerMoveToJail=>println(controller.getPlayerMoveToJailString(e))
+      case e:optionEvent=>println("option: " +e.option)
+      case e:printEverythingEvent=>println(controller.getPlayerAndBoardToString)
+      case e:playerMoveEvent=>println(controller.getPlayerMovedString(e))
+      case e:playerIsFreeEvent=>println(e.player.name+" is free")
+      case e:playerRemainsInJail=>println(e.player.name +" remains in Jail)")
+
+      case _ =>
     }
   }
 
-  def getPlayerCount():Unit = {
+  def getPlayerCount:Unit = {
     println("Playercount?")
     val playerCount = readInt()
     val playerNames = Array.ofDim[String](playerCount)
