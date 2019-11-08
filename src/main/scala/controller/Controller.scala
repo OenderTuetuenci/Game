@@ -7,8 +7,8 @@ class Controller extends Observable {
   var spielBrett: Array[Cell] = createSpielBrett
   var playerCount = 0
   var players:Array[Player] = _
-  var amzug = 0 // aktueller spieler
-  var runde = 1
+  var isturn = 0 // aktueller spieler
+  var round = 1
 
   def createSpielBrett: Array[Cell] = {
     val spielBrett = new Array[Cell](40)
@@ -128,6 +128,30 @@ class Controller extends Observable {
       string += "\n"
     }
     string
+  }
+  def runRound():Unit = {
+      notifyObservers(newRoundEvent(round))
+      for (i <- 0 until playerCount) {
+        isturn = i
+        // jeder der noch geld hat darf seinen zug ausfuehren
+        if (players(isturn).money > 0) {
+          println("\nSpieler: " + players(isturn).toString + " ist am zug!")
+          // schauen ob spieler frei oder im jail ist
+          if (players(isturn).jailCount > -1) playerInJail //todo kann man im jail traden?
+          else {
+            // Todo handeln, strassen verkaufen,hypothek bezahlen etc vor dem wuerfeln
+            normalerZug
+            // todo falls der spieler nicht pleite geht und nicht im jail landet darf er noch handeln
+          }
+          // zugende
+          //Thread.sleep(1000) // wait for 1000 millisecond between player moves
+        }
+      }
+      // Rundenende
+      println("\n\nRunde " + round + " vorbei:")
+      printPlayersAndStreets
+      round += 1
+      //Thread.sleep(1000) // wait for 1000 millisecond between rounds
   }
   def getRollString(e: diceEvent): String = {
     var string = "throwing Dice:\n"
