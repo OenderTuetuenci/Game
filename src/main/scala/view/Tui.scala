@@ -1,7 +1,7 @@
 package view
 
 import controller.Controller
-import model.{Event, GameOverEvent, buyEvent, diceEvent, normalTurnEvent, payRentEvent, playerInJailEvent}
+import model.{Event, GameOverEvent, brokeEvent, buyEvent, buyStreetEvent, diceEvent, normalTurnEvent, payRentEvent, playerInJailEvent}
 import util.Observer
 
 import io.StdIn._
@@ -10,9 +10,10 @@ class Tui(controller: Controller) extends Observer{
   controller.add(this)
   override def update(e:Event) = {
     e match {
+      case e:brokeEvent => println(controller.getBrokeEventString(e))
       case e:GameOverEvent =>println(controller.getGameOverString(e))
       case e:payRentEvent =>println(controller.getPayRentString(e))
-      case e:buyEvent => println(controller.getBuyEventString(e))
+      case e:buyStreetEvent => println(controller.getBuyStreetEventString(e))
       case e:playerInJailEvent => println(controller.getPlayerInJailString(e))
       case e:normalTurnEvent => println(controller.getNormalTurnString(e))
       case e:diceEvent => println(controller.getRollString(e))

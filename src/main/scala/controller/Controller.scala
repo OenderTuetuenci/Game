@@ -1,6 +1,6 @@
 package controller
 
-import model.{Cell, CommunityChest, Elektrizitaetswerk, Eventcell, FreiParken, GameOverEvent, GoToJail, IncomeTax, Jail, Los, Player, Street, Trainstation, Wasserwerk, Zusatzsteuer, buyEvent, diceEvent, normalTurnEvent, payRentEvent, playerInJailEvent}
+import model.{Cell, CommunityChest, Elektrizitaetswerk, Eventcell, FreiParken, GameOverEvent, GoToJail, IncomeTax, Jail, Los, Player, Street, Trainstation, Wasserwerk, Zusatzsteuer, brokeEvent, buyStreetEvent, diceEvent, normalTurnEvent, payRentEvent, playerInJailEvent}
 import util.Observable
 
 class Controller extends Observable {
@@ -139,7 +139,8 @@ class Controller extends Observable {
   }
 
   def getNormalTurnString(e: normalTurnEvent): String = {
-    var string = "Its "+e.player.name+" turn!"
+    var string = "Its "+e.player.name+" turn!\n"
+    string += e.player.name + "walked to " +e.player.position
     string
   }
 
@@ -153,10 +154,19 @@ class Controller extends Observable {
     string
   }
 
-  def getBuyEventString(e: buyEvent): Any = ???
+  def getBuyStreetEventString(e: buyStreetEvent): String = {
+    var string =""
+    if(e.player.money < e.street.price)
+      string += "buy street"
+    else
+      string += "can´t afford street"
+    string
+  }
 
-  def getPayRentString(e: payRentEvent): Any = ???
+  def getPayRentString(e: payRentEvent): String = e.from.name +" pays rent to " +e.to.name
 
-  def getGameOverString(e: GameOverEvent): Any = ???
+  def getGameOverString(e: GameOverEvent): String = e.winner.name+ " is the winner!!"
+
+  def getBrokeEventString(e: brokeEvent): String = e.player.name+" is broke!!"
 
 }
