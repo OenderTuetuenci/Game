@@ -100,7 +100,7 @@ class Game {
             println("\n\nRunde " + runde + " vorbei:")
             printPlayersAndStreets
             runde += 1
-            Thread.sleep(1000) // wait for 1000 millisecond between rounds
+            //Thread.sleep(1000) // wait for 1000 millisecond between rounds
         } while (!gameOver) // Spielende abfragen
         printWinner
     }
