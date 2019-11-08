@@ -1,9 +1,10 @@
 package controller
 
-import model.{Cell, CommunityChest, Elektrizitaetswerk, Eventcell, FreiParken, GoToJail, IncomeTax, Jail, Los, Player, Street, Trainstation, Wasserwerk, Zusatzsteuer}
+import model.{Cell, CommunityChest, Elektrizitaetswerk, Eventcell, FreiParken, GameOverEvent, GoToJail, IncomeTax, Jail, Los, Player, Street, Trainstation, Wasserwerk, Zusatzsteuer, buyEvent, diceEvent, normalTurnEvent, payRentEvent, playerInJailEvent}
 import util.Observable
 
 class Controller extends Observable {
+
   var spielBrett: Array[Cell] = createSpielBrett
   var playerCount = 0
   var players:Array[Player] = _
@@ -90,7 +91,7 @@ class Controller extends Observable {
         }
       }
       // felder anzeigen
-      spielBrett(i) match { // todo komplettes spielfeld iwi ausgeben
+      spielBrett(i) match {
         case s: Los => string += s.toString
         case s: Eventcell => string += s.toString
         case s: CommunityChest => string += s.toString
@@ -129,4 +130,33 @@ class Controller extends Observable {
     }
     string
   }
+  def getRollString(e: diceEvent): String = {
+    var string = "throwing Dice:\n"
+    string += "rolled :"+e.eyeCount1+" "+e.eyeCount2+"\n"
+    if(e.pasch == true)
+      string += "rolled pasch!"
+    string
+  }
+
+  def getNormalTurnString(e: normalTurnEvent): String = {
+    var string = "Its "+e.player.name+" turn!"
+    string
+  }
+
+  def getPlayerInJailString(e: playerInJailEvent): String = {
+    var string = e.player.name+"is in jail!\n"
+    string += "Jailcount: "+e.player.jailCount+1+"\n"
+    if(e.player.jailCount < 3)
+      string += e.player.name+" remains in jail"
+    else
+      string += e.player.name+" is free again!"
+    string
+  }
+
+  def getBuyEventString(e: buyEvent): Any = ???
+
+  def getPayRentString(e: payRentEvent): Any = ???
+
+  def getGameOverString(e: GameOverEvent): Any = ???
+
 }

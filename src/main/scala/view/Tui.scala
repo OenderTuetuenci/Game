@@ -15,7 +15,7 @@ class Tui(controller: Controller) extends Observer{
       case e:buyEvent => println(controller.getBuyEventString(e))
       case e:playerInJailEvent => println(controller.getPlayerInJailString(e))
       case e:normalTurnEvent => println(controller.getNormalTurnString(e))
-      case e:diceEvent => println(controller.getDiceString(e))
+      case e:diceEvent => println(controller.getRollString(e))
       case e:_ =>println(controller.getPlayerAndBoardToString)
     }
   }
