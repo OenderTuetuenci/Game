@@ -7,8 +7,8 @@ import io.StdIn._
 
 class Tui(controller: Controller) extends Observer{
   controller.add(this)
-
-  override def update: Unit = println(controller.getPlayerAndBoardToString)
+  //todo int in event machen und dann in update checken updATE(EVENT)
+  override def update(z:Int) Unit = println(controller.getPlayerAndBoardToString)
   def getPlayerCount():Unit = {
     println("Playercount?")
     val playerCount = readInt()

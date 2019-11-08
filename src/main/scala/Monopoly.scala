@@ -6,10 +6,9 @@ object Monopoly {
   val tui = new Tui(controller)
   def main(args: Array[String]): Unit = {
     tui.getPlayerCount()
-    controller.notifyObservers
+    controller.notifyObservers(0)
     //todo
     //do{
-    //
     //}while(controller.gameOver)
   }
 }
