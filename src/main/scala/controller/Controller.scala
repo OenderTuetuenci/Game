@@ -1,5 +1,7 @@
 package controller
 
-class Controller {
+import util.Observable
+
+class Controller extends Observable {
 
 }

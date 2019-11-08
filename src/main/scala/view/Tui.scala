@@ -1,5 +1,7 @@
 package view
 
-class Tui {
+import util.Observer
 
+class Tui extends Observer{
+  override def update: Unit = ???
 }
