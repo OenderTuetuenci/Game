@@ -1,7 +1,7 @@
 package view
 
 import controller.Controller
-import model.{Event, GameOverEvent, brokeEvent, buyStreetEvent, diceEvent, endRoundEvent, newRoundEvent, normalTurnEvent, optionEvent, payRentEvent, playerInJailEvent, playerIsFreeEvent, playerMoveEvent, playerMoveToJail, playerRemainsInJail, playerSellsStreetEvent, printEverythingEvent}
+import model._
 import util.Observer
 
 import io.StdIn._
@@ -11,7 +11,7 @@ class Tui(controller: Controller) extends Observer{
   override def update(e:Event) = {
     e match {
       case e:brokeEvent => println(controller.getBrokeEventString(e))
-      case e:GameOverEvent =>println(controller.getGameOverString(e))
+      case e: gameOverEvent => println(controller.getGameOverString(e))
       case e:payRentEvent =>println(controller.getPayRentString(e))
       case e:buyStreetEvent => println(controller.getBuyStreetEventString(e))
       case e:playerInJailEvent => println(controller.getPlayerInJailString(e))
@@ -26,6 +26,8 @@ class Tui(controller: Controller) extends Observer{
       case e:playerMoveEvent=>println(controller.getPlayerMovedString(e))
       case e:playerIsFreeEvent=>println(e.player.name+" is free")
       case e:playerRemainsInJail=>println(e.player.name +" remains in Jail)")
+      case e: playerWentOverGoEvent => println(controller.getPlayerWentOverGoString(e))
+      case e: playerWentOnGoEvent => println(controller.getPlayerWentOnGoString(e))
 
       case _ =>
     }
