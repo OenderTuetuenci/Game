@@ -112,7 +112,7 @@ class Controller extends Observable {
         val option = "rollDice"
         if (option == "buyOut") {
             players.updated(isturn, players(isturn).decMoney(200))
-            checkMoney(-1) // owner = bank
+            checkDept(-1) // owner = bank
             players.updated(isturn, players(isturn).resetJailCount)
             notifyObservers(playerIsFreeEvent(players(isturn)))
             normalerZug()
@@ -137,7 +137,7 @@ class Controller extends Observable {
                 if (players(isturn).jailCount == 3) {
                     players.updated(isturn, players(isturn).resetJailCount)
                     players.updated(isturn, players(isturn).decMoney(200))
-                    checkMoney(-1) // owner is bank
+                    checkDept(-1) // owner is bank
                     notifyObservers(playerIsFreeEvent(players(isturn)))
                     movePlayer(throwDices._1 + throwDices._2)
                 } else notifyObservers(playerRemainsInJail(players(isturn)))
@@ -218,7 +218,7 @@ class Controller extends Observable {
         notifyObservers(buyStreetEvent(players(isturn), field))
     }
 
-    def checkMoney(owner: Int): Unit = {
+    def checkDept(owner: Int): Unit = {
         if (players(isturn).money <= 0) {
             //todo          // hotels haeuser hypothek dann straßen verkaufen bis uber 0
             for (i <- spielBrett.indices) {
@@ -226,7 +226,7 @@ class Controller extends Observable {
                     // besitz suchen und verkaufen bis über 0
                     //todo straßen, karten, ... verkaufen, später an spieler oder bank
                     case s: Street =>
-                        // an bank verkaufen
+                        // erst auf hypothek setzen dann an bank verkaufen
                         if (spielBrett(i).asInstanceOf[Street].owner == isturn) {
                             spielBrett.updated(i, spielBrett(i).asInstanceOf[Street].setOwner(-1))
                             players.updated(isturn, players(isturn).incMoney(s.price))
@@ -257,7 +257,7 @@ class Controller extends Observable {
         players.updated(field.owner, players(field.owner).incMoney(rent))
         notifyObservers(payRentEvent(players(isturn), players(field.owner)))
         // schauen ob player ins minus gekommen ist
-        checkMoney(field.owner)
+        checkDept(field.owner)
     }
 
     def activateStreet(field: Street): Unit = {
