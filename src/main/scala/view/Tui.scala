@@ -4,7 +4,7 @@ import controller.Controller
 import model._
 import util.Observer
 
-import io.StdIn._
+import scala.io.StdIn._
 
 class Tui(controller: Controller) extends Observer{
   controller.add(this)
@@ -34,9 +34,9 @@ class Tui(controller: Controller) extends Observer{
   }
 
   def getPlayerCount:Unit = {
-    println("Playercount?")
+    print("How many players?: ") // todo how many npc
     val playerCount = readInt()
-    val playerNames = Array.ofDim[String](playerCount)
+    val playerNames: Array[String] = Array.ofDim(playerCount)
     // spieler mit namen einlesensr
     for (i <- 0 until playerCount) {
       println("Enter name player" + (i + 1) + ":")

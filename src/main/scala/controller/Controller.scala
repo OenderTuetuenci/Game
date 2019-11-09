@@ -4,65 +4,64 @@ import model._
 import util.Observable
 
 class Controller extends Observable {
-    val spielBrett: Vector[Cell] = createSpielBrett
+    var spielBrett: Vector[Cell] = createSpielBrett
     var playerCount = 0
-    val players: Vector[Player] = Vector.empty
+    var players: Vector[Player] = Vector[Player]()
     var isturn = 0 // aktueller spieler
     var round = 1
 
     def createSpielBrett: Vector[Cell] = {
-        val spielBrett = Vector[Cell]()
-        val hypothek = false // suggested by compiler dont write false in parameter
-        spielBrett :+ Los("Los")
-        spielBrett :+ Street("Strasse1", 1, 60, -1, 200, 0, hypothek)
-        spielBrett :+ CommunityChest("Gemeinschaftsfeld1")
-        spielBrett :+ Street("Strasse2", 1, 60, -1, 200, 0, hypothek)
-        spielBrett :+ IncomeTax("Einkommensteuer")
-        spielBrett :+ Trainstation("Suedbahnhof", 9, 200, -1, 200, hypothek)
-        spielBrett :+ Street("Strasse3", 2, 100, -1, 200, 0, hypothek)
-        spielBrett :+ Eventcell("Ereignisfeld1")
-        spielBrett :+ Street("Strasse4", 2, 100, -1, 200, 0, hypothek)
-        spielBrett :+ Street("Strasse5", 2, 120, -1, 200, 0, hypothek)
-        spielBrett :+ Jail("Zu besuch oder im Gefaengnis")
+        var spielBrett = Vector[Cell]()
+        spielBrett = spielBrett :+ Los("Los")
+        spielBrett = spielBrett :+ Street("Strasse1", 1, 60, -1, 200, 0, hypothek = false)
+        spielBrett = spielBrett :+ CommunityChest("Gemeinschaftsfeld1")
+        spielBrett = spielBrett :+ Street("Strasse2", 1, 60, -1, 200, 0, hypothek = false)
+        spielBrett = spielBrett :+ IncomeTax("Einkommensteuer")
+        spielBrett = spielBrett :+ Trainstation("Suedbahnhof", 9, 200, -1, 200, hypothek = false)
+        spielBrett = spielBrett :+ Street("Strasse3", 2, 100, -1, 200, 0, hypothek = false)
+        spielBrett = spielBrett :+ Eventcell("Ereignisfeld1")
+        spielBrett = spielBrett :+ Street("Strasse4", 2, 100, -1, 200, 0, hypothek = false)
+        spielBrett = spielBrett :+ Street("Strasse5", 2, 120, -1, 200, 0, hypothek = false)
+        spielBrett = spielBrett :+ Jail("Zu besuch oder im Gefaengnis")
 
-        spielBrett :+ Street("Strasse6", 3, 140, -1, 200, 0, hypothek)
-        spielBrett :+ Elektrizitaetswerk("Elektrizitaetswerk", 10, 150, -1, 200, hypothek)
-        spielBrett :+ Street("Strasse7", 3, 140, -1, 200, 0, hypothek)
-        spielBrett :+ Street("Strasse8", 3, 160, -1, 200, 0, hypothek)
-        spielBrett :+ Trainstation("Westbahnhof", 9, 200, -1, 200, hypothek)
-        spielBrett :+ Street("Strasse9", 4, 180, -1, 200, 0, hypothek)
-        spielBrett :+ CommunityChest("Gemeinschaftsfeld2")
-        spielBrett :+ Street("Strasse10", 4, 180, -1, 200, 0, hypothek)
-        spielBrett :+ Street("Strasse11", 4, 200, -1, 200, 0, hypothek)
-        spielBrett :+ FreiParken("Freiparken")
+        spielBrett = spielBrett :+ Street("Strasse6", 3, 140, -1, 200, 0, hypothek = false)
+        spielBrett = spielBrett :+ Elektrizitaetswerk("Elektrizitaetswerk", 10, 150, -1, 200, hypothek = false)
+        spielBrett = spielBrett :+ Street("Strasse7", 3, 140, -1, 200, 0, hypothek = false)
+        spielBrett = spielBrett :+ Street("Strasse8", 3, 160, -1, 200, 0, hypothek = false)
+        spielBrett = spielBrett :+ Trainstation("Westbahnhof", 9, 200, -1, 200, hypothek = false)
+        spielBrett = spielBrett :+ Street("Strasse9", 4, 180, -1, 200, 0, hypothek = false)
+        spielBrett = spielBrett :+ CommunityChest("Gemeinschaftsfeld2")
+        spielBrett = spielBrett :+ Street("Strasse10", 4, 180, -1, 200, 0, hypothek = false)
+        spielBrett = spielBrett :+ Street("Strasse11", 4, 200, -1, 200, 0, hypothek = false)
+        spielBrett = spielBrett :+ FreiParken("Freiparken")
 
-        spielBrett :+ Street("Strasse12", 5, 220, -1, 200, 0, hypothek)
-        spielBrett :+ Eventcell("Ereignisfeld2")
-        spielBrett :+ Street("Strasse13", 5, 220, -1, 200, 0, hypothek)
-        spielBrett :+ Street("Strasse14", 5, 240, -1, 200, 0, hypothek)
-        spielBrett :+ Trainstation("Nordbahnhof", 9, 200, -1, 200, hypothek)
-        spielBrett :+ Street("Strasse15", 6, 260, -1, 500, 0, hypothek)
-        spielBrett :+ Street("Strasse16", 6, 260, -1, 800, 0, hypothek)
-        spielBrett :+ Wasserwerk("Wasserwerk", 10, 150, -1, 200, hypothek)
-        spielBrett :+ Street("Strasse17", 6, 280, -1, 2500, 0, hypothek)
-        spielBrett :+ GoToJail("Gehe ins Gefaengnis")
+        spielBrett = spielBrett :+ Street("Strasse12", 5, 220, -1, 200, 0, hypothek = false)
+        spielBrett = spielBrett :+ Eventcell("Ereignisfeld2")
+        spielBrett = spielBrett :+ Street("Strasse13", 5, 220, -1, 200, 0, hypothek = false)
+        spielBrett = spielBrett :+ Street("Strasse14", 5, 240, -1, 200, 0, hypothek = false)
+        spielBrett = spielBrett :+ Trainstation("Nordbahnhof", 9, 200, -1, 200, hypothek = false)
+        spielBrett = spielBrett :+ Street("Strasse15", 6, 260, -1, 500, 0, hypothek = false)
+        spielBrett = spielBrett :+ Street("Strasse16", 6, 260, -1, 800, 0, hypothek = false)
+        spielBrett = spielBrett :+ Wasserwerk("Wasserwerk", 10, 150, -1, 200, hypothek = false)
+        spielBrett = spielBrett :+ Street("Strasse17", 6, 280, -1, 2500, 0, hypothek = false)
+        spielBrett = spielBrett :+ GoToJail("Gehe ins Gefaengnis")
 
-        spielBrett :+ Street("Strasse18", 7, 300, -1, 200, 0, hypothek)
-        spielBrett :+ Street("Strasse19", 7, 300, -1, 200, 0, hypothek)
-        spielBrett :+ CommunityChest("Gemeinschaftsfeld3")
-        spielBrett :+ Street("Strasse20", 7, 320, -1, 200, 0, hypothek)
-        spielBrett :+ Trainstation("Nordbahnhof", 9, 200, -1, 200, hypothek)
-        spielBrett :+ Eventcell("Ereignisfeld3")
-        spielBrett :+ Street("Strasse21", 8, 350, -1, 200, 0, hypothek)
-        spielBrett :+ Zusatzsteuer("Zusatzsteuer")
-        spielBrett :+ Street("Strasse22", 8, 400, -1, 200, 0, hypothek)
+        spielBrett = spielBrett :+ Street("Strasse18", 7, 300, -1, 200, 0, hypothek = false)
+        spielBrett = spielBrett :+ Street("Strasse19", 7, 300, -1, 200, 0, hypothek = false)
+        spielBrett = spielBrett :+ CommunityChest("Gemeinschaftsfeld3")
+        spielBrett = spielBrett :+ Street("Strasse20", 7, 320, -1, 200, 0, hypothek = false)
+        spielBrett = spielBrett :+ Trainstation("Nordbahnhof", 9, 200, -1, 200, hypothek = false)
+        spielBrett = spielBrett :+ Eventcell("Ereignisfeld3")
+        spielBrett = spielBrett :+ Street("Strasse21", 8, 350, -1, 200, 0, hypothek = false)
+        spielBrett = spielBrett :+ Zusatzsteuer("Zusatzsteuer")
+        spielBrett = spielBrett :+ Street("Strasse22", 8, 400, -1, 200, 0, hypothek = false)
 
         spielBrett
     }
 
     def createPlayers(playerCount: Int, playerNames: Array[String]): Unit = {
-        for (i <- players.indices) {
-            players :+ Player(playerNames(i))
+        for (i <- 0 until playerCount) {
+            players = players :+ Player(playerNames(i))
         }
         this.playerCount = playerCount
     }
@@ -102,7 +101,7 @@ class Controller extends Observable {
             else pasch = false
             //3x pasch gleich jail sonst move player
             if (paschCount == 3) {
-                players.updated(isturn, players(isturn).moveToJail)
+                players = players.updated(isturn, players(isturn).moveToJail)
                 notifyObservers(playerMoveToJail(players(isturn)))
             } else movePlayer(throwDices._1 + throwDices._2)
         }
@@ -111,9 +110,9 @@ class Controller extends Observable {
     def playerInJail(): Unit = {
         val option = "rollDice"
         if (option == "buyOut") {
-            players.updated(isturn, players(isturn).decMoney(200))
+            players = players.updated(isturn, players(isturn).decMoney(200))
             checkDept(-1) // owner = bank
-            players.updated(isturn, players(isturn).resetJailCount)
+            players = players.updated(isturn, players(isturn).resetJailCount)
             notifyObservers(playerIsFreeEvent(players(isturn)))
             normalerZug()
         }
@@ -127,16 +126,16 @@ class Controller extends Observable {
             val throwDices = wuerfeln
             if (throwDices._3) {
                 // bei gewuerfelten pasch kommt man raus und moved
-                players.updated(isturn, players(isturn).resetJailCount)
+                players = players.updated(isturn, players(isturn).resetJailCount)
                 notifyObservers(playerIsFreeEvent(players(isturn)))
                 movePlayer(throwDices._1 + throwDices._2)
             } else {
                 //sonst jailcount +1
-                players.updated(isturn, players(isturn).incJailTime)
+                players = players.updated(isturn, players(isturn).incJailTime)
                 // wenn man 3 runden im jail ist kommt man raus, zahlt und moved
                 if (players(isturn).jailCount == 3) {
-                    players.updated(isturn, players(isturn).resetJailCount)
-                    players.updated(isturn, players(isturn).decMoney(200))
+                    players = players.updated(isturn, players(isturn).resetJailCount)
+                    players = players.updated(isturn, players(isturn).decMoney(200))
                     checkDept(-1) // owner is bank
                     notifyObservers(playerIsFreeEvent(players(isturn)))
                     movePlayer(throwDices._1 + throwDices._2)
@@ -157,12 +156,12 @@ class Controller extends Observable {
 
     def movePlayer(sumDiceThrow: Int): Unit = {
         // spieler bewegen
-        players.updated(isturn, players(isturn).move(sumDiceThrow))
+        players = players.updated(isturn, players(isturn).move(sumDiceThrow))
         // schauen ob über los gegangen
         if (players(isturn).position >= 40) {
             notifyObservers(playerWentOverGoEvent(players(isturn)))
-            players.updated(isturn, players(isturn).incMoney(200))
-            players.updated(isturn, players(isturn).moveBack(40))
+            players = players.updated(isturn, players(isturn).incMoney(200))
+            players = players.updated(isturn, players(isturn).moveBack(40))
         }
         // neue position ausgeben
         notifyObservers(playerMoveEvent(players(isturn)))
@@ -212,8 +211,8 @@ class Controller extends Observable {
 
     def buyStreet(field: Street): Unit = {
         if (players(isturn).money >= field.price) {
-            players.updated(isturn, players(isturn).decMoney(field.price))
-            spielBrett.updated(players(isturn).position, field.setOwner(isturn))
+            players = players.updated(isturn, players(isturn).decMoney(field.price))
+            spielBrett = spielBrett.updated(players(isturn).position, field.setOwner(isturn))
         }
         notifyObservers(buyStreetEvent(players(isturn), field))
     }
@@ -228,15 +227,15 @@ class Controller extends Observable {
                     case s: Street =>
                         // erst auf hypothek setzen dann an bank verkaufen
                         if (spielBrett(i).asInstanceOf[Street].owner == isturn) {
-                            spielBrett.updated(i, spielBrett(i).asInstanceOf[Street].setOwner(-1))
-                            players.updated(isturn, players(isturn).incMoney(s.price))
+                            spielBrett = spielBrett.updated(i, spielBrett(i).asInstanceOf[Street].setOwner(-1))
+                            players = players.updated(isturn, players(isturn).incMoney(s.price))
                             notifyObservers(playerSellsStreetEvent(players(isturn), spielBrett(i).asInstanceOf[Street]))
                         }
                     case s: Trainstation =>
                         if (spielBrett(i).asInstanceOf[Trainstation].owner == isturn) {
                             // an bank verkaufen
-                            spielBrett.updated(i, spielBrett(i).asInstanceOf[Trainstation].setOwner(-1))
-                            players.updated(isturn, players(isturn).incMoney(s.price))
+                            spielBrett = spielBrett.updated(i, spielBrett(i).asInstanceOf[Trainstation].setOwner(-1))
+                            players = players.updated(isturn, players(isturn).incMoney(s.price))
                             notifyObservers(playerSellsStreetEvent(players(isturn), spielBrett(i).asInstanceOf[Street]))
                         }
                     case _ =>
@@ -253,8 +252,8 @@ class Controller extends Observable {
         // mietpreis holen
         val rent = field.rent
         //miete abziehen
-        players.updated(isturn, players(isturn).decMoney(rent))
-        players.updated(field.owner, players(field.owner).incMoney(rent))
+        players = players.updated(isturn, players(isturn).decMoney(rent))
+        players = players.updated(field.owner, players(field.owner).incMoney(rent))
         notifyObservers(payRentEvent(players(isturn), players(field.owner)))
         // schauen ob player ins minus gekommen ist
         checkDept(field.owner)
@@ -276,15 +275,15 @@ class Controller extends Observable {
 
     def buyHome(field: Street): Unit = {
         if (players(isturn).money > 200)
-            players.updated(isturn, players(isturn).decMoney(200))
+            players = players.updated(isturn, players(isturn).decMoney(200))
         // todo if player owns group of streets buy house
         // todo if housecount = street.maxhouses buy hotel
-        spielBrett.updated(players(isturn).position, spielBrett(players(isturn).position).asInstanceOf[Street].buyHome(1))
+        spielBrett = spielBrett.updated(players(isturn).position, spielBrett(players(isturn).position).asInstanceOf[Street].buyHome(1))
     }
 
     def activateStart(field: Los): Unit = {
         field.onPlayerEntered(isturn)
-        players.updated(isturn, players(isturn).incMoney(200))
+        players = players.updated(isturn, players(isturn).incMoney(200))
     }
 
     def activateEvent(field: Eventcell): Unit = {
@@ -293,7 +292,7 @@ class Controller extends Observable {
 
     def activateJail(field: Jail): Unit = {
         field.onPlayerEntered(isturn)
-        players.updated(isturn, players(isturn).moveToJail)
+        players = players.updated(isturn, players(isturn).moveToJail)
     }
 
     def activateGoToJail(field: GoToJail): Unit = {
@@ -375,7 +374,6 @@ class Controller extends Observable {
                     var owner = s.owner.toString
                     if (s.owner != -1) owner = players(s.owner).name
                     string += s.toString + " | Owner: " + owner
-                case _ =>
             }
             // spieler die sich auf dem aktuellen feld befinden werden angezeigt
             if (playersOnThisField != "") string += " | players on this field: " + playersOnThisField
