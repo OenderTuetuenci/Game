@@ -28,8 +28,7 @@ class Tui(controller: Controller) extends Observer{
       case e:playerRemainsInJail=>println(e.player.name +" remains in Jail)")
       case e: playerWentOverGoEvent => println(controller.getPlayerWentOverGoString(e))
       case e: playerWentOnGoEvent => println(controller.getPlayerWentOnGoString(e))
-
-      case _ =>
+      case e: streetOnHypothekEvent => println(controller.getStreetOnHypothekString(e))
     }
   }
 

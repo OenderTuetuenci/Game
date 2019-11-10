@@ -60,9 +60,7 @@ class Controller extends Observable {
     }
 
     def createPlayers(playerCount: Int, playerNames: Array[String]): Unit = {
-        for (i <- 0 until playerCount) {
-            players = players :+ Player(playerNames(i))
-        }
+        for (i <- 0 until playerCount) players = players :+ Player(playerNames(i))
         this.playerCount = playerCount
     }
 
@@ -72,11 +70,16 @@ class Controller extends Observable {
             isturn = i
             // jeder der noch geld hat darf seinen zug ausfuehren
             if (players(isturn).money > 0) {
-                notifyObservers(normalTurnEvent(players(isturn)))
                 // Todo handeln, strassen verkaufen,hypothek bezahlen etc vor dem wuerfeln
                 // schauen ob spieler frei oder im jail ist
-                if (players(isturn).jailCount > -1) playerInJail()
-                else normalerZug()
+                if (players(isturn).jailCount > -1) {
+                    notifyObservers(playerInJailEvent(players(isturn)))
+                    playerInJail()
+                }
+                else {
+                    notifyObservers(normalTurnEvent(players(isturn)))
+                    normalerZug()
+                }
                 // todo falls der spieler nicht pleite geht darf er handeln
                 // zugende
                 //Thread.sleep(1000) // wait for 1000 millisecond between player moves
@@ -265,16 +268,18 @@ class Controller extends Observable {
         if (option == "buy") {
             // wer geld hat kauft die straße
             buyStreet(field)
-            //ansonsten miete zahlen
+            //ansonsten miete zahlen falls keine hypothek
         } else if (option == "pay") {
-            payRent(field)
+            if (!field.hypothek) payRent(field)
+            else notifyObservers(streetOnHypothekEvent(field))
+
         } else if (option == "buy home") {
             buyHome(field)
         }
     }
 
     def buyHome(field: Street): Unit = {
-        if (players(isturn).money > 200)
+        if (players(isturn).money > 200 && !field.hypothek) // todo hypothek
             players = players.updated(isturn, players(isturn).decMoney(200))
         // todo if player owns group of streets buy house
         // todo if housecount = street.maxhouses buy hotel
@@ -396,7 +401,7 @@ class Controller extends Observable {
     }
 
     def getPlayerInJailString(e: playerInJailEvent): String = {
-        var string = e.player.name + "is in jail!\n"
+        var string = "\n" + e.player.name + " is in jail!\n"
         string += "Jailcount: " + e.player.jailCount + 1 + "\n"
         if (e.player.jailCount < 3)
             string += e.player.name + " remains in jail"
@@ -404,6 +409,8 @@ class Controller extends Observable {
             string += e.player.name + " is free again!"
         string
     }
+
+    def getStreetOnHypothekString(e: streetOnHypothekEvent): String = e.street.name + "is on hypothek. "
 
     def getBuyStreetEventString(e: buyStreetEvent): String = {
         var string = e.player.money + "\n"

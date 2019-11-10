@@ -84,7 +84,10 @@ case class Elektrizitaetswerk(name: String, group: Int, price: Int, owner: Int, 
     "\nplayer entered JailVisit"
   }
 
-    override def toString: String = {
+  def setOwner(x: Int): Elektrizitaetswerk = Elektrizitaetswerk(name, group, price, x, rent, hypothek)
+
+
+  override def toString: String = {
       name + " group: " + group + " price: " + price + " rent: " + rent + " hypothek: " + hypothek
     }
 }
