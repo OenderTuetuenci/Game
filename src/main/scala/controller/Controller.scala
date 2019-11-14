@@ -157,7 +157,7 @@ class Controller extends Observable {
                     for (i <- spielBrett.indices) {
                         actionDone = false
                         spielBrett(i) match {
-                            // besitz suchen und verkaufen bis über 0
+                            // alle felder durchgehen und schauen ob spieler der besitzer sit
                             //todo straßen, karten, ... verkaufen, später an spieler oder bank
                             case s: Street =>
                                 // erst auf hypothek setzen dann an bank verkaufen
