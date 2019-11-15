@@ -11,6 +11,7 @@ class Controller extends Observable {
     var players: Vector[Player] = Vector[Player]()
     var isturn = 0 // aktueller spieler
     var round = 1
+    val dice = Dice()
 
     def createSpielBrett: Vector[Cell] = {
         var spielBrett = Vector[Cell]()
@@ -208,13 +209,13 @@ class Controller extends Observable {
     }
 
     def wuerfeln: (Int, Int, Boolean) = {
-        val dice = Dice().roll
-        val dice2 = Dice().roll
+        val roll1 = dice.roll
+        val roll2 = dice.roll
         var pasch = false
-        if (dice.checkPash(dice.eyeCount, dice2.eyeCount)) {
+        if (dice.checkPash(roll1, roll2)) {
             pasch = true
         }
-        (dice.eyeCount, dice2.eyeCount, pasch)
+        (roll1, roll2, pasch)
     }
 
     def playerInJail(): Unit = {
