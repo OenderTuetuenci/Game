@@ -1,5 +1,5 @@
 import controller.Controller
-import model.printEverythingEvent
+import model.{Player, printEverythingEvent}
 import view.Tui
 
 object Monopoly {

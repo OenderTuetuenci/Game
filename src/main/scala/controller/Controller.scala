@@ -6,7 +6,7 @@ import util.Observable
 import scala.util.control.Breaks._
 
 class Controller extends Observable {
-    var spielBrett: Vector[Cell] = createSpielBrett
+    var board: Vector[Cell] = createSpielBrett
     var playerCount = 0
     var players: Vector[Player] = Vector[Player]()
     var isturn = 0 // aktueller spieler
@@ -100,26 +100,26 @@ class Controller extends Observable {
     def checkHypothek(): Unit = {
         // in allen straßen des spielers suchen ob hypothek vorliegt
         // todo lieber feld von besitz beim spieler anlegen damit man nicht durch alle felder muss
-        for (i <- spielBrett.indices) {
-            spielBrett(i) match {
+        for (i <- board.indices) {
+            board(i) match {
                 case s: Street =>
-                    if (spielBrett(i).asInstanceOf[Street].owner == isturn) {
+                    if (board(i).asInstanceOf[Street].owner == isturn) {
                         // wenn er die hypothek zahlen kann tut er dies
                         if (s.hypothek && players(isturn).money > s.price) {
-                            spielBrett = spielBrett.updated(i, spielBrett(i).asInstanceOf[Street].payHypothek())
+                            board = board.updated(i, board(i).asInstanceOf[Street].payHypothek())
                             players = players.updated(isturn, players(isturn).decMoney(s.price))
                             checkDept(-1)
-                            notifyObservers(playerPaysHyptohekOnStreetEvent(players(isturn), spielBrett(i).asInstanceOf[Street]))
+                            notifyObservers(playerPaysHyptohekOnStreetEvent(players(isturn), board(i).asInstanceOf[Street]))
                         }
                     }
                 case s: Trainstation =>
-                    if (spielBrett(i).asInstanceOf[Trainstation].owner == isturn) {
+                    if (board(i).asInstanceOf[Trainstation].owner == isturn) {
                         // wenn er die hypothek zahlen kann tut er dies
                         if (s.hypothek && players(isturn).money > s.price) {
-                            spielBrett = spielBrett.updated(i, spielBrett(i).asInstanceOf[Trainstation].payHypothek())
+                            board = board.updated(i, board(i).asInstanceOf[Trainstation].payHypothek())
                             players = players.updated(isturn, players(isturn).decMoney(s.price))
                             checkDept(-1)
-                            notifyObservers(playerPaysHyptohekOnTrainstationEvent(players(isturn), spielBrett(i).asInstanceOf[Trainstation]))
+                            notifyObservers(playerPaysHyptohekOnTrainstationEvent(players(isturn), board(i).asInstanceOf[Trainstation]))
                         }
                     }
                 case _ =>
@@ -155,42 +155,42 @@ class Controller extends Observable {
             breakable { // break wenn player plus -> breakable from scala.util.
                 do {
                     // uebers ganze spielfeld gehen todo über besitzliste von owner
-                    for (i <- spielBrett.indices) {
+                    for (i <- board.indices) {
                         actionDone = false
-                        spielBrett(i) match {
+                        board(i) match {
                             // alle felder durchgehen und schauen ob spieler der besitzer sit
                             //todo straßen, karten, ... verkaufen, später an spieler oder bank
                             case s: Street =>
                                 // erst auf hypothek setzen dann an bank verkaufen
-                                if (spielBrett(i).asInstanceOf[Street].owner == isturn) {
+                                if (board(i).asInstanceOf[Street].owner == isturn) {
                                     // todo hotels dann haeuser zuerst verkaufen
                                     // strasse mit hypothek belasten
                                     if (!s.hypothek) {
-                                        spielBrett = spielBrett.updated(i, spielBrett(i).asInstanceOf[Street].getHypothek())
+                                        board = board.updated(i, board(i).asInstanceOf[Street].getHypothek())
                                         players = players.updated(isturn, players(isturn).incMoney(s.price))
-                                        notifyObservers(playerUsesHyptohekOnStreetEvent(players(isturn), spielBrett(i).asInstanceOf[Street]))
+                                        notifyObservers(playerUsesHyptohekOnStreetEvent(players(isturn), board(i).asInstanceOf[Street]))
                                         actionDone = true
                                     } else {
                                         //sonst straße verkaufen an bank todo später an spieler
-                                        spielBrett = spielBrett.updated(i, spielBrett(i).asInstanceOf[Street].setOwner(-1))
+                                        board = board.updated(i, board(i).asInstanceOf[Street].setOwner(-1))
                                         players = players.updated(isturn, players(isturn).incMoney(s.price))
-                                        notifyObservers(playerSellsStreetEvent(players(isturn), spielBrett(i).asInstanceOf[Street]))
+                                        notifyObservers(playerSellsStreetEvent(players(isturn), board(i).asInstanceOf[Street]))
                                         actionDone = true
                                     }
                                 }
                             case s: Trainstation =>
-                                if (spielBrett(i).asInstanceOf[Trainstation].owner == isturn) {
+                                if (board(i).asInstanceOf[Trainstation].owner == isturn) {
                                     // bahnhof mit hypothek belasten
                                     if (!s.hypothek) {
-                                        spielBrett = spielBrett.updated(i, spielBrett(i).asInstanceOf[Trainstation].getHypothek())
+                                        board = board.updated(i, board(i).asInstanceOf[Trainstation].getHypothek())
                                         players = players.updated(isturn, players(isturn).incMoney(s.price))
-                                        notifyObservers(playerUsesHyptohekOnTrainstationEvent(players(isturn), spielBrett(i).asInstanceOf[Trainstation]))
+                                        notifyObservers(playerUsesHyptohekOnTrainstationEvent(players(isturn), board(i).asInstanceOf[Trainstation]))
                                         actionDone = true
                                     } else {
                                         // an bank verkaufen
-                                        spielBrett = spielBrett.updated(i, spielBrett(i).asInstanceOf[Trainstation].setOwner(-1))
+                                        board = board.updated(i, board(i).asInstanceOf[Trainstation].setOwner(-1))
                                         players = players.updated(isturn, players(isturn).incMoney(s.price))
-                                        notifyObservers(playerSellsTrainstationEvent(players(isturn), spielBrett(i).asInstanceOf[Trainstation]))
+                                        notifyObservers(playerSellsTrainstationEvent(players(isturn), board(i).asInstanceOf[Trainstation]))
                                         actionDone = true
                                     }
                                 }
@@ -283,7 +283,7 @@ class Controller extends Observable {
     def buyStreet(field: Street): Unit = {
         if (players(isturn).money >= field.price) {
             players = players.updated(isturn, players(isturn).decMoney(field.price))
-            spielBrett = spielBrett.updated(players(isturn).position, field.setOwner(isturn))
+            board = board.updated(players(isturn).position, field.setOwner(isturn))
         }
         notifyObservers(buyStreetEvent(players(isturn), field))
     }
@@ -300,7 +300,7 @@ class Controller extends Observable {
         // neue position ausgeben
         notifyObservers(playerMoveEvent(players(isturn)))
         // aktion fuer betretetenes feld ausloesen
-        val field = spielBrett(players(isturn).position)
+        val field = board(players(isturn).position)
         field match {
             case e: Los => activateStart(e.asInstanceOf[Los])
             case e: Street => activateStreet(e.asInstanceOf[Street])
@@ -355,7 +355,7 @@ class Controller extends Observable {
             players = players.updated(isturn, players(isturn).decMoney(200))
         // todo if player owns group of streets buy house
         // todo if housecount = street.maxhouses buy hotel
-        spielBrett = spielBrett.updated(players(isturn).position, spielBrett(players(isturn).position).asInstanceOf[Street].buyHome(1))
+        board = board.updated(players(isturn).position, board(players(isturn).position).asInstanceOf[Street].buyHome(1))
     }
 
     def activateEvent(field: Eventcell): Unit = {
@@ -398,153 +398,4 @@ class Controller extends Observable {
     def activateZusatzsteuer(field: Zusatzsteuer): Unit = {
         field.onPlayerEntered(isturn)
     }
-
-    // Strings für die tui
-
-    def getPlayerAndBoardToString: String = {
-        var string = ""
-        string += "\nSpieler: "
-        for (player <- players) string += player.toString + "\n"
-        string += "\nSpielfeld:\n"
-        for (i <- spielBrett.indices) {
-            // spieler die noch in der runde sind raussuchen
-            var playersOnThisField = ""
-            for (player <- players) {
-                if (player.money > 0 && player.position == i) {
-                    playersOnThisField += player.name + " "
-                }
-            }
-            // felder anzeigen
-            spielBrett(i) match {
-                case s: Los => string += s.toString
-                case s: Eventcell => string += s.toString
-                case s: CommunityChest => string += s.toString
-                case s: IncomeTax => string += s.toString
-                case s: Jail => string += s.toString
-                case s: Elektrizitaetswerk => string += s.toString
-                case s: Wasserwerk => string += s.toString
-                case s: Zusatzsteuer => string += s.toString
-                case s: FreiParken => string += s.toString
-                case s: GoToJail => string += s.toString
-                case s: Street =>
-                    // besitzer des feldes suchen
-                    var owner = s.owner.toString
-                    if (s.owner != -1) owner = players(s.owner).name
-                    string += s.toString + " | Owner: " + owner
-                case s: Trainstation =>
-                    // besitzer des feldes suchen
-                    var owner = s.owner.toString
-                    if (s.owner != -1) owner = players(s.owner).name
-                    string += s.toString + " | Owner: " + owner
-                case s: Elektrizitaetswerk =>
-                    // besitzer des feldes suchen
-                    var owner = s.owner.toString
-                    if (s.owner != -1) owner = players(s.owner).name
-                    string += s.toString + " | Owner: " + owner
-                case s: Wasserwerk =>
-                    // besitzer des feldes suchen
-                    var owner = s.owner.toString
-                    if (s.owner != -1) owner = players(s.owner).name
-                    string += s.toString + " | Owner: " + owner
-            }
-            // spieler die sich auf dem aktuellen feld befinden werden angezeigt
-            if (playersOnThisField != "") string += " | players on this field: " + playersOnThisField
-            string += "\n"
-        }
-        string
-    }
-
-    def getRollString(e: diceEvent): String = {
-        var string = "throwing Dice:\n"
-        string += "rolled :" + e.eyeCount1 + " " + e.eyeCount2 + "\n"
-        if (e.pasch)
-            string += "rolled pasch!"
-        string
-    }
-
-    def getNormalTurnString(e: normalTurnEvent): String = {
-        val string = "Its " + e.player.toString + " turn!\n"
-        string
-    }
-
-    def getPlayerInJailString(e: playerInJailEvent): String = {
-        var string = "\nIts " + e.player.toString + " turn. he is in jail!\n"
-        string += "Jailcount: " + (e.player.jailCount + 1) + "\n"
-        string
-    }
-
-    def getPlayerIsFreeString(e: playerIsFreeEvent): String = e.player.name + " is free again!"
-
-
-    def getPlayerRemainsInJailString(e: playerRemainsInJailEvent): String = e.player.name + " remains in jail"
-
-
-    def getStreetOnHypothekString(e: streetOnHypothekEvent): String = e.street.name + " is on hypothek. "
-
-    def getBuyStreetEventString(e: buyStreetEvent): String = {
-        var string = e.player.money + "\n"
-        if (e.player.money > e.street.price)
-            string = "bought " + e.street.name
-        else
-            string = "can´t afford street"
-        string
-    }
-
-    def getBuyTrainstationEventString(e: buyTrainstationEvent): String = {
-        var string = e.player.money + "\n"
-        if (e.player.money > e.street.price)
-            string += "bought " + e.street.name
-        else
-            string += "can´t afford street"
-        string
-    }
-
-    def getPayRentString(e: payRentEvent): String = e.from.name + " pays rent to " + e.to.name
-
-    def getPlayerWentOverGoString(e: playerWentOverGoEvent): String = e.player.name + " went over go."
-
-    def getPlayerWentOnGoString(e: playerWentOnGoEvent): String = e.player.name + " went on go and gets extra money."
-
-    def getGameOverString(e: gameOverEvent): String = e.winner.name + " is the winner!!"
-
-    def getBrokeEventString(e: brokeEvent): String = e.player.name + " is broke!!"
-
-    def getPlayerUsesHypothekOnStreetString(e: playerUsesHyptohekOnStreetEvent): String = {
-        e.player.name + " gets Hypothek for " + e.street.name + " new creditbalance: " + e.player.money
-
-    }
-
-    def getPlayerPaysHypothekOnStreetString(e: playerPaysHyptohekOnStreetEvent): String = {
-        e.player.name + " pays Hypothek for " + e.street.name + " new creditbalance: " + e.player.money
-    }
-
-    def getPlayerSellsStreetString(e: playerSellsStreetEvent): String = {
-        var string = e.from.name + " sells " + e.street.name + "\n"
-        string += "new creditbalance: " + e.from.money
-        string
-    }
-
-    def getPlayerUsesHypothekOnTrainstationString(e: playerUsesHyptohekOnTrainstationEvent): String = {
-        e.player.name + " pays Hypothek for " + e.street.name + " new creditbalance: " + e.player.money
-    }
-
-    def getPlayerPaysHypothekOnTrainstationString(e: playerPaysHyptohekOnTrainstationEvent): String = {
-        e.player.name + " pays Hypothek for " + e.street.name + " new creditbalance: " + e.player.money
-    }
-
-    def getPlayerSellsTrainstationString(e: playerSellsTrainstationEvent): String = {
-        var string = e.from.name + " sells " + e.street.name + "\n"
-        string += "new creditbalance: " + e.from.money
-        string
-    }
-
-    def getEndRoundString(e: endRoundEvent): String = "\n\n\nround " + e.round + " ends"
-
-    def getNewRoundString(e: newRoundEvent): String = "\n\nround " + e.round + " starts"
-
-    def getPlayerMoveToJailString(e: playerMoveToJail): String = e.player.name + " moved to Jail!"
-
-    def getPlayerMovedString(e: playerMoveEvent): String = e.player.name + " moved to " + e.player.position
-
-    def getPlayerHasDeptEventString(e: playerHasDeptEvent): String = e.player.name + " " + " is in minus: " + e.player.money
 }
