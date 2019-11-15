@@ -386,7 +386,7 @@ class Controller extends Observable {
     def activateElektrizitaetswerk(field: Elektrizitaetswerk): Unit = {
         field.onPlayerEntered(isturn)
     }
-    //sss
+
     def activateTrainstation(field: Trainstation): Unit = {
         field.onPlayerEntered(isturn)
     }
