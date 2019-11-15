@@ -29,7 +29,7 @@ class Tui(controller: Controller) extends Observer {
             case e: endRoundEvent => println(getEndRoundString(e))
             case e: playerMoveToJail => println(getPlayerMoveToJailString(e))
             case e: optionEvent => println(getOptionString(e))
-            case e: printEverythingEvent => println(getPlayerAndBoardToString())
+            case e: printEverythingEvent => println(getPlayerAndBoardToString)
             case e: playerMoveEvent => println(getPlayerMovedString(e))
             case e: playerIsFreeEvent => println(getPlayerIsFreeString(e))
             case e: playerRemainsInJailEvent => println(getPlayerRemainsInJailString(e))
@@ -51,7 +51,7 @@ class Tui(controller: Controller) extends Observer {
         }
         controller.createPlayers(playerCount, playerNames)
     }
-    def getPlayerAndBoardToString(): String = {
+    def getPlayerAndBoardToString : String = {
         val players = controller.players
         val board = controller.board
         var string = ""
