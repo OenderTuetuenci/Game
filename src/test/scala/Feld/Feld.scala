@@ -1,5 +1,0 @@
-package Feld
-
-class scala {
-
-}

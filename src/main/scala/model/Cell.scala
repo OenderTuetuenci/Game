@@ -14,7 +14,6 @@ case class Street(name: String, group: Int, price: Int, owner: Int, rent: Int, h
         if (this.owner == -1) "buy"
         else if (this.owner == enteredPlayer) "buy home"
         else "pay"
-
     }
 
     def setOwner(x: Int): Street = Street(name, group, price, x, rent, home, hypothek)
