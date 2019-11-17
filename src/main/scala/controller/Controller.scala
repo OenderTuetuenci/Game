@@ -106,7 +106,7 @@ class Controller extends Observable {
                     if (board(i).asInstanceOf[Street].owner == isturn) {
                         // wenn er die hypothek zahlen kann tut er dies
                         if (s.mortgage && players(isturn).money > s.price) {
-                            board = board.updated(i, board(i).asInstanceOf[Street].payMortgage())
+                            board = board.updated(i, board(i).asInstanceOf[Street].payMortgage)
                             players = players.updated(isturn, players(isturn).decMoney(s.price))
                             checkDept(-1)
                             notifyObservers(playerPaysHyptohekOnStreetEvent(players(isturn), board(i).asInstanceOf[Street]))
@@ -166,7 +166,7 @@ class Controller extends Observable {
                                     // todo hotels dann haeuser zuerst verkaufen
                                     // strasse mit hypothek belasten
                                     if (!s.mortgage) {
-                                        board = board.updated(i, board(i).asInstanceOf[Street].getMortgage())
+                                        board = board.updated(i, board(i).asInstanceOf[Street].getMortgage)
                                         players = players.updated(isturn, players(isturn).incMoney(s.price))
                                         notifyObservers(playerUsesHyptohekOnStreetEvent(players(isturn), board(i).asInstanceOf[Street]))
                                         actionDone = true
