@@ -34,12 +34,7 @@ case class Street(name: String, group: Int, price: Int, owner: Int, rent: Int, h
         Street(name, group, price, owner, newRent, home - x, mortgage)
     }
 
-    override def toString: String = {
-        if (home > 0)
-            name + " group: " + group + " price: " + price + " rent: " + rent + " homecount: " + home + " mortgage: " + mortgage
-        else
-            name + " group: " + group + " price: " + price + " rent: " + rent + " mortgage: " + mortgage
-    }
+    override def toString: String = name + " group: " + group + " price: " + price + " rent: " + rent + " homecount: " + home + " mortgage: " + mortgage
 }
 
 case class Eventcell(name: String) extends Cell(name) {
