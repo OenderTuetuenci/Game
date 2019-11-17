@@ -20,6 +20,18 @@ class PlayerTest extends WordSpec with Matchers {
       player.jailCount should be(-1)
     }
   }
+    "can move his position" should{
+      val player = Player("Name",40)
+      val player2 = Player("Name")
+      val forward = player.move(5)
+      val backward = player2.moveBack(5)
+      "can move forward" in {
+        forward.position should be(4)
+      }
+      "can move backwards" in{
+        backward.position should be(36)
+      }
+    }
     "set to a specific Position"should{
       val player = Player("Name",5)
       "return that value" in{
@@ -29,6 +41,7 @@ class PlayerTest extends WordSpec with Matchers {
     "set to a new name" should{
       val player = Player("Name")
       "return new name" in{
+        player.name should be("Name")
       }
     }
     "gains or loses money" should{

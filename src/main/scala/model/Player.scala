@@ -5,12 +5,20 @@ case class Player(name: String, position: Int = 0, money: Int = 10000, jailCount
 
     //Moves player about x places
     def move(x: Int): Player = {
-        Player(name, this.position + x, money, jailCount)
+        var newPos = position+x
+        if (newPos > 41) {
+            newPos = x + position - 41
+        }
+        Player(name, newPos, money, jailCount)
     }
 
     //Moves player about x places
     def moveBack(x: Int): Player = {
-        Player(name, this.position - x, money, jailCount)
+        var newPos = position-x
+        if(newPos < 0){
+            newPos = 41-x
+        }
+        Player(name, newPos, money, jailCount)
     }
 
     def incJailTime: Player = {
