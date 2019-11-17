@@ -8,7 +8,7 @@ abstract class Cell(name: String) {
     override def toString: String = name
 }
 
-case class Street(name: String, group: Int, price: Int, owner: Int, rent: Int, home: Int, hypothek: Boolean) extends Cell(name) {
+case class Street(name: String, group: Int, price: Int, owner: Int, rent: Int, home: Int, mortgage: Boolean) extends Cell(name) {
     override def onPlayerEntered(enteredPlayer: Int): String = {
         println("\nplayer entered " + this.name + ". owner: " + this.owner)
         if (this.owner == -1) "buy"
@@ -17,28 +17,28 @@ case class Street(name: String, group: Int, price: Int, owner: Int, rent: Int, h
 
     }
 
-    def setOwner(x: Int): Street = Street(name, group, price, x, rent, home, hypothek)
+    def setOwner(x: Int): Street = Street(name, group, price, x, rent, home, mortgage)
 
-    def getHypothek(): Street = Street(name, group, price, owner, rent, home, hypothek = true)
+    def getMortgage: Street = Street(name, group, price, owner, rent, home, mortgage = true)
 
-    def payHypothek(): Street = Street(name, group, price, owner, rent, home, hypothek = false)
+    def payMortgage: Street = Street(name, group, price, owner, rent, home, mortgage = false)
 
     //Functions to buy or sell homes to increase rent
     def buyHome(x: Int): Street = {
         val newRent = rent + (home * 200)
-        Street(name, group, price, owner, newRent, home + x, hypothek)
+        Street(name, group, price, owner, newRent, home + x, mortgage)
     }
 
     def sellHome(x: Int): Street = {
         val newRent = rent - (x * 200)
-        Street(name, group, price, owner, newRent, home - x, hypothek)
+        Street(name, group, price, owner, newRent, home - x, mortgage)
     }
 
     override def toString: String = {
         if (home > 0)
-            name + " group: " + group + " price: " + price + " rent: " + rent + " homecount: " + home + " hypothek: " + hypothek
+            name + " group: " + group + " price: " + price + " rent: " + rent + " homecount: " + home + " mortgage: " + mortgage
         else
-            name + " group: " + group + " price: " + price + " rent: " + rent + " hypothek: " + hypothek
+            name + " group: " + group + " price: " + price + " rent: " + rent + " mortgage: " + mortgage
     }
 }
 

@@ -16,48 +16,48 @@ class Controller extends Observable {
     def createSpielBrett: Vector[Cell] = {
         var spielBrett = Vector[Cell]()
         spielBrett = spielBrett :+ Los("Los")
-        spielBrett = spielBrett :+ Street("Strasse1", 1, 60, -1, 200, 0, hypothek = false)
+        spielBrett = spielBrett :+ Street("Strasse1", 1, 60, -1, 200, 0, mortgage = false)
         spielBrett = spielBrett :+ CommunityChest("Gemeinschaftsfeld1")
-        spielBrett = spielBrett :+ Street("Strasse2", 1, 60, -1, 200, 0, hypothek = false)
+        spielBrett = spielBrett :+ Street("Strasse2", 1, 60, -1, 200, 0, mortgage = false)
         spielBrett = spielBrett :+ IncomeTax("Einkommensteuer")
         spielBrett = spielBrett :+ Trainstation("Suedbahnhof", 9, 200, -1, 200, hypothek = false)
-        spielBrett = spielBrett :+ Street("Strasse3", 2, 100, -1, 200, 0, hypothek = false)
+        spielBrett = spielBrett :+ Street("Strasse3", 2, 100, -1, 200, 0, mortgage = false)
         spielBrett = spielBrett :+ Eventcell("Ereignisfeld1")
-        spielBrett = spielBrett :+ Street("Strasse4", 2, 100, -1, 200, 0, hypothek = false)
-        spielBrett = spielBrett :+ Street("Strasse5", 2, 120, -1, 200, 0, hypothek = false)
+        spielBrett = spielBrett :+ Street("Strasse4", 2, 100, -1, 200, 0, mortgage = false)
+        spielBrett = spielBrett :+ Street("Strasse5", 2, 120, -1, 200, 0, mortgage = false)
         spielBrett = spielBrett :+ Jail("Zu besuch oder im Gefaengnis")
 
-        spielBrett = spielBrett :+ Street("Strasse6", 3, 140, -1, 200, 0, hypothek = false)
+        spielBrett = spielBrett :+ Street("Strasse6", 3, 140, -1, 200, 0, mortgage = false)
         spielBrett = spielBrett :+ Elektrizitaetswerk("Elektrizitaetswerk", 10, 150, -1, 200, hypothek = false)
-        spielBrett = spielBrett :+ Street("Strasse7", 3, 140, -1, 200, 0, hypothek = false)
-        spielBrett = spielBrett :+ Street("Strasse8", 3, 160, -1, 200, 0, hypothek = false)
+        spielBrett = spielBrett :+ Street("Strasse7", 3, 140, -1, 200, 0, mortgage = false)
+        spielBrett = spielBrett :+ Street("Strasse8", 3, 160, -1, 200, 0, mortgage = false)
         spielBrett = spielBrett :+ Trainstation("Westbahnhof", 9, 200, -1, 200, hypothek = false)
-        spielBrett = spielBrett :+ Street("Strasse9", 4, 180, -1, 200, 0, hypothek = false)
+        spielBrett = spielBrett :+ Street("Strasse9", 4, 180, -1, 200, 0, mortgage = false)
         spielBrett = spielBrett :+ CommunityChest("Gemeinschaftsfeld2")
-        spielBrett = spielBrett :+ Street("Strasse10", 4, 180, -1, 200, 0, hypothek = false)
-        spielBrett = spielBrett :+ Street("Strasse11", 4, 200, -1, 200, 0, hypothek = false)
+        spielBrett = spielBrett :+ Street("Strasse10", 4, 180, -1, 200, 0, mortgage = false)
+        spielBrett = spielBrett :+ Street("Strasse11", 4, 200, -1, 200, 0, mortgage = false)
         spielBrett = spielBrett :+ FreiParken("Freiparken")
 
-        spielBrett = spielBrett :+ Street("Strasse12", 5, 220, -1, 200, 0, hypothek = false)
+        spielBrett = spielBrett :+ Street("Strasse12", 5, 220, -1, 200, 0, mortgage = false)
         spielBrett = spielBrett :+ Eventcell("Ereignisfeld2")
-        spielBrett = spielBrett :+ Street("Strasse13", 5, 220, -1, 200, 0, hypothek = false)
-        spielBrett = spielBrett :+ Street("Strasse14", 5, 240, -1, 200, 0, hypothek = false)
+        spielBrett = spielBrett :+ Street("Strasse13", 5, 220, -1, 200, 0, mortgage = false)
+        spielBrett = spielBrett :+ Street("Strasse14", 5, 240, -1, 200, 0, mortgage = false)
         spielBrett = spielBrett :+ Trainstation("Nordbahnhof", 9, 200, -1, 200, hypothek = false)
-        spielBrett = spielBrett :+ Street("Strasse15", 6, 260, -1, 500, 0, hypothek = false)
-        spielBrett = spielBrett :+ Street("Strasse16", 6, 260, -1, 800, 0, hypothek = false)
+        spielBrett = spielBrett :+ Street("Strasse15", 6, 260, -1, 500, 0, mortgage = false)
+        spielBrett = spielBrett :+ Street("Strasse16", 6, 260, -1, 800, 0, mortgage = false)
         spielBrett = spielBrett :+ Wasserwerk("Wasserwerk", 10, 150, -1, 200, hypothek = false)
-        spielBrett = spielBrett :+ Street("Strasse17", 6, 280, -1, 2500, 0, hypothek = false)
+        spielBrett = spielBrett :+ Street("Strasse17", 6, 280, -1, 2500, 0, mortgage = false)
         spielBrett = spielBrett :+ GoToJail("Gehe ins Gefaengnis")
 
-        spielBrett = spielBrett :+ Street("Strasse18", 7, 300, -1, 200, 0, hypothek = false)
-        spielBrett = spielBrett :+ Street("Strasse19", 7, 300, -1, 200, 0, hypothek = false)
+        spielBrett = spielBrett :+ Street("Strasse18", 7, 300, -1, 200, 0, mortgage = false)
+        spielBrett = spielBrett :+ Street("Strasse19", 7, 300, -1, 200, 0, mortgage = false)
         spielBrett = spielBrett :+ CommunityChest("Gemeinschaftsfeld3")
-        spielBrett = spielBrett :+ Street("Strasse20", 7, 320, -1, 200, 0, hypothek = false)
+        spielBrett = spielBrett :+ Street("Strasse20", 7, 320, -1, 200, 0, mortgage = false)
         spielBrett = spielBrett :+ Trainstation("Nordbahnhof", 9, 200, -1, 200, hypothek = false)
         spielBrett = spielBrett :+ Eventcell("Ereignisfeld3")
-        spielBrett = spielBrett :+ Street("Strasse21", 8, 350, -1, 200, 0, hypothek = false)
+        spielBrett = spielBrett :+ Street("Strasse21", 8, 350, -1, 200, 0, mortgage = false)
         spielBrett = spielBrett :+ Zusatzsteuer("Zusatzsteuer")
-        spielBrett = spielBrett :+ Street("Strasse22", 8, 400, -1, 200, 0, hypothek = false)
+        spielBrett = spielBrett :+ Street("Strasse22", 8, 400, -1, 200, 0, mortgage = false)
 
         spielBrett
     }
@@ -105,8 +105,8 @@ class Controller extends Observable {
                 case s: Street =>
                     if (board(i).asInstanceOf[Street].owner == isturn) {
                         // wenn er die hypothek zahlen kann tut er dies
-                        if (s.hypothek && players(isturn).money > s.price) {
-                            board = board.updated(i, board(i).asInstanceOf[Street].payHypothek())
+                        if (s.mortgage && players(isturn).money > s.price) {
+                            board = board.updated(i, board(i).asInstanceOf[Street].payMortgage())
                             players = players.updated(isturn, players(isturn).decMoney(s.price))
                             checkDept(-1)
                             notifyObservers(playerPaysHyptohekOnStreetEvent(players(isturn), board(i).asInstanceOf[Street]))
@@ -165,8 +165,8 @@ class Controller extends Observable {
                                 if (board(i).asInstanceOf[Street].owner == isturn) {
                                     // todo hotels dann haeuser zuerst verkaufen
                                     // strasse mit hypothek belasten
-                                    if (!s.hypothek) {
-                                        board = board.updated(i, board(i).asInstanceOf[Street].getHypothek())
+                                    if (!s.mortgage) {
+                                        board = board.updated(i, board(i).asInstanceOf[Street].getMortgage())
                                         players = players.updated(isturn, players(isturn).incMoney(s.price))
                                         notifyObservers(playerUsesHyptohekOnStreetEvent(players(isturn), board(i).asInstanceOf[Street]))
                                         actionDone = true
@@ -337,7 +337,7 @@ class Controller extends Observable {
             buyStreet(field)
             //ansonsten miete zahlen falls keine hypothek
         } else if (option == "pay") {
-            if (!field.hypothek) payRent(field)
+            if (!field.mortgage) payRent(field)
             else notifyObservers(streetOnHypothekEvent(field))
 
         } else if (option == "buy home") {
@@ -351,7 +351,7 @@ class Controller extends Observable {
     }
 
     def buyHome(field: Street): Unit = {
-        if (players(isturn).money > 200 && !field.hypothek) // nur wenn straße nicht hypothek hat
+        if (players(isturn).money > 200 && !field.mortgage) // nur wenn straße nicht hypothek hat
             players = players.updated(isturn, players(isturn).decMoney(200))
         // todo if player owns group of streets buy house
         // todo if housecount = street.maxhouses buy hotel
