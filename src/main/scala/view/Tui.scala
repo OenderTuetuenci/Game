@@ -106,7 +106,7 @@ class Tui(controller: Controller) extends Observer {
         string
     }
 
-    def getRollString(e: diceEvent): String = {
+    def getRollString(e: diceEvent): String = {//SS
         var string = "throwing Dice:\n"
         string += "rolled :" + e.eyeCount1 + " " + e.eyeCount2 + "\n"
         if (e.pasch)
