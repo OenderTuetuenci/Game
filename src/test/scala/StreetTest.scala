@@ -9,7 +9,7 @@ class StreetTest extends WordSpec with Matchers {
       street.name.length should be < 20
     }
     "should have cool String representation" in{
-      street.toString should be ("mystreet group: 1 price: 3000 rent: 1 mortgage: false")
+      street.toString should be ("mystreet group: 1 price: 3000 rent: 1 homecount: 0 mortgage: false")
     }
     "should have a gruop" in{
       street.group should be (1)
