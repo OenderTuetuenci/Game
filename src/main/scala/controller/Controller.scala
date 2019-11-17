@@ -295,7 +295,7 @@ class Controller extends Observable {
         if (players(isturn).position >= 40) {
             notifyObservers(playerWentOverGoEvent(players(isturn)))
             players = players.updated(isturn, players(isturn).incMoney(1000))
-            players = players.updated(isturn, players(isturn).moveBack(40))
+            // = players.updated(isturn, players(isturn).moveBack(40))
         }
         // neue position ausgeben
         notifyObservers(playerMoveEvent(players(isturn)))

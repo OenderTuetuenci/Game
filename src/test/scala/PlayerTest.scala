@@ -26,10 +26,10 @@ class PlayerTest extends WordSpec with Matchers {
       val forward = player.move(5)
       val backward = player2.moveBack(5)
       "can move forward" in {
-        forward.position should be(4)
+        forward.position should be(5)
       }
       "can move backwards" in{
-        backward.position should be(36)
+        backward.position should be(35)
       }
     }
     "set to a specific Position"should{

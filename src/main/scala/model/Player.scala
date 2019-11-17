@@ -6,8 +6,8 @@ case class Player(name: String, position: Int = 0, money: Int = 10000, jailCount
     //Moves player about x places
     def move(x: Int): Player = {
         var newPos = position+x
-        if (newPos > 41) {
-            newPos = x + position - 41
+        if (newPos >= 40) {
+            newPos = x + position - 40
         }
         Player(name, newPos, money, jailCount)
     }
@@ -16,7 +16,7 @@ case class Player(name: String, position: Int = 0, money: Int = 10000, jailCount
     def moveBack(x: Int): Player = {
         var newPos = position-x
         if(newPos < 0){
-            newPos = 41-x
+            newPos = 40-x
         }
         Player(name, newPos, money, jailCount)
     }
