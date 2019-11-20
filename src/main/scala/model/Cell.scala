@@ -1,10 +1,7 @@
 package model
 
 abstract class Cell(name: String) {
-    def onPlayerEntered(enteredPlayer: Int): String = {
-        "\nplayer entered the field\n"
-    }
-
+    def onPlayerEntered(enteredPlayer: Int):String
     override def toString: String = name
 }
 
