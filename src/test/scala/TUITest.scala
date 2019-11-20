@@ -1,5 +1,5 @@
 import controller.Controller
-import model.{Player, diceEvent, normalTurnEvent}
+import model.{Player, diceEvent, normalTurnEvent, playerInJailEvent, playerIsFreeEvent, playerRemainsInJailEvent}
 import org.scalatest.{Matchers, WordSpec}
 import view.Tui
 class TUITest extends WordSpec with Matchers {
@@ -28,6 +28,19 @@ class TUITest extends WordSpec with Matchers {
     "can make normal Turn String" in{
       val player = Player("X")
       tui.getNormalTurnString(normalTurnEvent(player)) should be("Its X turn!\n")
+    }
+    "can make String if a player is in jail" in{
+      val player = Player("X")
+      tui.getPlayerInJailString(playerInJailEvent(player)) should be("\nIts X turn. he is in jail!\n" +
+        "Jailcount: 0\n")
+    }
+    "can make String if a player is free" in{
+      val player = Player("X")
+      tui.getPlayerIsFreeString(playerIsFreeEvent(player)) should be("X is free again!")
+    }
+    "can make String if player remains in jail" in{
+      val player = Player("X")
+      tui.getPlayerRemainsInJailString(playerRemainsInJailEvent(player)) should be ("X remains in jail")
     }
   }
 }

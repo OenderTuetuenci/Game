@@ -126,7 +126,7 @@ class Tui(controller: Controller) extends Observer {
     }
 
     def getPlayerInJailString(e: playerInJailEvent): String = {
-        var string = "\nIts " + e.player.toString + " turn. he is in jail!\n"
+        var string = "\nIts " + e.player.name + " turn. he is in jail!\n"
         string += "Jailcount: " + (e.player.jailCount + 1) + "\n"
         string
     }
