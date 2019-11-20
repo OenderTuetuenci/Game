@@ -137,14 +137,14 @@ class Tui(controller: Controller) extends Observer {
     def getPlayerRemainsInJailString(e: playerRemainsInJailEvent): String = e.player.name + " remains in jail"
 
 
-    def getStreetOnHypothekString(e: streetOnHypothekEvent): String = e.street.name + " is on hypothek. "
+    def getStreetOnHypothekString(e: streetOnHypothekEvent): String = e.street.name + " is on hypothek."
 
     def getBuyStreetEventString(e: buyStreetEvent): String = {
         var string = e.player.money + "\n"
         if (e.player.money > e.street.price)
-            string = "bought " + e.street.name
+            string += "bought " + e.street.name
         else
-            string = "can´t afford street"
+            string += "can´t afford street"
         string
     }
 

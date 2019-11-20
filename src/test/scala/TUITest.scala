@@ -1,5 +1,5 @@
 import controller.Controller
-import model.{Player, diceEvent, normalTurnEvent, playerInJailEvent, playerIsFreeEvent, playerRemainsInJailEvent}
+import model.{Player, Street, buyStreetEvent, diceEvent, gameOverEvent, normalTurnEvent, payRentEvent, playerInJailEvent, playerIsFreeEvent, playerRemainsInJailEvent, playerWentOnGoEvent, playerWentOverGoEvent, streetOnHypothekEvent}
 import org.scalatest.{Matchers, WordSpec}
 import view.Tui
 class TUITest extends WordSpec with Matchers {
@@ -41,6 +41,34 @@ class TUITest extends WordSpec with Matchers {
     "can make String if player remains in jail" in{
       val player = Player("X")
       tui.getPlayerRemainsInJailString(playerRemainsInJailEvent(player)) should be ("X remains in jail")
+    }
+    "can make String if a street is on mortgage"in{
+      val street = Street("S",1,1,-1,1,0,true)
+      tui.getStreetOnHypothekString(streetOnHypothekEvent(street)) should be ("S is on hypothek.")
+    }
+    "can make String if a player buys a Street" in{
+      val player = Player("X")
+      val street = Street("S",1,1,-1,1,0,false)
+      val street2 = Street("S",1,99999999,-1,1,0,false)
+      tui.getBuyStreetEventString(buyStreetEvent(player,street)) should be("10000\nbought S")
+      tui.getBuyStreetEventString(buyStreetEvent(player,street2)) should be(player.money+"\ncan´t afford street")
+    }
+    "can make String if a player pays rent" in{
+      val player = Player("X")
+      val player2 = Player("S")
+      tui.getPayRentString(payRentEvent(player,player2)) should be("X pays rent to S")
+    }
+    "can make String if player goes over go" in{
+      val player = Player("X")
+      tui.getPlayerWentOverGoString(playerWentOverGoEvent(player)) should be ("X went over go.")
+    }
+    "can make String if player goes on go" in{
+      val player = Player("X")
+      tui.getPlayerWentOnGoString(playerWentOnGoEvent(player)) should be ("X went on go and gets extra money.")
+    }
+    "can make String game is over" in{
+      val player = Player("X")
+      tui.getGameOverString(gameOverEvent(player)) should be("X is the winner!!")
     }
   }
 }
