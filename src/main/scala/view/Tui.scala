@@ -204,7 +204,7 @@ class Tui(controller: Controller) extends Observer {
 
     def getPlayerMovedString(e: playerMoveEvent): String = e.player.name + " moved to " + e.player.position
 
-    def getPlayerHasDeptEventString(e: playerHasDeptEvent): String = e.player.name + " " + " is in minus: " + e.player.money
+    def getPlayerHasDeptEventString(e: playerHasDeptEvent): String = e.player.name + " is in minus: " + e.player.money
 
     def getOptionString(e: optionEvent): String = "option: "+e.option
 }

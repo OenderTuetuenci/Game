@@ -1,5 +1,5 @@
 import controller.Controller
-import model.{Player, Street, brokeEvent, buyStreetEvent, diceEvent, endRoundEvent, gameOverEvent, normalTurnEvent, payRentEvent, playerInJailEvent, playerIsFreeEvent, playerPaysHyptohekOnStreetEvent, playerRemainsInJailEvent, playerSellsStreetEvent, playerUsesHyptohekOnStreetEvent, playerWentOnGoEvent, playerWentOverGoEvent, streetOnHypothekEvent}
+import model.{Player, Street, brokeEvent, buyStreetEvent, diceEvent, endRoundEvent, gameOverEvent, newRoundEvent, normalTurnEvent, optionEvent, payRentEvent, playerHasDeptEvent, playerInJailEvent, playerIsFreeEvent, playerMoveEvent, playerMoveToJail, playerPaysHyptohekOnStreetEvent, playerRemainsInJailEvent, playerSellsStreetEvent, playerUsesHyptohekOnStreetEvent, playerWentOnGoEvent, playerWentOverGoEvent, streetOnHypothekEvent}
 import org.scalatest.{Matchers, WordSpec}
 import view.Tui
 class TUITest extends WordSpec with Matchers {
@@ -91,6 +91,24 @@ class TUITest extends WordSpec with Matchers {
     }
     "can make String if round ends"in{
       tui.getEndRoundString(endRoundEvent(2)) should be ("\n\n\nround 2 ends")
+    }
+    "can make String if new round starts"in{
+      tui.getNewRoundString(newRoundEvent(3))should be ("\n\nround 3 starts")
+    }
+    "can make String if player moves to jail"in{
+      val player = Player("X")
+      tui.getPlayerMoveToJailString(playerMoveToJail(player)) should be("X moved to Jail!")
+    }
+    "can make String if player moves"in{
+      val player = Player("X")
+      tui.getPlayerMovedString(playerMoveEvent(player))should be ("X moved to 0")
+    }
+    "can make String if player has Depth"in{
+      val player = Player("X")
+      tui.getPlayerHasDeptEventString(playerHasDeptEvent(player)) should be ("X is in minus: 10000")
+    }
+    "can make Strings for Options"in{
+      tui.getOptionString(optionEvent("buys")) should be ("option: buys")
     }
   }
 }
