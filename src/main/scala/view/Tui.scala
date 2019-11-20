@@ -8,7 +8,7 @@ import scala.io.StdIn._
 
 class Tui(controller: Controller) extends Observer {
     controller.add(this)
-
+    def getController : Controller = controller
     override def update(e: Event) = {
         e match {
             case e: brokeEvent => println(getBrokeEventString(e))
@@ -49,6 +49,12 @@ class Tui(controller: Controller) extends Observer {
             println("Enter name player" + (i + 1) + ":")
             playerNames(i) = readLine()
         }
+        controller.createPlayers(playerCount, playerNames)
+    }
+    def getPlayerCount(count:Int,players:Array[String]): Unit ={
+        print("How many players?: ") // todo how many npc
+        val playerCount = count
+        val playerNames: Array[String] = players
         controller.createPlayers(playerCount, playerNames)
     }
     def getPlayerAndBoardToString : String = {
@@ -115,7 +121,7 @@ class Tui(controller: Controller) extends Observer {
     }
 
     def getNormalTurnString(e: normalTurnEvent): String = {
-        val string = "Its " + e.player.toString + " turn!\n"
+        val string = "Its " + e.player.name + " turn!\n"
         string
     }
 
