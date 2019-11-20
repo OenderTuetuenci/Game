@@ -1,5 +1,5 @@
 import controller.Controller
-import model.{Player, Street, buyStreetEvent, diceEvent, gameOverEvent, normalTurnEvent, payRentEvent, playerInJailEvent, playerIsFreeEvent, playerRemainsInJailEvent, playerWentOnGoEvent, playerWentOverGoEvent, streetOnHypothekEvent}
+import model.{Player, Street, brokeEvent, buyStreetEvent, diceEvent, endRoundEvent, gameOverEvent, normalTurnEvent, payRentEvent, playerInJailEvent, playerIsFreeEvent, playerPaysHyptohekOnStreetEvent, playerRemainsInJailEvent, playerSellsStreetEvent, playerUsesHyptohekOnStreetEvent, playerWentOnGoEvent, playerWentOverGoEvent, streetOnHypothekEvent}
 import org.scalatest.{Matchers, WordSpec}
 import view.Tui
 class TUITest extends WordSpec with Matchers {
@@ -69,6 +69,28 @@ class TUITest extends WordSpec with Matchers {
     "can make String game is over" in{
       val player = Player("X")
       tui.getGameOverString(gameOverEvent(player)) should be("X is the winner!!")
+    }
+    "can make String if player is broke" in{
+      val player = Player("X")
+      tui.getBrokeEventString(brokeEvent(player)) should be("X is broke!!")
+    }
+    "can make String if player uses Mortgage" in{
+      val player = Player("X")
+      val street = Street("S",1,1,-1,1,0,false)
+      tui.getPlayerUsesHypothekOnStreetString(playerUsesHyptohekOnStreetEvent(player,street)) should be ("X gets Hypothek for S new creditbalance: 10000")
+    }
+    "can make String if player pays hypothek"in{
+      val player = Player("X")
+      val street = Street("S",1,1,-1,1,0,false)
+      tui.getPlayerPaysHypothekOnStreetString(playerPaysHyptohekOnStreetEvent(player,street)) should be ("X pays Hypothek for S new creditbalance: 10000")
+    }
+    "can make String if player sells Street"in{
+      val player = Player("X")
+      val street = Street("S",1,1,-1,1,0,false)
+      tui.getPlayerSellsStreetString(playerSellsStreetEvent(player,street)) should be ("X sells S\nnew creditbalance: 10000")
+    }
+    "can make String if round ends"in{
+      tui.getEndRoundString(endRoundEvent(2)) should be ("\n\n\nround 2 ends")
     }
   }
 }
