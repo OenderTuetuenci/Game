@@ -3,7 +3,7 @@ package util
 import model.Event
 
 trait Observer{
-  def update(e:Event)
+  def update(e:Event):Boolean
 }
 
 class Observable {

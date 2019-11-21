@@ -29,3 +29,4 @@ case class playerIsFreeEvent(player: Player) extends Event
 case class playerRemainsInJail(player: Player) extends Event
 case class playerWentOverGoEvent(player: Player) extends Event
 case class playerWentOnGoEvent(player: Player) extends Event
+case class falseTestEvent() extends Event
