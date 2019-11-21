@@ -45,6 +45,7 @@ class TUITest extends WordSpec with Matchers {
       tui.update(playerWentOnGoEvent(player)) should be(true)
       tui.update(streetOnHypothekEvent(street)) should be(true)
       tui.update(playerHasDeptEvent(player)) should be(true)
+      tui.update(gameOverEvent(player))
       tui.update(falseTestEvent()) should be(false)
     }
     "can make a String with Board Information" in{
