@@ -19,7 +19,17 @@ class PlayerTest extends WordSpec with Matchers {
     "Have the jailcount" in {
       player.jailCount should be(-1)
     }
+    "Does not own any Streets" in {
+      player.ownedStreet.length should be(0)
+    }
   }
+    "can buy and sell Streets" in{
+      val player = Player("X")
+      val bplayer = player.buyStreet(2)
+      val splayer = player.sellStreet(2)
+      bplayer.ownedStreet.contains(2) should be (true)
+      splayer.ownedStreet.contains(2) should be (false)
+    }
     "can move his position" should{
       val player = Player("Name",40)
       val player2 = Player("Name")
