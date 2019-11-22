@@ -1,5 +1,5 @@
 import controller.Controller
-import model.{Player, printEverythingEvent}
+import model.printEverythingEvent
 import view.Tui
 
 object Monopoly {
@@ -7,7 +7,7 @@ object Monopoly {
     val tui = new Tui(controller)
 
     def main(args: Array[String]): Unit = {
-        tui.getPlayerCount
+      tui.getPlayerCount()
         // todo controller.letPlayersRollForPositions  ...vlt auch wo anders
         controller.notifyObservers(printEverythingEvent())
         do {

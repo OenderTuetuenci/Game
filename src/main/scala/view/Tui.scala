@@ -9,7 +9,8 @@ import scala.io.StdIn._
 class Tui(controller: Controller) extends Observer {
     controller.add(this)
     def getController : Controller = controller
-    override def update(e: Event):Boolean = {
+
+  override def update(e: PrintEvent): Boolean = {
       var worked = false;
       var string = "";
         e match {
@@ -46,23 +47,18 @@ class Tui(controller: Controller) extends Observer {
     }
 
     def getPlayerCount: Unit = {
-        print("How many players?: ") // todo how many npc
-        val playerCount = readInt()
-        val playerNames: Array[String] = Array.ofDim(playerCount)
-        // spieler mit namen einlesensr
-        for (i <- 0 until playerCount) {
-            println("Enter name player" + (i + 1) + ":")
-            playerNames(i) = readLine()
-        }
-        controller.createPlayers(playerCount, playerNames)
+      print("How many players?: ") // todo how many npc
+      val playerCount = readInt()
+      val playerNames: Array[String] = Array.ofDim(playerCount)
+      // spieler mit namen einlesensr
+      for (i <- 0 until playerCount) {
+        println("Enter name player" + (i + 1) + ":")
+        playerNames(i) = readLine()
+      }
+      controller.createPlayers(playerCount, playerNames)
     }
-    def getPlayerCount(count:Int,players:Array[String]): Unit ={
-        print("How many players?: ") // todo how many npc
-        val playerCount = count
-        val playerNames: Array[String] = players
-        controller.createPlayers(playerCount, playerNames)
-    }
-    def getPlayerAndBoardToString : String = {
+
+  def getPlayerAndBoardToString : String = {
         val players = controller.players
         val board = controller.board
         var string = ""
