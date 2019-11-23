@@ -1,6 +1,6 @@
 package model
 
-abstract class PrintEvent
+trait PrintEvent
 
 case class gameIsGoingToStartEvent() extends PrintEvent
 

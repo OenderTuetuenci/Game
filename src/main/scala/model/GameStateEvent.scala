@@ -1,6 +1,6 @@
 package model
 
-abstract class GameStateEvent
+trait GameStateEvent
 
 case class beforeGameStartsEvent() extends GameStateEvent
 
