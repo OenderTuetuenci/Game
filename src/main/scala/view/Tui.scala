@@ -1,6 +1,6 @@
 package view
 
-import controller.{Controller, GameStates}
+import controller._
 import model._
 import util.Observer
 
@@ -50,8 +50,8 @@ class Tui(controller: Controller) extends Observer {
     def getGameIsGoingToStartString(e: gameIsGoingToStartEvent): String = "The Game is going to start."
 
   def getPlayerAndBoardToString : String = {
-        val players = controller.players
-        val board = controller.board
+      val players = Game.Game.players
+      val board = Game.Game.board
         var string = ""
         string += "\nSpieler: "
         for (player <- players) string += player.toString + "\n"
@@ -117,7 +117,7 @@ class Tui(controller: Controller) extends Observer {
         string
     }
 
-    def getPlayerCount: Unit = {
+    def getPlayerCount = {
         print("How many players?: ") // todo how many npc
         val playerCount = readInt()
         val playerNames: Array[String] = Array.ofDim(playerCount)
@@ -126,7 +126,7 @@ class Tui(controller: Controller) extends Observer {
             println("Enter name player" + (i + 1) + ":")
             playerNames(i) = readLine()
         }
-        GameStates.handle(createPlayersEvent(playerCount, playerNames))
+        (playerCount, playerNames)
     }
 
     def getPlayerInJailString(e: playerInJailEvent): String = {

@@ -4,6 +4,8 @@ import model.PrintEvent
 
 trait Observer{
     def update(e: PrintEvent): Boolean
+
+    //todo updateOthers????
 }
 
 class Observable {
