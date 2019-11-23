@@ -1,26 +1,27 @@
 package controller
-
 import Game.Game._
 import model._
 import util.Observable
 
 object GameStates extends Observable {
-    var gameOver = false
-    var state = beforeGameStarts
 
-    def handle(e: GameStateEvent): Any = { // todo ??????????????????? type(state)
+    var gameOver = false
+    //var state = beforeGameStarts // todo ????
+
+    def handle(e: GameStateEvent): Unit = { // todo ??????????????????? type(state)
         e match {
-            case e: beforeGameStartsEvent => state = beforeGameStarts
-            case e: createPlayersEvent => state = createPlayersState(e.playerCount, e.playerNames)
-            case e: createBoardEvent => state = createBoardState
-            case e: runRoundEvent => state = runRoundState
-            case e: checkGameOverEvent => state = checkGameOverState
-            case e: gameOverEvent => state = gameOverState
+            case e: beforeGameStartsEvent => beforeGameStarts
+            case e: createPlayersEvent => createPlayersState(e.playerCount, e.playerNames)
+            case e: createBoardEvent => createBoardState
+            case e: runRoundEvent => runRoundState
+            case e: checkGameOverEvent => checkGameOverState
+            case e: gameOverEvent => gameOverState
+            case _ => println(e)
         }
-        state
+        //state //todo return state
     }
 
-    def beforeGameStarts = notifyObservers(gameIsGoingToStartEvent())
+    def beforeGameStarts = tuiController.notifyObservers(gameIsGoingToStartEvent())
 
     def createPlayersState(newPlayerCount: Int, playerNames: Array[String]): Unit = {
         for (i <- 0 until newPlayerCount) players = players :+ Player(playerNames(i))
@@ -76,29 +77,26 @@ object GameStates extends Observable {
 
     def runRoundState = {
         // todo if player has money raus und einfach so rbüer
-        notifyObservers(newRoundEvent(round))
+        tuiController.notifyObservers(newRoundEvent(round))
         for (i <- 0 until playerCount) {
             isturn = i
             PlayerTurnStrategy.executePlayerTurn // zug ausfuehren
             //Thread.sleep(1000) // wait for 1000 millisecond between turns
         }
         // Rundenende
-        notifyObservers(endRoundEvent(round))
-        notifyObservers(printEverythingEvent())
+        tuiController.notifyObservers(endRoundEvent(round))
+        tuiController.notifyObservers(printEverythingEvent())
         round += 1
         //Thread.sleep(1000) // wait for 1000 millisecond between rounds
     }
 
 
     def checkGameOverState = {
-        gameOver = true
-        //////////////////////
         if (playerCount == 1) gameOver = true
     }
 
     def gameOverState = {
-        for (player <- players)
-            notifyObservers(gameFinishedEvent(player))
-        //if (!player.gameOver) notifyObservers(gameFinishedEvent(player))
+        // am ende ist nurnoch 1 spieler uebrig
+        tuiController.notifyObservers(gameFinishedEvent(players(0)))
     }
 }

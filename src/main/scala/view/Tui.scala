@@ -6,13 +6,14 @@ import util.Observer
 
 import scala.io.StdIn._
 
-class Tui(controller: Controller) extends Observer {
+class Tui(controller: TuiController) extends Observer {
     controller.add(this)
-    def getController : Controller = controller
 
-  override def update(e: PrintEvent): Boolean = {
-      var worked = true
-      var string = ""
+    def getController: TuiController = controller
+
+    override def update(e: PrintEvent): Boolean = {
+        var worked = true
+        var string = ""
         e match {
             case e: gameIsGoingToStartEvent => string = getGameIsGoingToStartString(e)
             case e: brokeEvent => string = getBrokeEventString(e)
@@ -41,17 +42,18 @@ class Tui(controller: Controller) extends Observer {
             case e: playerWentOnGoEvent => string = getPlayerWentOnGoString(e)
             case e: streetOnHypothekEvent => string = getStreetOnHypothekString(e)
             case e: playerHasDeptEvent => string = getPlayerHasDeptEventString(e)
-          case _ => worked = false
+            case _ => worked = false
         }
-            println(string)
-            worked
+        println(string)
+        println(worked)
+        worked
     }
 
     def getGameIsGoingToStartString(e: gameIsGoingToStartEvent): String = "The Game is going to start."
 
-  def getPlayerAndBoardToString : String = {
-      val players = Game.Game.players
-      val board = Game.Game.board
+    def getPlayerAndBoardToString: String = {
+        val players = Game.Game.players
+        val board = Game.Game.board
         var string = ""
         string += "\nSpieler: "
         for (player <- players) string += player.toString + "\n"
@@ -104,7 +106,7 @@ class Tui(controller: Controller) extends Observer {
         string
     }
 
-    def getRollString(e: diceEvent): String = {//SS
+    def getRollString(e: diceEvent): String = { //SS
         var string = "throwing Dice:\n"
         string += "rolled :" + e.eyeCount1 + " " + e.eyeCount2 + "\n"
         if (e.pasch)
@@ -210,5 +212,5 @@ class Tui(controller: Controller) extends Observer {
 
     def getPlayerHasDeptEventString(e: playerHasDeptEvent): String = e.player.name + " is in minus: " + e.player.money
 
-    def getOptionString(e: optionEvent): String = "option: "+e.option
+    def getOptionString(e: optionEvent): String = "option: " + e.option
 }

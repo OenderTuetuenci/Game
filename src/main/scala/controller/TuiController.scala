@@ -6,6 +6,5 @@ import util.Observable
 
 //PlayerIsHumanorNpcStrategy.strategy
 
-//todo tui controller??????
-class Controller extends Observable {
+class TuiController extends Observable {
 }

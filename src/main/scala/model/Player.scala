@@ -1,7 +1,7 @@
 package model
 
 case class Player(name: String, position: Int = 0, money: Int = 10000, jailCount: Int = -1,
-                  ownedStreet: Vector[Int] = Vector[Int](), gameOver: Boolean = false) {
+                  ownedStreet: Vector[Int] = Vector[Int]()) {
     override def toString: String = "name: " + this.name + " pos: " + this.position + " money: " + this.money + " roundsInJail: " + this.jailCount
 
     def move(x: Int): Player = this.copy(position = this.position + x)
@@ -24,5 +24,4 @@ case class Player(name: String, position: Int = 0, money: Int = 10000, jailCount
 
     def moveToJail: Player = this.copy(position = 10)
 
-    def setGameOver: Player = this.copy(gameOver = true)
 }

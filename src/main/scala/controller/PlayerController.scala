@@ -1,12 +1,11 @@
 package controller
-
 import Game.Game._
 import model._
 import util.Observable
 
 import scala.util.control.Breaks.{break, breakable}
 
-class PlayerController extends Observable {
+class PlayerController() extends Observable {
 
     def checkHypothek(): Unit = {
         // in allen straßen des spielers suchen ob hypothek vorliegt
@@ -20,7 +19,7 @@ class PlayerController extends Observable {
                             board = board.updated(i, board(i).asInstanceOf[Street].payMortgage)
                             players = players.updated(isturn, players(isturn).decMoney(s.price))
                             checkDept(-1)
-                            notifyObservers(playerPaysHyptohekOnStreetEvent(players(isturn), board(i).asInstanceOf[Street]))
+                            tuiController.notifyObservers(playerPaysHyptohekOnStreetEvent(players(isturn), board(i).asInstanceOf[Street]))
                         }
                     }
                 case s: Trainstation =>
@@ -30,7 +29,7 @@ class PlayerController extends Observable {
                             board = board.updated(i, board(i).asInstanceOf[Trainstation].payHypothek())
                             players = players.updated(isturn, players(isturn).decMoney(s.price))
                             checkDept(-1)
-                            notifyObservers(playerPaysHyptohekOnTrainstationEvent(players(isturn), board(i).asInstanceOf[Trainstation]))
+                            tuiController.notifyObservers(playerPaysHyptohekOnTrainstationEvent(players(isturn), board(i).asInstanceOf[Trainstation]))
                         }
                     }
                 case _ =>
@@ -54,7 +53,7 @@ class PlayerController extends Observable {
             // spieler.besitz add streetnr
             board = board.updated(players(isturn).position, field.setOwner(isturn))
         }
-        notifyObservers(buyStreetEvent(players(isturn), field))
+        tuiController.notifyObservers(buyStreetEvent(players(isturn), field))
         true
     }
 
@@ -63,12 +62,12 @@ class PlayerController extends Observable {
         players = players.updated(isturn, players(isturn).move(sumDiceThrow))
         // schauen ob über los gegangen
         if (players(isturn).position >= 40) {
-            notifyObservers(playerWentOverGoEvent(players(isturn)))
+            tuiController.notifyObservers(playerWentOverGoEvent(players(isturn)))
             players = players.updated(isturn, players(isturn).incMoney(1000))
             players = players.updated(isturn, players(isturn).moveBack(40))
         }
         // neue position ausgeben
-        notifyObservers(playerMoveEvent(players(isturn)))
+        tuiController.notifyObservers(playerMoveEvent(players(isturn)))
         // aktion fuer betretetenes feld ausloesen
         val field = board(players(isturn).position)
         field match {
@@ -94,7 +93,7 @@ class PlayerController extends Observable {
         //miete abziehen
         players = players.updated(isturn, players(isturn).decMoney(rent))
         players = players.updated(field.owner, players(field.owner).incMoney(rent))
-        notifyObservers(payRentEvent(players(isturn), players(field.owner)))
+        tuiController.notifyObservers(payRentEvent(players(isturn), players(field.owner)))
         // schauen ob player ins minus gekommen ist
         checkDept(field.owner)
     }
@@ -104,7 +103,7 @@ class PlayerController extends Observable {
         // so lange verkauft bis im plus oder nichts mehr verkauft wurde dann gameover
 
         if (players(isturn).money <= 0) {
-            notifyObservers(playerHasDeptEvent(players(isturn)))
+            tuiController.notifyObservers(playerHasDeptEvent(players(isturn)))
             var actionDone = false
             breakable { // break wenn player plus -> breakable from scala.util.
                 do {
@@ -122,13 +121,13 @@ class PlayerController extends Observable {
                                     if (!s.mortgage) {
                                         board = board.updated(i, board(i).asInstanceOf[Street].getMortgage)
                                         players = players.updated(isturn, players(isturn).incMoney(s.price))
-                                        notifyObservers(playerUsesHyptohekOnStreetEvent(players(isturn), board(i).asInstanceOf[Street]))
+                                        tuiController.notifyObservers(playerUsesHyptohekOnStreetEvent(players(isturn), board(i).asInstanceOf[Street]))
                                         actionDone = true
                                     } else {
                                         //sonst straße verkaufen an bank todo später an spieler
                                         board = board.updated(i, board(i).asInstanceOf[Street].setOwner(-1))
                                         players = players.updated(isturn, players(isturn).incMoney(s.price))
-                                        notifyObservers(playerSellsStreetEvent(players(isturn), board(i).asInstanceOf[Street]))
+                                        tuiController.notifyObservers(playerSellsStreetEvent(players(isturn), board(i).asInstanceOf[Street]))
                                         actionDone = true
                                     }
                                 }
@@ -138,13 +137,13 @@ class PlayerController extends Observable {
                                     if (!s.hypothek) {
                                         board = board.updated(i, board(i).asInstanceOf[Trainstation].getHypothek())
                                         players = players.updated(isturn, players(isturn).incMoney(s.price))
-                                        notifyObservers(playerUsesHyptohekOnTrainstationEvent(players(isturn), board(i).asInstanceOf[Trainstation]))
+                                        tuiController.notifyObservers(playerUsesHyptohekOnTrainstationEvent(players(isturn), board(i).asInstanceOf[Trainstation]))
                                         actionDone = true
                                     } else {
                                         // an bank verkaufen
                                         board = board.updated(i, board(i).asInstanceOf[Trainstation].setOwner(-1))
                                         players = players.updated(isturn, players(isturn).incMoney(s.price))
-                                        notifyObservers(playerSellsTrainstationEvent(players(isturn), board(i).asInstanceOf[Trainstation]))
+                                        tuiController.notifyObservers(playerSellsTrainstationEvent(players(isturn), board(i).asInstanceOf[Trainstation]))
                                         actionDone = true
                                     }
                                 }
@@ -157,7 +156,9 @@ class PlayerController extends Observable {
 
             // wenn immernoch pleite dann game over oder todo "declare bankrupt" später
             if (players(isturn).money <= 0) {
-                notifyObservers(brokeEvent(players(isturn)))
+                players.filterNot(o => o == isturn) // spieler aus dem spiel nehmen
+                playerCount -= 1 // playercount muss auch um 1 verringert werden
+                tuiController.notifyObservers(brokeEvent(players(isturn)))
             }
         }
     }

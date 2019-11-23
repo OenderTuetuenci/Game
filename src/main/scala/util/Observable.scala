@@ -1,6 +1,6 @@
 package util
 
-import model.PrintEvent
+import model._
 
 trait Observer{
     def update(e: PrintEvent): Boolean

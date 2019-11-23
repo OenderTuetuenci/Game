@@ -4,10 +4,10 @@ import Game.Game._
 import model._
 import util.Observable
 
-class BoardController extends Observable {
+class BoardController() extends Observable {
     def activateStreet(field: Street): Unit = {
         val option = field.onPlayerEntered(isturn)
-        notifyObservers(optionEvent(option))
+        tuiController.notifyObservers(optionEvent(option))
 
         if (option == "buy") {
             // wer geld hat kauft die straße
@@ -15,7 +15,7 @@ class BoardController extends Observable {
             //ansonsten miete zahlen falls keine hypothek
         } else if (option == "pay") {
             if (!field.mortgage) playerController.payRent(field)
-            else notifyObservers(streetOnHypothekEvent(field))
+            else tuiController.notifyObservers(streetOnHypothekEvent(field))
 
         } else if (option == "buy home") {
             buyHome(field)
