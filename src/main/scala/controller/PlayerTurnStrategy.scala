@@ -6,7 +6,10 @@ import util.Observable
 
 object PlayerTurnStrategy extends Observable {
 
-    var executePlayerTurn = if (players(isturn).jailCount > -1) turnInJail else normalTurn
+    //todo var executePlayerTurn: Unit = { ???????????????????????
+    def executePlayerTurn: Unit = {
+        if (players(isturn).jailCount > -1) turnInJail else normalTurn
+    }
 
     // Todo handeln, strassen verkaufen,hypothek bezahlen etc vor dem wuerfeln
     // Todo und nach dem wuerfeln falls er nicht pleite ist

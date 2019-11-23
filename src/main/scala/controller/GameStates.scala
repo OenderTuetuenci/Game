@@ -25,7 +25,7 @@ object GameStates extends Observable {
 
     def createPlayersState(newPlayerCount: Int, playerNames: Array[String]): Unit = {
         for (i <- 0 until newPlayerCount) players = players :+ Player(playerNames(i))
-        playerCount = playerCount
+        playerCount = newPlayerCount
     }
 
     def createBoardState = {
