@@ -10,7 +10,7 @@ case class Player(name: String, position: Int = 0, money: Int = 10000, jailCount
     //Moves player about x places
     def moveBack(x: Int): Player = Player(name, this.position - x, money, jailCount,ownedStreet)
 
-    def incJailTime: Player = Player(name, position, money, this.jailCount + 1,ownedStreet)
+    def incJailTime: Player = this.copy(jailCount = this.jailCount + 1)
 
     def incMoney(x: Int): Player = Player(name, position, this.money + x, jailCount,ownedStreet)
 

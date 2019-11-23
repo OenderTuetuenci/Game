@@ -5,218 +5,18 @@ import util.Observable
 
 import scala.util.control.Breaks._
 
-object GameStates {
-  var state = onState
 
-  def handle(e: GameStateEvent) = {
-    e match {
-      case createPlayers: createPlayersEvent => state = createPlayersState
-      case runRound: runRoundEvent => state = runRoundState
-      case checkGameOver: checkGameOverEvent => state = checkGameOverState
-      case createBoard: createBoardEvent => state = createBoardState
-    }
-    state
-  }
-
-  def onState = println("I am on")
-
-  def offState = println("I am off")
-
-  PlayerTurnStrategy.executePlayerTurn
-
-
-  def createPlayersState(playerCount: Int, playerNames: Array[String]): Unit = {
-    for (i <- 0 until playerCount) players = players :+ Player(playerNames(i))
-    this.playerCount = playerCount
-  }
-
-  def createBoardState: Vector[Cell] = {
-    var spielBrett = Vector[Cell]()
-    spielBrett = spielBrett :+ Los("Los")
-    spielBrett = spielBrett :+ Street("Strasse1", 1, 60, -1, 200, 0, mortgage = false)
-    spielBrett = spielBrett :+ CommunityChest("Gemeinschaftsfeld1")
-    spielBrett = spielBrett :+ Street("Strasse2", 1, 60, -1, 200, 0, mortgage = false)
-    spielBrett = spielBrett :+ IncomeTax("Einkommensteuer")
-    spielBrett = spielBrett :+ Trainstation("Suedbahnhof", 9, 200, -1, 200, hypothek = false)
-    spielBrett = spielBrett :+ Street("Strasse3", 2, 100, -1, 200, 0, mortgage = false)
-    spielBrett = spielBrett :+ Eventcell("Ereignisfeld1")
-    spielBrett = spielBrett :+ Street("Strasse4", 2, 100, -1, 200, 0, mortgage = false)
-    spielBrett = spielBrett :+ Street("Strasse5", 2, 120, -1, 200, 0, mortgage = false)
-    spielBrett = spielBrett :+ Jail("Zu besuch oder im Gefaengnis")
-
-    spielBrett = spielBrett :+ Street("Strasse6", 3, 140, -1, 200, 0, mortgage = false)
-    spielBrett = spielBrett :+ Elektrizitaetswerk("Elektrizitaetswerk", 10, 150, -1, 200, hypothek = false)
-    spielBrett = spielBrett :+ Street("Strasse7", 3, 140, -1, 200, 0, mortgage = false)
-    spielBrett = spielBrett :+ Street("Strasse8", 3, 160, -1, 200, 0, mortgage = false)
-    spielBrett = spielBrett :+ Trainstation("Westbahnhof", 9, 200, -1, 200, hypothek = false)
-    spielBrett = spielBrett :+ Street("Strasse9", 4, 180, -1, 200, 0, mortgage = false)
-    spielBrett = spielBrett :+ CommunityChest("Gemeinschaftsfeld2")
-    spielBrett = spielBrett :+ Street("Strasse10", 4, 180, -1, 200, 0, mortgage = false)
-    spielBrett = spielBrett :+ Street("Strasse11", 4, 200, -1, 200, 0, mortgage = false)
-    spielBrett = spielBrett :+ FreiParken("Freiparken")
-
-    spielBrett = spielBrett :+ Street("Strasse12", 5, 220, -1, 200, 0, mortgage = false)
-    spielBrett = spielBrett :+ Eventcell("Ereignisfeld2")
-    spielBrett = spielBrett :+ Street("Strasse13", 5, 220, -1, 200, 0, mortgage = false)
-    spielBrett = spielBrett :+ Street("Strasse14", 5, 240, -1, 200, 0, mortgage = false)
-    spielBrett = spielBrett :+ Trainstation("Nordbahnhof", 9, 200, -1, 200, hypothek = false)
-    spielBrett = spielBrett :+ Street("Strasse15", 6, 260, -1, 500, 0, mortgage = false)
-    spielBrett = spielBrett :+ Street("Strasse16", 6, 260, -1, 800, 0, mortgage = false)
-    spielBrett = spielBrett :+ Wasserwerk("Wasserwerk", 10, 150, -1, 200, hypothek = false)
-    spielBrett = spielBrett :+ Street("Strasse17", 6, 280, -1, 2500, 0, mortgage = false)
-    spielBrett = spielBrett :+ GoToJail("Gehe ins Gefaengnis")
-
-    spielBrett = spielBrett :+ Street("Strasse18", 7, 300, -1, 200, 0, mortgage = false)
-    spielBrett = spielBrett :+ Street("Strasse19", 7, 300, -1, 200, 0, mortgage = false)
-    spielBrett = spielBrett :+ CommunityChest("Gemeinschaftsfeld3")
-    spielBrett = spielBrett :+ Street("Strasse20", 7, 320, -1, 200, 0, mortgage = false)
-    spielBrett = spielBrett :+ Trainstation("Nordbahnhof", 9, 200, -1, 200, hypothek = false)
-    spielBrett = spielBrett :+ Eventcell("Ereignisfeld3")
-    spielBrett = spielBrett :+ Street("Strasse21", 8, 350, -1, 200, 0, mortgage = false)
-    spielBrett = spielBrett :+ Zusatzsteuer("Zusatzsteuer")
-    spielBrett = spielBrett :+ Street("Strasse22", 8, 400, -1, 200, 0, mortgage = false)
-
-    spielBrett
-  }
-
-  def runRoundState(): Unit = {
-    notifyObservers(newRoundEvent(round))
-    for (i <- 0 until playerCount) {
-      isturn = i
-      // jeder der noch geld hat darf seinen zug ausfuehren
-      if (players(isturn).money > 0) {
-        // Todo handeln, strassen verkaufen,hypothek bezahlen etc vor dem wuerfeln
-        // schauen ob spieler frei oder im jail ist
-        if (players(isturn).jailCount > -1) {
-          notifyObservers(playerInJailEvent(players(isturn)))
-          checkHypothek() // schauen ob haeuser im besitz hypotheken haben und bezahlen wenns geht
-          playerTurnInJail()
-        }
-        else {
-          notifyObservers(normalTurnEvent(players(isturn)))
-          checkHypothek() // schauen ob haeuser im besitz hypotheken haben und bezahlen wenns geht
-          playerNormalTurn()
-        }
-        // todo falls der spieler nicht pleite geht darf er handeln
-        // zugende
-        //Thread.sleep(1000) // wait for 1000 millisecond between player moves
-      }
-    }
-    // Rundenende
-    notifyObservers(endRoundEvent(round))
-    notifyObservers(printEverythingEvent())
-    round += 1
-    //Thread.sleep(1000) // wait for 1000 millisecond between rounds
-  }
-
-  def getWinner: Player = {
-    var winner: Player = players(0) //todo find better solution
-    for (player <- players) {
-      if (player.money > 0)
-        winner = player
-    }
-    winner
-  }
-
-  def checkGameOverState: Boolean = {
-    var playersWithMoney = playerCount
-    for (i <- 0 until playerCount) {
-      if (players(i).money <= 0) {
-        playersWithMoney -= 1
-      }
-
-    }
-    if (playersWithMoney <= 1) {
-      val winner = getWinner
-      notifyObservers(gameOverEvent(winner))
-      return true
-    }
-    false
-  }
-
-
-}
-
-object PlayerIsHumanOrNpcStrategy {
-
-  var strategy = if (playerisHuman) strategy1 else strategy2
-
-  def strategy1 = println("I am strategy 1")
-
-  def strategy2 = println("I am strategy 2")
-}
-
-PlayerIsHumanorNpcStrategy.strategy
-
-
-object PlayerTurnStrategy {
-
-  var executePlayerTurn = if (playerIsInJail) turnInJail else normalTurn
-
-  def playerTurnInJail(): Unit = {
-    val option = "rollDice"
-    if (option == "buyOut") {
-      players = players.updated(isturn, players(isturn).decMoney(200))
-      checkDept(-1) // owner = bank
-      players = players.updated(isturn, players(isturn).resetJailCount)
-      notifyObservers(playerIsFreeEvent(players(isturn)))
-      playerNormalTurn()
-    }
-    // ...die freikarte benutzen....
-    if (option == "useCard") {
-      notifyObservers(playerIsFreeEvent(players(isturn)))
-      playerNormalTurn()
-    }
-    // ...oder pasch wuerfeln.
-    if (option == "rollDice") {
-      val throwDices = wuerfeln
-      if (throwDices._3) {
-        // bei gewuerfelten pasch kommt man raus und moved
-        players = players.updated(isturn, players(isturn).resetJailCount)
-        notifyObservers(playerIsFreeEvent(players(isturn)))
-        movePlayer(throwDices._1 + throwDices._2)
-      } else {
-        //sonst jailcount +1
-        players = players.updated(isturn, players(isturn).incJailTime)
-        // wenn man 3 runden im jail ist kommt man raus, zahlt und moved
-        if (players(isturn).jailCount == 3) {
-          players = players.updated(isturn, players(isturn).resetJailCount)
-          players = players.updated(isturn, players(isturn).decMoney(200))
-          checkDept(-1) // owner is bank
-          notifyObservers(playerIsFreeEvent(players(isturn)))
-          movePlayer(throwDices._1 + throwDices._2)
-        } else notifyObservers(playerRemainsInJailEvent(players(isturn)))
-      }
-    }
-  }
-
-  def normalTurn(): Unit = {
-    // init pasch
-    var pasch = true
-    var paschCount = 0
-    // wuerfeln
-    while (pasch && players(isturn).money > 0) {
-      val throwDices = wuerfeln // 1 = wurf1, 2 = wurf 2, 3 = pasch
-      notifyObservers(diceEvent(throwDices._1, throwDices._2, throwDices._3))
-      if (throwDices._3) paschCount += 1
-      else pasch = false
-      //3x pasch gleich jail sonst move player
-      if (paschCount == 3) {
-        players = players.updated(isturn, players(isturn).moveToJail)
-        notifyObservers(playerMoveToJail(players(isturn)))
-      } else movePlayer(throwDices._1 + throwDices._2)
-    }
-  }
-}
+//PlayerIsHumanorNpcStrategy.strategy
 
 
 class Controller extends Observable {
-    var board: Vector[Cell] = createSpielBrett
+    var board: Vector[Cell] = Vector[Cell]()
     var playerCount = 0
     var players: Vector[Player] = Vector[Player]()
     var isturn = 0 // aktueller spieler
     var round = 1
     val dice = Dice()
+
 
     def checkHypothek(): Unit = {
         // in allen straßen des spielers suchen ob hypothek vorliegt
@@ -247,7 +47,6 @@ class Controller extends Observable {
             }
         }
     }
-
 
 
     def checkDept(owner: Int): Unit = {
@@ -323,13 +122,14 @@ class Controller extends Observable {
         (roll1, roll2, pasch)
     }
 
-  def buyStreet(field: Street): Boolean = {
+    def buyStreet(field: Street): Boolean = {
         if (players(isturn).money >= field.price) {
             players = players.updated(isturn, players(isturn).decMoney(field.price))
-          // spieler.besitz add streetnr
+            // spieler.besitz add streetnr
             board = board.updated(players(isturn).position, field.setOwner(isturn))
         }
         notifyObservers(buyStreetEvent(players(isturn), field))
+        true
     }
 
     def movePlayer(sumDiceThrow: Int): Unit = {
@@ -377,7 +177,7 @@ class Controller extends Observable {
         val option = field.onPlayerEntered(isturn)
         notifyObservers(optionEvent(option))
 
-      if (option == "buy") {
+        if (option == "buy") {
             // wer geld hat kauft die straße
             buyStreet(field)
             //ansonsten miete zahlen falls keine hypothek

@@ -1,6 +1,6 @@
 package view
 
-import controller.Controller
+import controller.{Controller, GameStates}
 import model._
 import util.Observer
 
@@ -11,52 +11,43 @@ class Tui(controller: Controller) extends Observer {
     def getController : Controller = controller
 
   override def update(e: PrintEvent): Boolean = {
-      var worked = false;
-      var string = "";
+      var worked = true
+      var string = ""
         e match {
-          case e: brokeEvent => string = getBrokeEventString(e);worked = true
-          case e: gameOverEvent => string = getGameOverString(e);worked = true
-          case e: payRentEvent => string = getPayRentString(e);worked = true
-          case e: buyStreetEvent => string = getBuyStreetEventString(e);worked = true
-          case e: buyTrainstationEvent => string = getBuyTrainstationEventString(e);worked = true
-          case e: playerInJailEvent => string = getPlayerInJailString(e);worked = true
-          case e: normalTurnEvent => string = getNormalTurnString(e);worked = true
-          case e: diceEvent => string = getRollString(e);worked = true
-          case e: playerSellsStreetEvent => string = getPlayerSellsStreetString(e);worked = true
-          case e: playerUsesHyptohekOnStreetEvent => string = getPlayerUsesHypothekOnStreetString(e);worked = true
-          case e: playerPaysHyptohekOnStreetEvent => string = getPlayerPaysHypothekOnStreetString(e);worked = true
-          case e: playerUsesHyptohekOnTrainstationEvent => string = getPlayerUsesHypothekOnTrainstationString(e);worked = true
-          case e: playerPaysHyptohekOnTrainstationEvent => string = getPlayerPaysHypothekOnTrainstationString(e);worked = true
-          case e: playerSellsTrainstationEvent => string = getPlayerSellsTrainstationString(e);worked = true
-          case e: newRoundEvent => string = getNewRoundString(e);worked = true
-          case e: endRoundEvent => string = getEndRoundString(e);worked = true
-          case e: playerMoveToJail => string = getPlayerMoveToJailString(e);worked = true
-          case e: optionEvent => string = getOptionString(e);worked = true
-          case e: printEverythingEvent => string = getPlayerAndBoardToString;worked = true
-          case e: playerMoveEvent => string = getPlayerMovedString(e);worked = true
-          case e: playerIsFreeEvent => string = getPlayerIsFreeString(e);worked = true
-          case e: playerRemainsInJailEvent => string = getPlayerRemainsInJailString(e);worked = true
-          case e: playerWentOverGoEvent => string = getPlayerWentOverGoString(e);worked = true
-          case e: playerWentOnGoEvent => string = getPlayerWentOnGoString(e);worked = true
-          case e: streetOnHypothekEvent => string = getStreetOnHypothekString(e);worked = true
-          case e: playerHasDeptEvent => string = getPlayerHasDeptEventString(e);worked = true
+            case e: gameIsGoingToStartEvent => string = getGameIsGoingToStartString(e)
+            case e: brokeEvent => string = getBrokeEventString(e)
+            case e: gameOverEvent => string = getGameOverString(e)
+            case e: payRentEvent => string = getPayRentString(e)
+            case e: buyStreetEvent => string = getBuyStreetEventString(e)
+            case e: buyTrainstationEvent => string = getBuyTrainstationEventString(e)
+            case e: playerInJailEvent => string = getPlayerInJailString(e)
+            case e: normalTurnEvent => string = getNormalTurnString(e)
+            case e: diceEvent => string = getRollString(e)
+            case e: playerSellsStreetEvent => string = getPlayerSellsStreetString(e)
+            case e: playerUsesHyptohekOnStreetEvent => string = getPlayerUsesHypothekOnStreetString(e)
+            case e: playerPaysHyptohekOnStreetEvent => string = getPlayerPaysHypothekOnStreetString(e)
+            case e: playerUsesHyptohekOnTrainstationEvent => string = getPlayerUsesHypothekOnTrainstationString(e)
+            case e: playerPaysHyptohekOnTrainstationEvent => string = getPlayerPaysHypothekOnTrainstationString(e)
+            case e: playerSellsTrainstationEvent => string = getPlayerSellsTrainstationString(e)
+            case e: newRoundEvent => string = getNewRoundString(e)
+            case e: endRoundEvent => string = getEndRoundString(e)
+            case e: playerMoveToJail => string = getPlayerMoveToJailString(e)
+            case e: optionEvent => string = getOptionString(e)
+            case e: printEverythingEvent => string = getPlayerAndBoardToString
+            case e: playerMoveEvent => string = getPlayerMovedString(e)
+            case e: playerIsFreeEvent => string = getPlayerIsFreeString(e)
+            case e: playerRemainsInJailEvent => string = getPlayerRemainsInJailString(e)
+            case e: playerWentOverGoEvent => string = getPlayerWentOverGoString(e)
+            case e: playerWentOnGoEvent => string = getPlayerWentOnGoString(e)
+            case e: streetOnHypothekEvent => string = getStreetOnHypothekString(e)
+            case e: playerHasDeptEvent => string = getPlayerHasDeptEventString(e)
           case _ => worked = false
         }
             println(string)
             worked
     }
 
-    def getPlayerCount: Unit = {
-      print("How many players?: ") // todo how many npc
-      val playerCount = readInt()
-      val playerNames: Array[String] = Array.ofDim(playerCount)
-      // spieler mit namen einlesensr
-      for (i <- 0 until playerCount) {
-        println("Enter name player" + (i + 1) + ":")
-        playerNames(i) = readLine()
-      }
-      controller.createPlayers(playerCount, playerNames)
-    }
+    def getGameIsGoingToStartString(e: gameIsGoingToStartEvent): String = "The Game is going to start."
 
   def getPlayerAndBoardToString : String = {
         val players = controller.players
@@ -124,6 +115,18 @@ class Tui(controller: Controller) extends Observer {
     def getNormalTurnString(e: normalTurnEvent): String = {
         val string = "Its " + e.player.name + " turn!\n"
         string
+    }
+
+    def getPlayerCount: Unit = {
+        print("How many players?: ") // todo how many npc
+        val playerCount = readInt()
+        val playerNames: Array[String] = Array.ofDim(playerCount)
+        // spieler mit namen einlesensr
+        for (i <- 0 until playerCount) {
+            println("Enter name player" + (i + 1) + ":")
+            playerNames(i) = readLine()
+        }
+        GameStates.handle(createPlayersEvent(playerCount, playerNames))
     }
 
     def getPlayerInJailString(e: playerInJailEvent): String = {
