@@ -7,13 +7,15 @@ object Monopoly {
     val tui = new Tui(controller)
 
     def main(args: Array[String]): Unit = {
-        GameStates.handle(beforeGameStartsEvent())
+        var gameState = GameStates.handle(beforeGameStartsEvent())
         tui.getPlayerCount
-
         // todo controller.letPlayersRollForPositions  ...vlt auch wo anders
+
         controller.notifyObservers(printEverythingEvent())
         do {
-            GameStates.handle(checkGameOverEvent())
+            gameState = GameStates.handle(checkGameOverEvent())
         } while (!GameStates.gameOver) // while not state = gameoverstate
+        //} while (!gameState == GameStates.gameOverState) // while not state = gameoverstate
+        gameState = GameStates.handle(gameOverEvent())
     }
 }

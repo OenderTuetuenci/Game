@@ -6,7 +6,7 @@ case class gameIsGoingToStartEvent() extends PrintEvent
 
 case class brokeEvent(player: Player) extends PrintEvent
 
-case class gameOverEvent(winner: Player) extends PrintEvent
+case class gameFinishedEvent(winner: Player) extends PrintEvent
 
 case class payRentEvent(from: Player, to: Player) extends PrintEvent
 

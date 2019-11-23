@@ -1,25 +1,28 @@
 package model
 
-case class Player(name: String, position: Int = 0, money: Int = 10000, jailCount: Int = -1,ownedStreet:Vector[Int]=Vector[Int]()) {
+case class Player(name: String, position: Int = 0, money: Int = 10000, jailCount: Int = -1,
+                  ownedStreet: Vector[Int] = Vector[Int](), gameOver: Boolean = false) {
     override def toString: String = "name: " + this.name + " pos: " + this.position + " money: " + this.money + " roundsInJail: " + this.jailCount
-    //Moves player about x places
-    def move(x: Int): Player = Player(name, this.position + x, money, jailCount,ownedStreet)
-    def buyStreet(streetNr:Int): Player = Player(name,position,money,jailCount,this.ownedStreet :+streetNr)
 
-    def sellStreet(streetNr:Int): Player = Player(name,position,money,jailCount,this.ownedStreet.filterNot(o => o == streetNr))
-    //Moves player about x places
-    def moveBack(x: Int): Player = Player(name, this.position - x, money, jailCount,ownedStreet)
+    def move(x: Int): Player = this.copy(position = this.position + x)
+
+    def buyStreet(streetNr: Int): Player = this.copy(ownedStreet = this.ownedStreet :+ streetNr)
+
+    def sellStreet(streetNr: Int): Player = this.copy(ownedStreet = this.ownedStreet.filterNot(o => o == streetNr))
+
+    def moveBack(x: Int): Player = this.copy(position = this.position - x)
 
     def incJailTime: Player = this.copy(jailCount = this.jailCount + 1)
 
-    def incMoney(x: Int): Player = Player(name, position, this.money + x, jailCount,ownedStreet)
+    def incMoney(x: Int): Player = this.copy(money = this.money + x)
 
-    def decMoney(x: Int): Player = Player(name, position, this.money - x, jailCount,ownedStreet)
+    def decMoney(x: Int): Player = this.copy(money = this.money - x)
 
-    def resetJailCount: Player = Player(name, position, money, -1,ownedStreet)
+    def resetJailCount: Player = this.copy(jailCount = -1)
 
-    //Moves Player x places over start
-    def moveToStart: Player = Player(name, 0, money, jailCount,ownedStreet)
+    def moveToStart: Player = this.copy(position = 0)
 
-    def moveToJail: Player = Player(name, 10, money, 0,ownedStreet)
+    def moveToJail: Player = this.copy(position = 10)
+
+    def setGameOver: Player = this.copy(gameOver = true)
 }

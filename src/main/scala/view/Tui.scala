@@ -16,7 +16,7 @@ class Tui(controller: Controller) extends Observer {
         e match {
             case e: gameIsGoingToStartEvent => string = getGameIsGoingToStartString(e)
             case e: brokeEvent => string = getBrokeEventString(e)
-            case e: gameOverEvent => string = getGameOverString(e)
+            case e: gameFinishedEvent => string = getFinishedString(e)
             case e: payRentEvent => string = getPayRentString(e)
             case e: buyStreetEvent => string = getBuyStreetEventString(e)
             case e: buyTrainstationEvent => string = getBuyTrainstationEventString(e)
@@ -167,7 +167,7 @@ class Tui(controller: Controller) extends Observer {
 
     def getPlayerWentOnGoString(e: playerWentOnGoEvent): String = e.player.name + " went on go and gets extra money."
 
-    def getGameOverString(e: gameOverEvent): String = e.winner.name + " is the winner!!"
+    def getFinishedString(e: gameFinishedEvent): String = e.winner.name + " is the winner!!"
 
     def getBrokeEventString(e: brokeEvent): String = e.player.name + " is broke!!"
 
