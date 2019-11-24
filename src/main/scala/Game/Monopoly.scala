@@ -25,8 +25,7 @@ object Game extends Monopoly {
         GameStates.handle(beforeGameStartsEvent())
         GameStates.handle(createPlayersEvent(playerCountAndNames._1, playerCountAndNames._2))
         GameStates.handle(createBoardEvent())
-        // todo controller.letPlayersRollForPositions  ...vlt auch wo anders
-
+        GameStates.handle(rollForPositionsEvent())
         tuiController.notifyObservers(printEverythingEvent())
         do {
             GameStates.handle(runRoundEvent())

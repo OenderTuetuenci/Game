@@ -156,7 +156,9 @@ class PlayerController() extends Observable {
 
             // wenn immernoch pleite dann game over oder todo "declare bankrupt" später
             if (players(isturn).money <= 0) {
-                players.filterNot(o => o == isturn) // spieler aus dem spiel nehmen
+                println(players)
+                players.filterNot(o => o == players(isturn)) // spieler aus dem spiel nehmen
+                println(players)
                 playerCount -= 1 // playercount muss auch um 1 verringert werden
                 tuiController.notifyObservers(brokeEvent(players(isturn)))
             }

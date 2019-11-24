@@ -4,6 +4,8 @@ trait PrintEvent
 
 case class gameIsGoingToStartEvent() extends PrintEvent
 
+case class displayRollForPositionsEvent() extends PrintEvent
+
 case class brokeEvent(player: Player) extends PrintEvent
 
 case class gameFinishedEvent(winner: Player) extends PrintEvent

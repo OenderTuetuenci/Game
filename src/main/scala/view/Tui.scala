@@ -16,6 +16,7 @@ class Tui(controller: TuiController) extends Observer {
         var string = ""
         e match {
             case e: gameIsGoingToStartEvent => string = getGameIsGoingToStartString(e)
+            case e: displayRollForPositionsEvent => string = getRollForPositionsString(e)
             case e: brokeEvent => string = getBrokeEventString(e)
             case e: gameFinishedEvent => string = getFinishedString(e)
             case e: payRentEvent => string = getPayRentString(e)
@@ -45,16 +46,17 @@ class Tui(controller: TuiController) extends Observer {
             case _ => worked = false
         }
         println(string)
-        println(worked)
         worked
     }
 
     def getGameIsGoingToStartString(e: gameIsGoingToStartEvent): String = "The Game is going to start."
 
+    def getRollForPositionsString(e: displayRollForPositionsEvent): String = "Players roll for positions."
+
     def getPlayerAndBoardToString: String = {
         val players = Game.Game.players
         val board = Game.Game.board
-        var string = ""
+        var string = "Spieler und Spielfeld:\n\n"
         string += "\nSpieler: "
         for (player <- players) string += player.toString + "\n"
         string += "\nSpielfeld:\n"
@@ -119,18 +121,6 @@ class Tui(controller: TuiController) extends Observer {
         string
     }
 
-    def getPlayerCount = {
-        print("How many players?: ") // todo how many npc
-        val playerCount = readInt()
-        val playerNames: Array[String] = Array.ofDim(playerCount)
-        // spieler mit namen einlesensr
-        for (i <- 0 until playerCount) {
-            println("Enter name player" + (i + 1) + ":")
-            playerNames(i) = readLine()
-        }
-        (playerCount, playerNames)
-    }
-
     def getPlayerInJailString(e: playerInJailEvent): String = {
         var string = "\nIts " + e.player.name + " turn. he is in jail!\n"
         string += "Jailcount: " + (e.player.jailCount + 1) + "\n"
@@ -139,9 +129,7 @@ class Tui(controller: TuiController) extends Observer {
 
     def getPlayerIsFreeString(e: playerIsFreeEvent): String = e.player.name + " is free again!"
 
-
     def getPlayerRemainsInJailString(e: playerRemainsInJailEvent): String = e.player.name + " remains in jail"
-
 
     def getStreetOnHypothekString(e: streetOnHypothekEvent): String = e.street.name + " is on hypothek."
 
@@ -213,4 +201,16 @@ class Tui(controller: TuiController) extends Observer {
     def getPlayerHasDeptEventString(e: playerHasDeptEvent): String = e.player.name + " is in minus: " + e.player.money
 
     def getOptionString(e: optionEvent): String = "option: " + e.option
+
+    def getPlayerCount = {
+        print("How many players?: ") // todo how many npc
+        val playerCount = readInt()
+        val playerNames: Array[String] = Array.ofDim(playerCount)
+        // spieler mit namen einlesensr
+        for (i <- 0 until playerCount) {
+            println("Enter name player" + (i + 1) + ":")
+            playerNames(i) = readLine()
+        }
+        (playerCount, playerNames)
+    }
 }

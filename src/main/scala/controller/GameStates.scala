@@ -11,6 +11,7 @@ object GameStates extends Observable {
     def handle(e: GameStateEvent): Unit = { // todo ??????????????????? type(state)
         e match {
             case e: beforeGameStartsEvent => beforeGameStarts
+            case e: rollForPositionsEvent => rollForPositionsState
             case e: createPlayersEvent => createPlayersState(e.playerCount, e.playerNames)
             case e: createBoardEvent => createBoardState
             case e: runRoundEvent => runRoundState
@@ -27,6 +28,49 @@ object GameStates extends Observable {
         for (i <- 0 until newPlayerCount) players = players :+ Player(playerNames(i))
         playerCount = newPlayerCount
     }
+
+    def rollForPositionsState = {
+        tuiController.notifyObservers(displayRollForPositionsEvent())
+
+        // jeden einmal wuerfeln lassen
+        for (i <- 0 until playerCount) {
+            //todo if player is npc or not
+            val rollDices = playerController.wuerfeln
+            println(players(i).name + " rolled " + (rollDices._1 + rollDices._2))
+            //ergebnis speichern für jeden spieler
+            players = players.updated(i, players(i).setRollForPosition(rollDices._1 + rollDices._2))
+        }
+        // nach reihenfolge sortieren
+        players = players.sortBy(-_.rollForPosition) // - für reversed
+        //reihenfolge erstmalig festlegen
+        println("spieler mit reihenfolge:")
+        for (i <- 0 until playerCount) {
+            players = players.updated(i, players(i).setTurnPosition(i))
+            println(players(i))
+        }
+        // Spieler suchen die das gleiche gewuerfelt haben
+        var rolledSame: Vector[Player] = Vector[Player]()
+        for (i <- 0 until playerCount) {
+            for (j <- (i + 1) until playerCount) {
+                if (players(i).rollForPosition == players(j).rollForPosition) {
+                    rolledSame = rolledSame :+ players(i)
+                    rolledSame = rolledSame :+ players(j)
+                }
+            }
+        }
+
+
+        println("leute die nochmal würfeln dürfen ")
+        for (player <- rolledSame) println(player)
+        //todo lass alle die jeweils das gleiche gewuerfelt haben
+        // so lange nochmal würfeln aber nur ihre position untereinander tauschen
+        // bis keiner mehr das gleiche würfelt
+
+        // entgueltige reihenfolge festlegen
+    }
+
+
+
 
     def createBoardState = {
         board = board :+ Los("Los")

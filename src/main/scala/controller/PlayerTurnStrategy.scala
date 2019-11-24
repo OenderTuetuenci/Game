@@ -8,7 +8,7 @@ object PlayerTurnStrategy extends Observable {
 
     //todo var executePlayerTurn: Unit = { ???????????????????????
     def executePlayerTurn: Unit = {
-        if (players(isturn).jailCount > -1) turnInJail else normalTurn
+        if (players(isturn).jailCount > -1) turnInJail() else normalTurn()
     }
 
     // Todo handeln, strassen verkaufen,hypothek bezahlen etc vor dem wuerfeln
@@ -61,7 +61,7 @@ object PlayerTurnStrategy extends Observable {
         var pasch = true
         var paschCount = 0
         // wuerfeln
-        while (pasch && players(isturn).money > 0) {
+        while (pasch) {
             val throwDices = playerController.wuerfeln // 1 = wurf1, 2 = wurf 2, 3 = pasch
             tuiController.notifyObservers(diceEvent(throwDices._1, throwDices._2, throwDices._3))
             if (throwDices._3) paschCount += 1
