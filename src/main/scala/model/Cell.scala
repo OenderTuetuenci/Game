@@ -1,11 +1,10 @@
 package model
 
-abstract class Cell(name: String) {
+trait Cell {
     def onPlayerEntered(enteredPlayer: Int):String
-    override def toString: String = name
 }
 
-case class Street(name: String, group: Int, price: Int, owner: Int, rent: Int, home: Int, mortgage: Boolean) extends Cell(name) {
+case class Street(name: String, group: Int, price: Int, owner: Int, rent: Int, home: Int, mortgage: Boolean) extends Cell{
     override def onPlayerEntered(enteredPlayer: Int): String = {
         println("\nplayer entered " + this.name + ". owner: " + this.owner)
         if (this.owner == -1) "buy"
@@ -34,8 +33,8 @@ case class Street(name: String, group: Int, price: Int, owner: Int, rent: Int, h
     override def toString: String = name + " group: " + group + " price: " + price + " rent: " + rent + " homecount: " + home + " mortgage: " + mortgage
 }
 
-case class Eventcell(name: String) extends Cell(name) {
-    override def onPlayerEntered(enteredPlayer: Int): String = {
+case class Eventcell(name: String) extends Cell{
+    def onPlayerEntered(enteredPlayer: Int): String = {
         println("\nplayer entered an event")
         "\nplayer entered an event"
     }
@@ -43,14 +42,11 @@ case class Eventcell(name: String) extends Cell(name) {
     def drawEventCard(): Unit = {
         println("draw a card")
     }
-
-    override def toString: String = {
-        name
-    }
+    override def toString: String = name
 }
 
 
-case class CommunityChest(name: String) extends Cell(name) {
+case class CommunityChest(name: String) extends Cell{
     override def onPlayerEntered(enteredPlayer: Int): String = {
         println("\nplayer entered CommunityChest")
         "\nplayer entered CommunityChest"
@@ -65,7 +61,7 @@ case class CommunityChest(name: String) extends Cell(name) {
     }
 }
 
-case class IncomeTax(name: String) extends Cell(name) {
+case class IncomeTax(name: String) extends Cell{
     override def onPlayerEntered(enteredPlayer: Int): String = {
         println("\nplayer entered IncomeTax")
         "\nplayer entered IncomeTax"
@@ -76,7 +72,7 @@ case class IncomeTax(name: String) extends Cell(name) {
     }
 }
 
-case class Elektrizitaetswerk(name: String, group: Int, price: Int, owner: Int, rent: Int, hypothek: Boolean) extends Cell(name) {
+case class Elektrizitaetswerk(name: String, group: Int, price: Int, owner: Int, rent: Int, hypothek: Boolean) extends Cell{
     override def onPlayerEntered(enteredPlayer: Int): String = {
         println("\nplayer entered JailVisit")
         "\nplayer entered JailVisit"
@@ -91,7 +87,7 @@ case class Elektrizitaetswerk(name: String, group: Int, price: Int, owner: Int, 
 }
 
 
-case class Trainstation(name: String, group: Int, price: Int, owner: Int, rent: Int, hypothek: Boolean) extends Cell(name) {
+case class Trainstation(name: String, group: Int, price: Int, owner: Int, rent: Int, hypothek: Boolean) extends Cell{
     override def onPlayerEntered(enteredPlayer: Int): String = {
         println("\nplayer entered " + name)
         "\nplayer entered SouthTrainstation"
@@ -99,16 +95,16 @@ case class Trainstation(name: String, group: Int, price: Int, owner: Int, rent: 
 
     def setOwner(x: Int): Trainstation = Trainstation(name, group, price, x, rent, hypothek)
 
-    def getHypothek(): Trainstation = Trainstation(name, group, price, owner, rent, hypothek = true)
+    def getHypothek: Trainstation = Trainstation(name, group, price, owner, rent, hypothek = true)
 
-    def payHypothek(): Trainstation = Trainstation(name, group, price, owner, rent, hypothek = false)
+    def payHypothek: Trainstation = Trainstation(name, group, price, owner, rent, hypothek = false)
 
     override def toString: String = {
         name + " group: " + group + " price: " + price + " rent: " + rent + " hypothek: " + hypothek
     }
 }
 
-case class Los(name: String) extends Cell(name) {
+case class Los(name: String) extends Cell{
     override def onPlayerEntered(enteredPlayer: Int): String = {
         println("\nplayer entered start")
         "\nplayer entered start"
@@ -119,7 +115,7 @@ case class Los(name: String) extends Cell(name) {
     }
 }
 
-case class GoToJail(name: String) extends Cell(name) {
+case class GoToJail(name: String) extends Cell{
     override def onPlayerEntered(enteredPlayer: Int): String = {
         println("\nplayer entered jail")
         "\nplayer entered GoToJail"
@@ -130,7 +126,7 @@ case class GoToJail(name: String) extends Cell(name) {
     }
 }
 
-case class Wasserwerk(name: String, group: Int, price: Int, owner: Int, rent: Int, hypothek: Boolean) extends Cell(name) {
+case class Wasserwerk(name: String, group: Int, price: Int, owner: Int, rent: Int, hypothek: Boolean) extends Cell{
     override def onPlayerEntered(enteredPlayer: Int): String = {
         println("\nplayer entered Wasserwerk")
         "\nplayer entered Wasserwerk"
@@ -141,7 +137,7 @@ case class Wasserwerk(name: String, group: Int, price: Int, owner: Int, rent: In
     }
 }
 
-case class Jail(name: String) extends Cell(name) {
+case class Jail(name: String) extends Cell{
     override def onPlayerEntered(enteredPlayer: Int): String = {
         println("\nplayer entered jail")
         "\nplayer entered jail"
@@ -152,7 +148,7 @@ case class Jail(name: String) extends Cell(name) {
     }
 }
 
-case class FreiParken(name: String) extends Cell(name) {
+case class FreiParken(name: String) extends Cell{
     override def onPlayerEntered(enteredPlayer: Int): String = {
         println("\nplayer entered FreiParken")
         "\nplayer entered FreiParken"
@@ -163,7 +159,7 @@ case class FreiParken(name: String) extends Cell(name) {
     }
 }
 
-case class Zusatzsteuer(name: String) extends Cell(name) {
+case class Zusatzsteuer(name: String) extends Cell{
     override def onPlayerEntered(enteredPlayer: Int): String = {
         println("\nplayer entered Zusatzsteuer")
         "\nplayer entered Zusatzsteuer"

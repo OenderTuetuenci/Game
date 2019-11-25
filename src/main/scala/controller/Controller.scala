@@ -12,52 +12,68 @@ class Controller extends Observable {
     var isturn = 0 // aktueller spieler
     var round = 1
     val dice = Dice()
-
+    object Cell {
+        def apply(kind:String,name: String, group: Int, price: Int, owner: Int, rent: Int, home: Int, mortgage: Boolean): Cell = kind match {
+            case "Los"=>Los(name)
+            case "Street"=>Street(name,group,price,owner,rent,home,mortgage)
+            case "CommunityChest"=>CommunityChest(name)
+            case "IncomeTax"=>IncomeTax(name)
+            case "Trainstation"=>Trainstation(name,group,price,owner,rent,mortgage)
+            case "Eventcell"=>Eventcell(name)
+            case "Jail"=>Jail(name)
+            case "ElectricityPlant"=>Elektrizitaetswerk(name,group,price,owner,rent,mortgage)
+            case "FreeParking"=>FreiParken(name)
+            case "GoToJail"=>GoToJail(name)
+            case "AdditionalTax"=>Zusatzsteuer(name)
+            case "Waterplant"=>Wasserwerk(name,group,price,owner,rent,mortgage)
+            case _=>throw new UnsupportedOperationException
+        }
+    }
     def createSpielBrett: Vector[Cell] = {
         var spielBrett = Vector[Cell]()
-        spielBrett = spielBrett :+ Los("Los")
-        spielBrett = spielBrett :+ Street("Strasse1", 1, 60, -1, 200, 0, mortgage = false)
-        spielBrett = spielBrett :+ CommunityChest("Gemeinschaftsfeld1")
-        spielBrett = spielBrett :+ Street("Strasse2", 1, 60, -1, 200, 0, mortgage = false)
-        spielBrett = spielBrett :+ IncomeTax("Einkommensteuer")
-        spielBrett = spielBrett :+ Trainstation("Suedbahnhof", 9, 200, -1, 200, hypothek = false)
-        spielBrett = spielBrett :+ Street("Strasse3", 2, 100, -1, 200, 0, mortgage = false)
-        spielBrett = spielBrett :+ Eventcell("Ereignisfeld1")
-        spielBrett = spielBrett :+ Street("Strasse4", 2, 100, -1, 200, 0, mortgage = false)
-        spielBrett = spielBrett :+ Street("Strasse5", 2, 120, -1, 200, 0, mortgage = false)
-        spielBrett = spielBrett :+ Jail("Zu besuch oder im Gefaengnis")
+        spielBrett = spielBrett :+ Cell("Los","Los",0,0,0,0,0,mortgage = false)
+        spielBrett = spielBrett :+ Cell("Street","Street1",1,60,-1,200,0,mortgage = false)
+        spielBrett = spielBrett :+ Cell("CommunityChest","CommunityChest1",0,0,0,0,0,mortgage = false)
+        spielBrett = spielBrett :+ Cell("Street","Street2",1,60,-1,200,0,mortgage = false)
+        spielBrett = spielBrett :+ Cell("IncomeTax","IncomeTax",0,0,0,0,0,mortgage=false)
+        spielBrett = spielBrett :+ Cell("Trainstation","South Trainstation",9,200,-1,200,0,mortgage = false)
+        spielBrett = spielBrett :+ Cell("Street","Street3",2,100,-1,200,0,mortgage = false)
+        spielBrett = spielBrett :+ Cell("Eventcell","Eventcell1",0,0,0,0,0,mortgage = false)
+        spielBrett = spielBrett :+ Cell("Street","Street4",2,100,-1,200,0,mortgage = false)
+        spielBrett = spielBrett :+ Cell("Street","Street5",2,120,-1,200,0,mortgage = false)
+        spielBrett = spielBrett :+ Cell("Jail","Visit Jail or Jail",0,0,0,0,0,mortgage = false)
 
-        spielBrett = spielBrett :+ Street("Strasse6", 3, 140, -1, 200, 0, mortgage = false)
-        spielBrett = spielBrett :+ Elektrizitaetswerk("Elektrizitaetswerk", 10, 150, -1, 200, hypothek = false)
-        spielBrett = spielBrett :+ Street("Strasse7", 3, 140, -1, 200, 0, mortgage = false)
-        spielBrett = spielBrett :+ Street("Strasse8", 3, 160, -1, 200, 0, mortgage = false)
-        spielBrett = spielBrett :+ Trainstation("Westbahnhof", 9, 200, -1, 200, hypothek = false)
-        spielBrett = spielBrett :+ Street("Strasse9", 4, 180, -1, 200, 0, mortgage = false)
-        spielBrett = spielBrett :+ CommunityChest("Gemeinschaftsfeld2")
-        spielBrett = spielBrett :+ Street("Strasse10", 4, 180, -1, 200, 0, mortgage = false)
-        spielBrett = spielBrett :+ Street("Strasse11", 4, 200, -1, 200, 0, mortgage = false)
-        spielBrett = spielBrett :+ FreiParken("Freiparken")
+        spielBrett = spielBrett :+ Cell("Street","Street6",3,140,-1,200,0,mortgage = false)
+        spielBrett = spielBrett :+ Cell("ElectricityPlant","ElectricityPlant",10,150,-1,200,0,mortgage = false)
+        spielBrett = spielBrett :+ Cell("Street","Street7",3,140,-1,200,0,mortgage = false)
+        spielBrett = spielBrett :+ Cell("Street","Street8",3,160,-1,200,0,mortgage = false)
+        spielBrett = spielBrett :+ Cell("Trainstation","West Trainstation",9,200,-1,200,0,mortgage = false)
+        spielBrett = spielBrett :+ Cell("Street","Street9",4,180,-1,200,0,mortgage = false)
+        spielBrett = spielBrett :+ Cell("CommunityChest","CommunityChest2",0,0,0,0,0,mortgage = false)
+        spielBrett = spielBrett :+ Cell("Street","Street10",4,180,-1,200,0,mortgage = false)
+        spielBrett = spielBrett :+ Cell("Street","Street1",4,200,-1,200,0,mortgage = false)
+        spielBrett = spielBrett :+ Cell("FreeParking","Free parking",0,0,0,0,0,mortgage = false)
 
-        spielBrett = spielBrett :+ Street("Strasse12", 5, 220, -1, 200, 0, mortgage = false)
-        spielBrett = spielBrett :+ Eventcell("Ereignisfeld2")
-        spielBrett = spielBrett :+ Street("Strasse13", 5, 220, -1, 200, 0, mortgage = false)
-        spielBrett = spielBrett :+ Street("Strasse14", 5, 240, -1, 200, 0, mortgage = false)
-        spielBrett = spielBrett :+ Trainstation("Nordbahnhof", 9, 200, -1, 200, hypothek = false)
-        spielBrett = spielBrett :+ Street("Strasse15", 6, 260, -1, 500, 0, mortgage = false)
-        spielBrett = spielBrett :+ Street("Strasse16", 6, 260, -1, 800, 0, mortgage = false)
-        spielBrett = spielBrett :+ Wasserwerk("Wasserwerk", 10, 150, -1, 200, hypothek = false)
-        spielBrett = spielBrett :+ Street("Strasse17", 6, 280, -1, 2500, 0, mortgage = false)
-        spielBrett = spielBrett :+ GoToJail("Gehe ins Gefaengnis")
+        spielBrett = spielBrett :+ Cell("Street","Street12",5,220,-1,200,0,mortgage = false)
+        spielBrett = spielBrett :+ Cell("Eventcell","Eventcell2",0,0,0,0,0,mortgage = false)
+        spielBrett = spielBrett :+ Cell("Street","Street13",5,220,-1,200,0,mortgage = false)
+        spielBrett = spielBrett :+ Cell("Street","Street14",5,240,-1,200,0,mortgage = false)
+        spielBrett = spielBrett :+ Cell("Trainstation","North Trainstation",9,200,-1,200,0,mortgage = false)
+        spielBrett = spielBrett :+ Cell("Street","Street15",6,260,-1,500,0,mortgage = false)
+        spielBrett = spielBrett :+ Cell("Street","Street16",6,260,-1,800,0,mortgage = false)
+        spielBrett = spielBrett :+ Cell("Waterplant","Waterplant",10,150,-1,200,0,mortgage = false)
+        spielBrett = spielBrett :+ Cell("Street","Street17",6,280,-1,2500,0,mortgage = false)
+        spielBrett = spielBrett :+ Cell("GoToJail","Go to jail",0,0,0,0,0,mortgage = false)
 
-        spielBrett = spielBrett :+ Street("Strasse18", 7, 300, -1, 200, 0, mortgage = false)
-        spielBrett = spielBrett :+ Street("Strasse19", 7, 300, -1, 200, 0, mortgage = false)
-        spielBrett = spielBrett :+ CommunityChest("Gemeinschaftsfeld3")
-        spielBrett = spielBrett :+ Street("Strasse20", 7, 320, -1, 200, 0, mortgage = false)
-        spielBrett = spielBrett :+ Trainstation("Nordbahnhof", 9, 200, -1, 200, hypothek = false)
-        spielBrett = spielBrett :+ Eventcell("Ereignisfeld3")
-        spielBrett = spielBrett :+ Street("Strasse21", 8, 350, -1, 200, 0, mortgage = false)
-        spielBrett = spielBrett :+ Zusatzsteuer("Zusatzsteuer")
-        spielBrett = spielBrett :+ Street("Strasse22", 8, 400, -1, 200, 0, mortgage = false)
+        spielBrett = spielBrett :+ Cell("Street","Street18",7,300,-1,200,0,mortgage = false)
+        spielBrett = spielBrett :+ Cell("Street","Street19",7,300,-1,200,0,mortgage = false)
+        spielBrett = spielBrett :+ Cell("CommunityChest","CommunityChest",0,0,0,0,0,mortgage = false)
+        spielBrett = spielBrett :+ Cell("Street","Street20",7,320,-1,200,0,mortgage = false)
+        spielBrett = spielBrett :+ Cell("Trainstation","East Trainstation",9,200,-1,200,0,mortgage = false)
+        spielBrett = spielBrett :+ Cell("Eventcell","Eventcell3",0,0,0,0,0,mortgage = false)
+        spielBrett = spielBrett :+ Cell("Street","Street21",8,350,-1,200,0,mortgage = false)
+        spielBrett = spielBrett :+ Cell("IncomeTax","IncomeTax",0,0,0,0,0,mortgage = false)
+        spielBrett = spielBrett :+ Cell("Street","Street22",8,400,-1,200,0,mortgage = false)
 
         spielBrett
     }
@@ -116,7 +132,7 @@ class Controller extends Observable {
                     if (board(i).asInstanceOf[Trainstation].owner == isturn) {
                         // wenn er die hypothek zahlen kann tut er dies
                         if (s.hypothek && players(isturn).money > s.price) {
-                            board = board.updated(i, board(i).asInstanceOf[Trainstation].payHypothek())
+                            board = board.updated(i, board(i).asInstanceOf[Trainstation].payHypothek)
                             players = players.updated(isturn, players(isturn).decMoney(s.price))
                             checkDept(-1)
                             notifyObservers(playerPaysHyptohekOnTrainstationEvent(players(isturn), board(i).asInstanceOf[Trainstation]))
@@ -182,7 +198,7 @@ class Controller extends Observable {
                                 if (board(i).asInstanceOf[Trainstation].owner == isturn) {
                                     // bahnhof mit hypothek belasten
                                     if (!s.hypothek) {
-                                        board = board.updated(i, board(i).asInstanceOf[Trainstation].getHypothek())
+                                        board = board.updated(i, board(i).asInstanceOf[Trainstation].getHypothek)
                                         players = players.updated(isturn, players(isturn).incMoney(s.price))
                                         notifyObservers(playerUsesHyptohekOnTrainstationEvent(players(isturn), board(i).asInstanceOf[Trainstation]))
                                         actionDone = true
