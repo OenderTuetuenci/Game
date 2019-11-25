@@ -51,7 +51,7 @@ class Controller extends Observable {
         spielBrett = spielBrett :+ Cell("Street","Street9",4,180,-1,200,0,mortgage = false)
         spielBrett = spielBrett :+ Cell("CommunityChest","CommunityChest2",0,0,0,0,0,mortgage = false)
         spielBrett = spielBrett :+ Cell("Street","Street10",4,180,-1,200,0,mortgage = false)
-        spielBrett = spielBrett :+ Cell("Street","Street1",4,200,-1,200,0,mortgage = false)
+        spielBrett = spielBrett :+ Cell("Street","Street11",4,200,-1,200,0,mortgage = false)
         spielBrett = spielBrett :+ Cell("FreeParking","Free parking",0,0,0,0,0,mortgage = false)
 
         spielBrett = spielBrett :+ Cell("Street","Street12",5,220,-1,200,0,mortgage = false)
@@ -67,7 +67,7 @@ class Controller extends Observable {
 
         spielBrett = spielBrett :+ Cell("Street","Street18",7,300,-1,200,0,mortgage = false)
         spielBrett = spielBrett :+ Cell("Street","Street19",7,300,-1,200,0,mortgage = false)
-        spielBrett = spielBrett :+ Cell("CommunityChest","CommunityChest",0,0,0,0,0,mortgage = false)
+        spielBrett = spielBrett :+ Cell("CommunityChest","CommunityChest3",0,0,0,0,0,mortgage = false)
         spielBrett = spielBrett :+ Cell("Street","Street20",7,320,-1,200,0,mortgage = false)
         spielBrett = spielBrett :+ Cell("Trainstation","East Trainstation",9,200,-1,200,0,mortgage = false)
         spielBrett = spielBrett :+ Cell("Eventcell","Eventcell3",0,0,0,0,0,mortgage = false)
