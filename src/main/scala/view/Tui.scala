@@ -1,15 +1,16 @@
 package view
 
+import Game.Monopoly.gameState._
 import controller._
 import model._
 import util.Observer
 
 import scala.io.StdIn._
 
-class Tui(controller: TuiController) extends Observer {
+class Tui(controller: GameStates) extends Observer {
     controller.add(this)
 
-    def getController: TuiController = controller
+    def getController: GameStates = controller
 
     override def update(e: PrintEvent): Boolean = {
         var worked = true
@@ -54,8 +55,6 @@ class Tui(controller: TuiController) extends Observer {
     def getRollForPositionsString(e: displayRollForPositionsEvent): String = "Players roll for positions."
 
     def getPlayerAndBoardToString: String = {
-        val players = Game.Game.players
-        val board = Game.Game.board
         var string = "Spieler und Spielfeld:\n\n"
         string += "\nSpieler: "
         for (player <- players) string += player.toString + "\n"
@@ -205,12 +204,19 @@ class Tui(controller: TuiController) extends Observer {
     def getPlayerCount = {
         print("How many players?: ") // todo how many npc
         val playerCount = readInt()
+        print("how many npc?: ")
+        val npcCount = readInt()
+
         val playerNames: Array[String] = Array.ofDim(playerCount)
+        val npcNames: Array[String] = Array.ofDim(npcCount)
         // spieler mit namen einlesensr
         for (i <- 0 until playerCount) {
             println("Enter name player" + (i + 1) + ":")
             playerNames(i) = readLine()
         }
-        (playerCount, playerNames)
+        for (i <- 0 until npcCount) {
+            npcNames(i) = "NPC " + (i + 1)
+        }
+        (playerCount, npcCount, playerNames, npcNames)
     }
 }

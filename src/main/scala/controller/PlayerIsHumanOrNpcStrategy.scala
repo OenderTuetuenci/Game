@@ -1,8 +1,31 @@
 package controller
 
-object PlayerIsHumanOrNpcStrategy {
-    //var strategy = if (controller.players(controller.isTurn).isNpc == false) playerIsHuman else playerIsNpc
-    def strategy1 = println("Player is Human")
+import Game.Monopoly.gameState._
 
-    def strategy2 = println("Player is NPC")
+//todo maybe turnevents for roll dice, buy,sell,
+
+object PlayerIsHumanOrNpcStrategy {
+
+    //var doTurn: Unit = { ???????????????????????
+
+    def selectOption: Unit = {
+        if (players(isturn).isNpc) doNpcTurn else doHumanTurn
+    }
+
+    def doHumanTurn = println("Player is Human")
+
+    // rollDiceEvent
+    //npc wuerfeln
+    // buy street,house.... event
+
+    def doNpcTurn = println("Player is Npc")
+
+    // notifyobservers(playerRollDiceEvent)
+    // tui.getInput(playerRollDiceEvent)
+    // optionen anzeigen
+    // optionen auswaehlen
+
+    // rollDiceEvent z.b. auswaehlen
+
+    // buy street,house.... event
 }

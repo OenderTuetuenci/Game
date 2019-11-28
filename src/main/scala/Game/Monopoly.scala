@@ -4,34 +4,25 @@ import controller._
 import model._
 import view.Tui
 
-trait Monopoly {
-    // global vars
-    val tuiController = new TuiController()
+
+object Monopoly {
+    val gameState = new GameStates()
+    val tui = new Tui(gameState)
+
     val playerController = new PlayerController()
     val boardController = new BoardController()
-    val tui = new Tui(tuiController)
-    val dice = Dice()
-    var board: Vector[Cell] = Vector[Cell]()
-    var playerCount = 0
-    var players: Vector[Player] = Vector[Player]()
-    var isturn = 0 // aktueller spieler
-    var round = 1
-}
 
-object Game extends Monopoly {
     def main(args: Array[String]): Unit = {
         //todo wieder state = gamestates.handle
-        val playerCountAndNames = tui.getPlayerCount
-        GameStates.handle(beforeGameStartsEvent())
-        GameStates.handle(createPlayersEvent(playerCountAndNames._1, playerCountAndNames._2))
-        GameStates.handle(createBoardEvent())
-        GameStates.handle(rollForPositionsEvent())
-        tuiController.notifyObservers(printEverythingEvent())
+        gameState.handle(beforeGameStartsEvent(tui.getPlayerCount()))
+        gameState.handle(createPlayersEvent())
+        gameState.handle(createBoardEvent())
+        gameState.handle(rollForPositionsEvent())
         do {
-            GameStates.handle(runRoundEvent())
-            GameStates.handle(checkGameOverEvent())
-        } while (!GameStates.gameOver) //todo wieder while not state == gameoverstate
-        GameStates.handle(gameOverEvent())
+            gameState.handle(runRoundEvent())
+            gameState.handle(checkGameOverEvent())
+        } while (!gameState.gameOver) //todo wieder while not state == gameoverstate
+        gameState.handle(gameOverEvent())
     }
 }
 

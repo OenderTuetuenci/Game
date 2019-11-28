@@ -1,18 +1,28 @@
 package controller
-import Game.Game._
+
+import Game.Monopoly.playerController
 import model._
 import util.Observable
 
-object GameStates extends Observable {
-
+class GameStates extends Observable {
+    val dice = Dice()
+    var humanPlayers = 0
+    var npcPlayers = 0
+    var playerCount = 0
+    var playerNames: Array[String] = Array[String]()
     var gameOver = false
+    var npcNames: Array[String] = Array[String]()
+    var board: Vector[Cell] = Vector[Cell]()
+    var players: Vector[Player] = Vector[Player]()
+    var isturn = 0 // aktueller spieler
+    var round = 1
     //var state = beforeGameStarts // todo ????
 
     def handle(e: GameStateEvent): Unit = { // todo ??????????????????? type(state)
         e match {
-            case e: beforeGameStartsEvent => beforeGameStarts
+            case e: beforeGameStartsEvent => beforeGameStarts(e)
             case e: rollForPositionsEvent => rollForPositionsState
-            case e: createPlayersEvent => createPlayersState(e.playerCount, e.playerNames)
+            case e: createPlayersEvent => createPlayersState
             case e: createBoardEvent => createBoardState
             case e: runRoundEvent => runRoundState
             case e: checkGameOverEvent => checkGameOverState
@@ -22,15 +32,19 @@ object GameStates extends Observable {
         //state //todo return state
     }
 
-    def beforeGameStarts = tuiController.notifyObservers(gameIsGoingToStartEvent())
+    def beforeGameStarts() = notifyObservers(gameIsGoingToStartEvent())
 
-    def createPlayersState(newPlayerCount: Int, playerNames: Array[String]): Unit = {
-        for (i <- 0 until newPlayerCount) players = players :+ Player(playerNames(i))
-        playerCount = newPlayerCount
+    // todo settings oder so vlt noch wie viele spieler ...npc mit rein
+
+
+    def createPlayersState: Unit = {
+        for (i <- 0 until humanPlayers) players = players :+ Player(playerNames(i))
+        for (i <- 0 until npcPlayers) players = players :+ Player(npcNames(i), isNpc = true)
+        playerCount = humanPlayers + npcPlayers
     }
 
     def rollForPositionsState = {
-        tuiController.notifyObservers(displayRollForPositionsEvent())
+        notifyObservers(displayRollForPositionsEvent())
 
         // jeden einmal wuerfeln lassen
         for (i <- 0 until playerCount) {
@@ -58,15 +72,50 @@ object GameStates extends Observable {
                 }
             }
         }
-
-
         println("leute die nochmal würfeln dürfen ")
         for (player <- rolledSame) println(player)
         //todo lass alle die jeweils das gleiche gewuerfelt haben
         // so lange nochmal würfeln aber nur ihre position untereinander tauschen
         // bis keiner mehr das gleiche würfelt
 
+        var playersRollingAgain: Vector[Player] = Vector[Player]()
+        var playersRollingAgainPositions: Vector[Int] = Vector[Int]()
+        //while (!(rolledSame.isempty)) { // solange es spieler gibt die das gleiche gewuerfelt haben
+        for (i <- 2 until 12) {
+            //jede augenzahl durchgehen
+            for (player <- players) {
+                // spieler die diese augenzahl gewürfelt haben raussuchen
+                // auch die positionen raussuchen
+                // z.b. a und b haben beide 9 und wuerfeln nochmal für pos 1 und 2
+                if (player.rollForPosition == i) {
+                    playersRollingAgain :+ player
+                    playersRollingAgainPositions :+ player.turnPosition
+                }
+            }
+            // spieler nochmal so lange wuerfeln lassen bis sie nichtmehr das gleiche haben
+            // do
+            for (player <- playersRollingAgain) {
+                //todo if player is npc or not
+                val rollDices = playerController.wuerfeln
+                println(player.name + " rolled " + (rollDices._1 + rollDices._2))
+                //ergebnis speichern für jeden spieler
+                players = players.updated(i, players(i).setRollForPosition(rollDices._1 + rollDices._2))
+            }
+            // while not das gleiche gewuerfelt
+            // position untereinander bestimmten
+            //sort players nach augenzahl absteigend
+            // positionen sollten aufsteigend sein
+            //var i = 0 ( i ist index von spielern sortiert, der mit höchsten ist 1.)
+            // for (position <- positions)
+            // players(i).setTurnPosition(position) ( und bekommt die 1. position )
+            //i += 1
+        }
+
+        //} END while
+
+
         // entgueltige reihenfolge festlegen
+        notifyObservers(printEverythingEvent())
     }
 
 
@@ -121,15 +170,15 @@ object GameStates extends Observable {
 
     def runRoundState = {
         // todo if player has money raus und einfach so rbüer
-        tuiController.notifyObservers(newRoundEvent(round))
+        notifyObservers(newRoundEvent(round))
         for (i <- 0 until playerCount) {
             isturn = i
             PlayerTurnStrategy.executePlayerTurn // zug ausfuehren
             //Thread.sleep(1000) // wait for 1000 millisecond between turns
         }
         // Rundenende
-        tuiController.notifyObservers(endRoundEvent(round))
-        tuiController.notifyObservers(printEverythingEvent())
+        notifyObservers(endRoundEvent(round))
+        notifyObservers(printEverythingEvent())
         round += 1
         //Thread.sleep(1000) // wait for 1000 millisecond between rounds
     }
@@ -141,6 +190,6 @@ object GameStates extends Observable {
 
     def gameOverState = {
         // am ende ist nurnoch 1 spieler uebrig
-        tuiController.notifyObservers(gameFinishedEvent(players(0)))
+        notifyObservers(gameFinishedEvent(players(0)))
     }
 }

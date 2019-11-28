@@ -1,6 +1,7 @@
 package controller
 
-import Game.Game._
+import Game.Monopoly.gameState._
+import Game.Monopoly.playerController
 import model._
 import util.Observable
 
@@ -15,19 +16,22 @@ object PlayerTurnStrategy extends Observable {
     // Todo und nach dem wuerfeln falls er nicht pleite ist
 
     def turnInJail(): Unit = {
-        tuiController.notifyObservers(playerInJailEvent(players(isturn)))
+        notifyObservers(playerInJailEvent(players(isturn)))
+
+        PlayerIsHumanOrNpcStrategy.selectOption // todo zug für spieler oder npc
+
         //checkHypothek() // schauen ob haeuser im besitz hypotheken haben und bezahlen wenns geht
         val option = "rollDice"
         if (option == "buyOut") {
             players = players.updated(isturn, players(isturn).decMoney(200))
             playerController.checkDept(-1) // owner = bank
             players = players.updated(isturn, players(isturn).resetJailCount)
-            tuiController.notifyObservers(playerIsFreeEvent(players(isturn)))
+            notifyObservers(playerIsFreeEvent(players(isturn)))
             PlayerTurnStrategy.executePlayerTurn // zug ausfuehren
         }
         // ...die freikarte benutzen....
         if (option == "useCard") {
-            tuiController.notifyObservers(playerIsFreeEvent(players(isturn)))
+            notifyObservers(playerIsFreeEvent(players(isturn)))
             PlayerTurnStrategy.executePlayerTurn // zug ausfuehren
         }
         // ...oder pasch wuerfeln.
@@ -36,7 +40,7 @@ object PlayerTurnStrategy extends Observable {
             if (throwDices._3) {
                 // bei gewuerfelten pasch kommt man raus und moved
                 players = players.updated(isturn, players(isturn).resetJailCount)
-                tuiController.notifyObservers(playerIsFreeEvent(players(isturn)))
+                notifyObservers(playerIsFreeEvent(players(isturn)))
                 playerController.movePlayer(throwDices._1 + throwDices._2)
             } else {
                 //sonst jailcount +1
@@ -46,15 +50,20 @@ object PlayerTurnStrategy extends Observable {
                     players = players.updated(isturn, players(isturn).resetJailCount)
                     players = players.updated(isturn, players(isturn).decMoney(200))
                     playerController.checkDept(-1) // owner is bank
-                    tuiController.notifyObservers(playerIsFreeEvent(players(isturn)))
+                    notifyObservers(playerIsFreeEvent(players(isturn)))
                     playerController.movePlayer(throwDices._1 + throwDices._2)
-                } else tuiController.notifyObservers(playerRemainsInJailEvent(players(isturn)))
+                } else notifyObservers(playerRemainsInJailEvent(players(isturn)))
             }
         }
     }
 
     def normalTurn(): Unit = {
-        tuiController.notifyObservers(normalTurnEvent(players(isturn)))
+        notifyObservers(normalTurnEvent(players(isturn)))
+
+        PlayerIsHumanOrNpcStrategy.selectOption // todo zug für spieler oder npc
+
+        //maybe  PlayerIsHumanOrNpcStrategy.selectOption(playerController.checkHypothek)
+
         playerController.checkHypothek() // schauen ob haeuser im besitz hypotheken haben und bezahlen wenns geht
 
         // init pasch
@@ -63,13 +72,13 @@ object PlayerTurnStrategy extends Observable {
         // wuerfeln
         while (pasch) {
             val throwDices = playerController.wuerfeln // 1 = wurf1, 2 = wurf 2, 3 = pasch
-            tuiController.notifyObservers(diceEvent(throwDices._1, throwDices._2, throwDices._3))
+            notifyObservers(diceEvent(throwDices._1, throwDices._2, throwDices._3))
             if (throwDices._3) paschCount += 1
             else pasch = false
             //3x pasch gleich jail sonst move player
             if (paschCount == 3) {
                 players = players.updated(isturn, players(isturn).moveToJail)
-                tuiController.notifyObservers(playerMoveToJail(players(isturn)))
+                notifyObservers(playerMoveToJail(players(isturn)))
             } else playerController.movePlayer(throwDices._1 + throwDices._2)
         }
     }

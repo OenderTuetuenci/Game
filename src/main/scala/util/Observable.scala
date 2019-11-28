@@ -5,7 +5,6 @@ import model._
 trait Observer{
     def update(e: PrintEvent): Boolean
 
-    //todo updateOthers????
 }
 
 class Observable {
