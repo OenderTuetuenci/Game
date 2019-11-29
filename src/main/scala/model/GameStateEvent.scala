@@ -3,9 +3,7 @@ trait GameStateEvent
 
 case class beforeGameStartsEvent() extends GameStateEvent
 
-case class createPlayersEvent(humanPlayers: Int, npcPlayers: Int, playerNames: Array[String], npcNames: Array[String]) extends GameStateEvent {
-    // todo settings oder so vlt noch wie viele spieler ...npc mit rein
-}
+case class createPlayersEvent() extends GameStateEvent
 case class createBoardEvent() extends GameStateEvent
 
 case class rollForPositionsEvent() extends GameStateEvent

@@ -1,28 +1,19 @@
 package Game
 
 import controller._
-import model._
 import view.Tui
 
+// todo undo pattern spieleranzahl namen wie viele spieler und bots im beforegamestartsstate
+//todo option and try wo exceptions kommen koennen oder none
 
 object Monopoly {
-    val gameState = new GameStates()
-    val tui = new Tui(gameState)
+    val gameController = new GameController
+    val tui = new Tui(gameController)
 
-    val playerController = new PlayerController()
-    val boardController = new BoardController()
 
     def main(args: Array[String]): Unit = {
-        //todo wieder state = gamestates.handle
-        gameState.handle(beforeGameStartsEvent(tui.getPlayerCount()))
-        gameState.handle(createPlayersEvent())
-        gameState.handle(createBoardEvent())
-        gameState.handle(rollForPositionsEvent())
-        do {
-            gameState.handle(runRoundEvent())
-            gameState.handle(checkGameOverEvent())
-        } while (!gameState.gameOver) //todo wieder while not state == gameoverstate
-        gameState.handle(gameOverEvent())
+        while (!gameController.gameOver)
+            gameController.run()
     }
 }
 

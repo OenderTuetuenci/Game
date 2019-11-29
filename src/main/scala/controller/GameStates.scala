@@ -1,40 +1,6 @@
 package controller
 
-import Game.Monopoly.playerController
-import model._
-import util.Observable
 
-class GameStates extends Observable {
-    val dice = Dice()
-    var humanPlayers = 0
-    var npcPlayers = 0
-    var playerCount = 0
-    var playerNames: Array[String] = Array[String]()
-    var gameOver = false
-    var npcNames: Array[String] = Array[String]()
-    var board: Vector[Cell] = Vector[Cell]()
-    var players: Vector[Player] = Vector[Player]()
-    var isturn = 0 // aktueller spieler
-    var round = 1
-    //var state = beforeGameStarts // todo ????
-
-    def handle(e: GameStateEvent): Unit = { // todo ??????????????????? type(state)
-        e match {
-            case e: beforeGameStartsEvent => beforeGameStarts(e)
-            case e: rollForPositionsEvent => rollForPositionsState
-            case e: createPlayersEvent => createPlayersState
-            case e: createBoardEvent => createBoardState
-            case e: runRoundEvent => runRoundState
-            case e: checkGameOverEvent => checkGameOverState
-            case e: gameOverEvent => gameOverState
-            case _ => println(e)
-        }
-        //state //todo return state
-    }
-
-    def beforeGameStarts() = notifyObservers(gameIsGoingToStartEvent())
-
-    // todo settings oder so vlt noch wie viele spieler ...npc mit rein
 
 
     def createPlayersState: Unit = {

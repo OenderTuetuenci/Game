@@ -1,21 +1,21 @@
 package view
 
-import Game.Monopoly.gameState._
 import controller._
 import model._
 import util.Observer
 
 import scala.io.StdIn._
 
-class Tui(controller: GameStates) extends Observer {
+class Tui(controller: GameController) extends Observer {
     controller.add(this)
 
-    def getController: GameStates = controller
+    def getController: GameController = controller
 
     override def update(e: PrintEvent): Boolean = {
         var worked = true
         var string = ""
         e match {
+            case e: beforeStart => getPlayerCount
             case e: gameIsGoingToStartEvent => string = getGameIsGoingToStartString(e)
             case e: displayRollForPositionsEvent => string = getRollForPositionsString(e)
             case e: brokeEvent => string = getBrokeEventString(e)
