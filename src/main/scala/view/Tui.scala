@@ -15,7 +15,7 @@ class Tui(controller: GameController) extends Observer {
         var worked = true
         var string = ""
         e match {
-            case e: beforeStart => getPlayerCount
+            case e: newGameEvent => getPlayerCount
             case e: gameIsGoingToStartEvent => string = getGameIsGoingToStartString(e)
             case e: displayRollForPositionsEvent => string = getRollForPositionsString(e)
             case e: brokeEvent => string = getBrokeEventString(e)
@@ -49,7 +49,6 @@ class Tui(controller: GameController) extends Observer {
         println(string)
         worked
     }
-
     def getGameIsGoingToStartString(e: gameIsGoingToStartEvent): String = "The Game is going to start."
 
     def getRollForPositionsString(e: displayRollForPositionsEvent): String = "Players roll for positions."
@@ -201,7 +200,7 @@ class Tui(controller: GameController) extends Observer {
 
     def getOptionString(e: optionEvent): String = "option: " + e.option
 
-    def getPlayerCount = {
+    def getPlayerCount:Unit = {
         print("How many players?: ") // todo how many npc
         val playerCount = readInt()
         print("how many npc?: ")
@@ -217,6 +216,6 @@ class Tui(controller: GameController) extends Observer {
         for (i <- 0 until npcCount) {
             npcNames(i) = "NPC " + (i + 1)
         }
-        (playerCount, npcCount, playerNames, npcNames)
+        controller.createGame(playerNames,npcNames);
     }
 }

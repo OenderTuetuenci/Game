@@ -2,6 +2,8 @@ package model
 
 trait PrintEvent
 
+case class newGameEvent() extends PrintEvent
+
 case class gameIsGoingToStartEvent() extends PrintEvent
 
 case class displayRollForPositionsEvent() extends PrintEvent

@@ -4,6 +4,8 @@ class Wuerfel(val augen:Int){
 
 }
 
+
+
 42.toBinaryString
 42.toHexString
 scala.math.sqrt(9)

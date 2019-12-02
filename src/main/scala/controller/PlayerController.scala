@@ -7,9 +7,27 @@ import util.Observable
 
 import scala.util.control.Breaks.{break, breakable}
 
-class PlayerController() extends Observable {
+class PlayerController(){
+  def movePlayer(roll:Int,jail:Boolean,player: Player): Player ={
+    var updated = player
+    if(jail)
+      updated = player.moveToJail
+    else
+      updated = player.move(roll)
+    if(updated.position >= 40)
+      updated = updated.moveBack(40)
+    updated
+  }
+  def createPlayers(playerNames:Array[String],npcNames:Array[String]): Vector[Player] = {
+    var players:Vector[Player] = Vector()
+    for(player <-playerNames)
+      players = players :+ Player(player)
+    for(npc <-npcNames)
+      players = players :+ Player(npc)
+    players
+  }
 
-    def checkHypothek(): Unit = {
+  def checkHypothek(): Unit = {
         // in allen straßen des spielers suchen ob hypothek vorliegt
         // todo lieber feld von besitz beim spieler anlegen damit man nicht durch alle felder muss
         for (i <- board.indices) {
