@@ -35,7 +35,8 @@ class GameController extends Observable {
             val roll = rollDice
             players.updated(i,playerController.movePlayer(roll._1,roll._2,players(i)))
             val option = board(players(i).position).onPlayerEntered(i)
-            //Todo Jetzt zwischen Human oder Npc endscheiden (vllt indem man im player ein Boolean hat für Npc)
+            HumanOrNpcStategy.selectStategy(players(i).isNpc,option)
+            HumanOrNpcStategy.stategy
         }
     }
     def rollDice :(Int,Boolean)={
@@ -56,6 +57,18 @@ class GameController extends Observable {
         if(paschcount == 3)
             jailtime = true
         (sum,jailtime)
+    }
+    object HumanOrNpcStategy{
+        var option = "buy"
+        var stategy = human(option)
+        def selectStategy(isNpc:Boolean,option: String):Unit={
+            if(isNpc)
+                stategy = npc(option)
+            else
+                stategy = human(option)
+        }
+        def human(option:String):Unit = ???
+        def npc(option:String):Unit = ???
     }
     object GameStates {
 

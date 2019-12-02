@@ -23,7 +23,7 @@ class PlayerController(){
     for(player <-playerNames)
       players = players :+ Player(player)
     for(npc <-npcNames)
-      players = players :+ Player(npc)
+      players = players :+ Player(npc,isNpc = true)
     players
   }
 
