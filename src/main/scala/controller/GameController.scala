@@ -35,8 +35,8 @@ class GameController extends Observable {
             val roll = rollDice
             players.updated(i,playerController.movePlayer(roll._1,roll._2,players(i)))
             val option = board(players(i).position).onPlayerEntered(i)
-            HumanOrNpcStategy.selectStategy(players(i).isNpc,option)
-            HumanOrNpcStategy.stategy
+            HumanOrNpcStrategy.selectStrategy(players(i).isNpc,option)
+            HumanOrNpcStrategy.strategy
         }
     }
     def rollDice :(Int,Boolean)={
@@ -58,14 +58,14 @@ class GameController extends Observable {
             jailtime = true
         (sum,jailtime)
     }
-    object HumanOrNpcStategy{
+    object HumanOrNpcStrategy{
         var option = "buy"
-        var stategy = human(option)
-        def selectStategy(isNpc:Boolean,option: String):Unit={
+        var strategy = human(option)
+        def selectStrategy(isNpc:Boolean,option: String):Unit={
             if(isNpc)
-                stategy = npc(option)
+                strategy = npc(option)
             else
-                stategy = human(option)
+                strategy = human(option)
         }
         def human(option:String):Unit = ???
         def npc(option:String):Unit = ???
