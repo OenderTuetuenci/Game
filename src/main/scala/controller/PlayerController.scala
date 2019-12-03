@@ -130,11 +130,13 @@ class PlayerController(gameController: GameController){
         (board,players)
     }
 
-    def movePlayer(sumDiceThrow: Int): Player = {
+    def movePlayer(sumDiceThrow: Int): Vector[Player] = {
         // spieler bewegen
-        var board = gameController.board
+        val board = gameController.board
         var players = gameController.players
-        var isturn = gameController.isturn
+        val isturn = gameController.isturn
+        val boardController = gameController.boardController
+
         players = players.updated(isturn, players(isturn).move(sumDiceThrow))
         // schauen ob über los gegangen
         if (players(isturn).position >= 40) {
@@ -145,7 +147,7 @@ class PlayerController(gameController: GameController){
         // neue position ausgeben
         gameController.print(playerMoveEvent(players(isturn)))
         // aktion fuer betretetenes feld ausloesen
-        val field = board(players(isturn).position)
+        /*val field = board(players(isturn).position)
         field match {
             case e: Los => boardController.activateStart(e.asInstanceOf[Los])
             case e: Street => boardController.activateStreet(e.asInstanceOf[Street])
@@ -160,7 +162,8 @@ class PlayerController(gameController: GameController){
             case e: GoToJail => boardController.activateGoToJail(e.asInstanceOf[GoToJail])
             case e: Jail => boardController.activateJail(e.asInstanceOf[Jail])
             case _ =>
-        }
+        }*/
+      players
     }
 
     def payRent(field: Buyable): (Vector[Cell],Vector[Player],Int) = {

@@ -58,6 +58,8 @@ class Tui(controller: GameController) extends Observer {
     def getRollForPositionsString(e: displayRollForPositionsEvent): String = "Players roll for positions."
 
     def getPlayerAndBoardToString: String = {
+        val players = controller.players
+        val board = controller.board
         var string = "Spieler und Spielfeld:\n\n"
         string += "\nSpieler: "
         for (player <- players) string += player.toString + "\n"

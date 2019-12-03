@@ -39,7 +39,7 @@ class GameController extends Observable {
             if(roll._2)
                 players = players.updated(i,players(i).moveToJail)
             else {
-                players = players.updated(isturn,playerController.movePlayer(roll._1))
+                players = playerController.movePlayer(roll._1)
                 val option = board(players(i).position).onPlayerEntered(i)
                 HumanOrNpcStrategy.selectStrategy(players(i).isNpc, option)
                 HumanOrNpcStrategy.strategy

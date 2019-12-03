@@ -77,8 +77,10 @@ class BoardController(gameController: GameController) {
 
 
     def activateStreet(field: Street): Unit = {
+        val isturn = gameController.isturn
         val option = field.onPlayerEntered(isturn)
-        notifyObservers(optionEvent(option))
+        val playerController = gameController.playerController
+        gameController.print(optionEvent(option))
 
         if (option == "buy") {
             // wer geld hat kauft die straße
@@ -86,22 +88,26 @@ class BoardController(gameController: GameController) {
             //ansonsten miete zahlen falls keine hypothek
         } else if (option == "pay") {
             if (!field.mortgage) playerController.payRent(field)
-            else notifyObservers(streetOnHypothekEvent(field))
+            else gameController.print(streetOnHypothekEvent(field))
 
         } else if (option == "buy home") {
             buyHome(field)
         }
     }
 
-    def buyHome(field: Street): Unit = {
+    def buyHome(field: Street): (Vector[Cell],Vector[Player]) = {
+        val isturn = gameController.isturn
+        var players = gameController.players
+        var board = gameController.board
         if (players(isturn).money > 200 && !field.mortgage) // nur wenn straße nicht hypothek hat
             players = players.updated(isturn, players(isturn).decMoney(200))
         // todo if player owns group of streets buy house
         // todo if housecount = street.maxhouses buy hotel
         board = board.updated(players(isturn).position, board(players(isturn).position).asInstanceOf[Street].buyHome(1))
+        (board,players)
     }
 
-    def activateStart(field: Los): Unit = {
+    /*def activateStart(field: Los): Unit = {
         field.onPlayerEntered(isturn)
         players = players.updated(isturn, players(isturn).incMoney(1000))
     }
@@ -145,6 +151,6 @@ class BoardController(gameController: GameController) {
 
     def activateZusatzsteuer(field: Zusatzsteuer): Unit = {
         field.onPlayerEntered(isturn)
-    }
+    }*/
 }
 
