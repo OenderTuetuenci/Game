@@ -3,7 +3,7 @@ package controller
 
 import model._
 
-class BoardController() {
+class BoardController(gameController: GameController) {
 
     def newOwner(playerNr:Int,cell: Cell):Cell = {
         val updated = cell.asInstanceOf[Buyable].setOwner(playerNr)

@@ -9,8 +9,8 @@ import scala.io.StdIn._
 
 class GameController extends Observable {
     val dice = Dice()
-    val playerController = new PlayerController()
-    val boardController = new BoardController()
+    val playerController = new PlayerController(this)
+    val boardController = new BoardController(this)
     var humanPlayers = 0
     var npcPlayers = 0
     var playerCount = 0
@@ -36,10 +36,14 @@ class GameController extends Observable {
         for(i<- 0 until playerCount){
             isturn = i
             val roll = rollDice
-            players.updated(i,playerController.movePlayer(roll._1,roll._2,players(i)))
-            val option = board(players(i).position).onPlayerEntered(i)
-            HumanOrNpcStrategy.selectStrategy(players(i).isNpc,option)
-            HumanOrNpcStrategy.strategy
+            if(roll._2)
+                players = players.updated(i,players(i).moveToJail)
+            else {
+                players = players.updated(isturn,playerController.movePlayer(roll._1))
+                val option = board(players(i).position).onPlayerEntered(i)
+                HumanOrNpcStrategy.selectStrategy(players(i).isNpc, option)
+                HumanOrNpcStrategy.strategy
+            }
         }
     }
     def rollDice :(Int,Boolean)={
@@ -61,18 +65,20 @@ class GameController extends Observable {
             jailtime = true
         (sum,jailtime)
     }
+
     def payRent :Unit ={
-        val from = players(isturn)
-        val to = players(board(players(isturn).position).asInstanceOf[Buyable].owner)
-        val rent = board(players(isturn).position).asInstanceOf[Buyable].rent
-        val updated = playerController.payRent(from,to,rent)
-        players.updated(isturn,updated._1)
-        players.updated(board(players(isturn).position).asInstanceOf[Buyable].owner,updated._2)
-        notifyObservers(payRentEvent(from, to))
+        val updated = playerController.payRent(board(players(isturn).position).asInstanceOf[Buyable])
+        players = updated._2
+        board = updated._1
+        playerCount = updated._3
     }
     def buyStreet : Unit={
-        players.updated(isturn,playerController.buyStreet(players(isturn),players(isturn).position))
-        board.updated(players(isturn).position,boardController.newOwner(isturn,board(players(isturn).position)))
+        val updated = playerController.buyStreet(board(players(isturn).position).asInstanceOf[Street])
+        board = updated._1
+        players = updated._2
+    }
+    def print (e:PrintEvent): Unit ={
+        notifyObservers(e)
     }
     object HumanOrNpcStrategy{
         var option = "buy"

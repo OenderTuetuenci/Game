@@ -7,17 +7,7 @@ import util.Observable
 
 import scala.util.control.Breaks.{break, breakable}
 
-class PlayerController(){
-  def movePlayer(roll:Int,jail:Boolean,player: Player): Player ={
-    var updated = player
-    if(jail)
-      updated = player.moveToJail
-    else
-      updated = player.move(roll)
-    if(updated.position >= 40)
-      updated = updated.moveBack(40)
-    updated
-  }
+class PlayerController(gameController: GameController){
   def createPlayers(playerNames:Array[String],npcNames:Array[String]): Vector[Player] = {
     var players:Vector[Player] = Vector()
     for(player <-playerNames)
@@ -26,13 +16,10 @@ class PlayerController(){
       players = players :+ Player(npc,isNpc = true)
     players
   }
-
-  def buyStreet(player: Player,streetNr: Int): Player ={
-    val updated = player.buyStreet(streetNr)
-    updated
-  }
-
   def checkHypothek(): Unit = {
+        var board = gameController.board
+        var players = gameController.players
+        val isturn = gameController.isturn
         // in allen straßen des spielers suchen ob hypothek vorliegt
         // todo lieber feld von besitz beim spieler anlegen damit man nicht durch alle felder muss
         for (i <- board.indices) {
@@ -44,7 +31,7 @@ class PlayerController(){
                             board = board.updated(i, board(i).asInstanceOf[Street].payMortgage)
                             players = players.updated(isturn, players(isturn).decMoney(s.price))
                             checkDept(-1)
-                            notifyObservers(playerPaysHyptohekOnStreetEvent(players(isturn), board(i).asInstanceOf[Street]))
+                            gameController.print(playerPaysHyptohekOnStreetEvent(players(isturn), board(i).asInstanceOf[Street]))
                         }
                     }
                 case s: Trainstation =>
@@ -54,27 +41,28 @@ class PlayerController(){
                             board = board.updated(i, board(i).asInstanceOf[Trainstation].payHypothek())
                             players = players.updated(isturn, players(isturn).decMoney(s.price))
                             checkDept(-1)
-                            notifyObservers(playerPaysHyptohekOnTrainstationEvent(players(isturn), board(i).asInstanceOf[Trainstation]))
+                            gameController.print(playerPaysHyptohekOnTrainstationEvent(players(isturn), board(i).asInstanceOf[Trainstation]))
                         }
                     }
                 case _ =>
             }
         }
     }
-    def checkDept(player: Player): Player = {
+    def checkDept(player: Int):(Vector[Cell],Vector[Player],Int) = {
         // wenn spieler im minus its wird
         // so lange verkauft bis im plus oder nichts mehr verkauft wurde dann gameover
-
-        if (player.money <= 0) {
-            notifyObservers(playerHasDeptEvent(players(isturn)))
+        var board = gameController.board
+        var players = gameController.players
+        var playerCount = gameController.playerCount
+        val isturn = gameController.isturn
+        if (players(isturn).money <= 0) {
+            gameController.print(playerHasDeptEvent(players(isturn)))
             var actionDone = false
             breakable { // break wenn player plus -> breakable from scala.util.
                 do {
-                    // uebers ganze spielfeld gehen todo über besitzliste von owner
-                    for (i <- board.indices) {
+                    for (i <- players(isturn).ownedStreet) {
                         actionDone = false
                         board(i) match {
-                            // alle felder durchgehen und schauen ob spieler der besitzer sit
                             //todo straßen, karten, ... verkaufen, später an spieler oder bank
                             case s: Street =>
                                 // erst auf hypothek setzen dann an bank verkaufen
@@ -84,13 +72,13 @@ class PlayerController(){
                                     if (!s.mortgage) {
                                         board = board.updated(i, board(i).asInstanceOf[Street].getMortgage)
                                         players = players.updated(isturn, players(isturn).incMoney(s.price))
-                                        notifyObservers(playerUsesHyptohekOnStreetEvent(players(isturn), board(i).asInstanceOf[Street]))
+                                        gameController.print(playerUsesHyptohekOnStreetEvent(players(isturn), board(i).asInstanceOf[Street]))
                                         actionDone = true
                                     } else {
                                         //sonst straße verkaufen an bank todo später an spieler
                                         board = board.updated(i, board(i).asInstanceOf[Street].setOwner(-1))
                                         players = players.updated(isturn, players(isturn).incMoney(s.price))
-                                        notifyObservers(playerSellsStreetEvent(players(isturn), board(i).asInstanceOf[Street]))
+                                        gameController.print(playerSellsStreetEvent(players(isturn), board(i).asInstanceOf[Street]))
                                         actionDone = true
                                     }
                                 }
@@ -100,13 +88,13 @@ class PlayerController(){
                                     if (!s.hypothek) {
                                         board = board.updated(i, board(i).asInstanceOf[Trainstation].getHypothek())
                                         players = players.updated(isturn, players(isturn).incMoney(s.price))
-                                        notifyObservers(playerUsesHyptohekOnTrainstationEvent(players(isturn), board(i).asInstanceOf[Trainstation]))
+                                        gameController.print(playerUsesHyptohekOnTrainstationEvent(players(isturn), board(i).asInstanceOf[Trainstation]))
                                         actionDone = true
                                     } else {
                                         // an bank verkaufen
                                         board = board.updated(i, board(i).asInstanceOf[Trainstation].setOwner(-1))
                                         players = players.updated(isturn, players(isturn).incMoney(s.price))
-                                        notifyObservers(playerSellsTrainstationEvent(players(isturn), board(i).asInstanceOf[Trainstation]))
+                                        gameController.print(playerSellsTrainstationEvent(players(isturn), board(i).asInstanceOf[Trainstation]))
                                         actionDone = true
                                     }
                                 }
@@ -123,32 +111,39 @@ class PlayerController(){
                 players.filterNot(o => o == players(isturn)) // spieler aus dem spiel nehmen
                 println(players)
                 playerCount -= 1 // playercount muss auch um 1 verringert werden
-                notifyObservers(brokeEvent(players(isturn)))
+                gameController.print(brokeEvent(players(isturn)))
             }
         }
+        (board,players,playerCount)
     }
 
-    def buyStreet(field: Street): Boolean = {
+    def buyStreet(field: Street): (Vector[Cell],Vector[Player]) = {
+        var board = gameController.board
+        var players = gameController.players
+        val isturn = gameController.isturn
         if (players(isturn).money >= field.price) {
             players = players.updated(isturn, players(isturn).decMoney(field.price))
             // spieler.besitz add streetnr
             board = board.updated(players(isturn).position, field.setOwner(isturn))
         }
-        notifyObservers(buyStreetEvent(players(isturn), field))
-        true
+        gameController.print(buyStreetEvent(players(isturn), field))
+        (board,players)
     }
 
-    def movePlayer(sumDiceThrow: Int): Unit = {
+    def movePlayer(sumDiceThrow: Int): Player = {
         // spieler bewegen
+        var board = gameController.board
+        var players = gameController.players
+        var isturn = gameController.isturn
         players = players.updated(isturn, players(isturn).move(sumDiceThrow))
         // schauen ob über los gegangen
         if (players(isturn).position >= 40) {
-            notifyObservers(playerWentOverGoEvent(players(isturn)))
+            gameController.print(playerWentOverGoEvent(players(isturn)))
             players = players.updated(isturn, players(isturn).incMoney(1000))
             players = players.updated(isturn, players(isturn).moveBack(40))
         }
         // neue position ausgeben
-        notifyObservers(playerMoveEvent(players(isturn)))
+        gameController.print(playerMoveEvent(players(isturn)))
         // aktion fuer betretetenes feld ausloesen
         val field = board(players(isturn).position)
         field match {
@@ -168,14 +163,18 @@ class PlayerController(){
         }
     }
 
-    def payRent(from:Player,to:Player,rent: Int): (Player,Player) = {
-        //miete abziehen
-        var updatedPayer = from.decMoney(rent)
-        val updatedBenifiter = to.incMoney(rent)
-        // schauen ob player ins minus gekommen ist
-        updatedPayer = checkDept(updatedPayer)
-        (updatedPayer,updatedBenifiter)
-    }
+    def payRent(field: Buyable): (Vector[Cell],Vector[Player],Int) = {
+      var players = gameController.players
+      val isturn = gameController.isturn
+      // mietpreis holen
+      val rent = field.rent
+      //miete abziehen
+      players = players.updated(isturn, players(isturn).decMoney(rent))
+      players = players.updated(field.owner, players(field.owner).incMoney(rent))
+      gameController.print(payRentEvent(players(isturn), players(field.owner)))
+      // schauen ob player ins minus gekommen ist
+      checkDept(field.owner)
+  }
 
 
 }
