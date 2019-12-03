@@ -15,7 +15,9 @@ class Tui(controller: GameController) extends Observer {
         var worked = true
         var string = ""
         e match {
+            case e: answerEvent => controller.answer = readLine()
             case e: newGameEvent => getPlayerCount
+            case e: askBuyEvent => string = askBuyString
             case e: gameIsGoingToStartEvent => string = getGameIsGoingToStartString(e)
             case e: displayRollForPositionsEvent => string = getRollForPositionsString(e)
             case e: brokeEvent => string = getBrokeEventString(e)
@@ -49,6 +51,8 @@ class Tui(controller: GameController) extends Observer {
         println(string)
         worked
     }
+    def askBuyString : String = "Do u want to buy this street?"
+
     def getGameIsGoingToStartString(e: gameIsGoingToStartEvent): String = "The Game is going to start."
 
     def getRollForPositionsString(e: displayRollForPositionsEvent): String = "Players roll for positions."

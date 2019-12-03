@@ -2,6 +2,10 @@ package model
 
 trait PrintEvent
 
+case class answerEvent() extends PrintEvent
+
+case class askBuyEvent() extends PrintEvent
+
 case class newGameEvent() extends PrintEvent
 
 case class gameIsGoingToStartEvent() extends PrintEvent

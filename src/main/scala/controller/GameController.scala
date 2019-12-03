@@ -5,6 +5,7 @@ package controller
 
 import model._
 import util.Observable;
+import scala.io.StdIn._
 
 class GameController extends Observable {
     val dice = Dice()
@@ -18,6 +19,7 @@ class GameController extends Observable {
     var players: Vector[Player] = Vector[Player]()
     var isturn = 0 // aktueller spieler
     var round = 1
+    var answer = ""
 
     def createGame(playerNames:Array[String],npcNames:Array[String]): Unit ={
         players = playerController.createPlayers(playerNames,npcNames)
@@ -32,6 +34,7 @@ class GameController extends Observable {
 
     def runRound :Unit ={
         for(i<- 0 until playerCount){
+            isturn = i
             val roll = rollDice
             players.updated(i,playerController.movePlayer(roll._1,roll._2,players(i)))
             val option = board(players(i).position).onPlayerEntered(i)
@@ -58,6 +61,19 @@ class GameController extends Observable {
             jailtime = true
         (sum,jailtime)
     }
+    def payRent :Unit ={
+        val from = players(isturn)
+        val to = players(board(players(isturn).position).asInstanceOf[Buyable].owner)
+        val rent = board(players(isturn).position).asInstanceOf[Buyable].rent
+        val updated = playerController.payRent(from,to,rent)
+        players.updated(isturn,updated._1)
+        players.updated(board(players(isturn).position).asInstanceOf[Buyable].owner,updated._2)
+        notifyObservers(payRentEvent(from, to))
+    }
+    def buyStreet : Unit={
+        players.updated(isturn,playerController.buyStreet(players(isturn),players(isturn).position))
+        board.updated(players(isturn).position,boardController.newOwner(isturn,board(players(isturn).position)))
+    }
     object HumanOrNpcStrategy{
         var option = "buy"
         var strategy = human(option)
@@ -67,8 +83,26 @@ class GameController extends Observable {
             else
                 strategy = human(option)
         }
-        def human(option:String):Unit = ???
-        def npc(option:String):Unit = ???
+        def human(option:String):Unit = {
+            if(option == "buy"){
+                notifyObservers(askBuyEvent())
+                notifyObservers(answerEvent())
+                if(answer == "yes"){
+                    buyStreet
+                }
+            }
+            else if(option == "pay"){
+                payRent
+            }
+        }
+        def npc(option:String):Unit = {
+            if(option == "buy"){
+                buyStreet
+            }
+            else if(option == "pay"){
+                payRent
+            }
+        }
     }
     object GameStates {
 
@@ -84,26 +118,24 @@ class GameController extends Observable {
             }
         }
 
-        def beforeGameStarts() = {
+        def beforeGameStarts(): Unit = {
             notifyObservers(newGameEvent())
             runState = runRoundState
         }
 
-        def rollForPositionsState = {
+        def rollForPositionsState:Unit = {
             //notifyObservers(beforeStart)
             runState = runRoundState
         }
 
-        def runRoundState = {
+        def runRoundState:Unit = {
             notifyObservers(newRoundEvent(round))
+            runRound
+            notifyObservers(endRoundEvent(round))
             runState = checkGameOverState
         }
 
-        def checkGameOverState = {
-            //notifyObservers(beforeStart)
-            if (gameOver) runState = gameOverState
-            else runState = runRoundState
-        }
+        def checkGameOverState: Unit = if (gameOver) runState = gameOverState else runState = runRoundState
 
         def gameOverState = {
             //notifyObservers(beforeStart)

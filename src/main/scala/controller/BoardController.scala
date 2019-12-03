@@ -4,6 +4,12 @@ package controller
 import model._
 
 class BoardController() {
+
+    def newOwner(playerNr:Int,cell: Cell):Cell = {
+        val updated = cell.asInstanceOf[Buyable].setOwner(playerNr)
+        updated
+    }
+
     def createBoard : Vector[Cell] = {
         var board:Vector[Cell] = Vector()
         board = board :+ Cell("Los","Los",0,0,0,0,0,mortgage = false)

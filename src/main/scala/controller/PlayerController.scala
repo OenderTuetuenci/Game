@@ -1,7 +1,7 @@
 package controller
 
-import Game.Monopoly.boardController
-import Game.Monopoly.gameState._
+import controller.BoardController
+import controller.GameController
 import model._
 import util.Observable
 
@@ -25,6 +25,11 @@ class PlayerController(){
     for(npc <-npcNames)
       players = players :+ Player(npc,isNpc = true)
     players
+  }
+
+  def buyStreet(player: Player,streetNr: Int): Player ={
+    val updated = player.buyStreet(streetNr)
+    updated
   }
 
   def checkHypothek(): Unit = {
@@ -56,22 +61,11 @@ class PlayerController(){
             }
         }
     }
-
-    def wuerfeln: (Int, Int, Boolean) = {
-        val roll1 = dice.roll
-        val roll2 = dice.roll
-        var pasch = false
-        if (dice.checkPash(roll1, roll2)) {
-            pasch = true
-        }
-        (roll1, roll2, pasch)
-    }
-
-    def checkDept(owner: Int): Unit = {
+    def checkDept(player: Player): Player = {
         // wenn spieler im minus its wird
         // so lange verkauft bis im plus oder nichts mehr verkauft wurde dann gameover
 
-        if (players(isturn).money <= 0) {
+        if (player.money <= 0) {
             notifyObservers(playerHasDeptEvent(players(isturn)))
             var actionDone = false
             breakable { // break wenn player plus -> breakable from scala.util.
@@ -174,15 +168,13 @@ class PlayerController(){
         }
     }
 
-    def payRent(field: Street): Unit = {
-        // mietpreis holen
-        val rent = field.rent
+    def payRent(from:Player,to:Player,rent: Int): (Player,Player) = {
         //miete abziehen
-        players = players.updated(isturn, players(isturn).decMoney(rent))
-        players = players.updated(field.owner, players(field.owner).incMoney(rent))
-        notifyObservers(payRentEvent(players(isturn), players(field.owner)))
+        var updatedPayer = from.decMoney(rent)
+        val updatedBenifiter = to.incMoney(rent)
         // schauen ob player ins minus gekommen ist
-        checkDept(field.owner)
+        updatedPayer = checkDept(updatedPayer)
+        (updatedPayer,updatedBenifiter)
     }
 
 
