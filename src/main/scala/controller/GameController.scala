@@ -45,6 +45,7 @@ class GameController extends Observable {
                 HumanOrNpcStrategy.strategy
             }
         }
+        round+=1
     }
     def rollDice :(Int,Boolean)={
         var jailtime = false
@@ -137,6 +138,7 @@ class GameController extends Observable {
         def runRoundState:Unit = {
             notifyObservers(newRoundEvent(round))
             runRound
+            notifyObservers(printEverythingEvent())
             notifyObservers(endRoundEvent(round))
             runState = checkGameOverState
         }
@@ -144,7 +146,7 @@ class GameController extends Observable {
         def checkGameOverState: Unit = if (gameOver) runState = gameOverState else runState = runRoundState
 
         def gameOverState = {
-            //notifyObservers(beforeStart)
+            notifyObservers(printEverythingEvent())
         }
 
     }
