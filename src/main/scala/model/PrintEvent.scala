@@ -18,7 +18,7 @@ case class gameFinishedEvent(winner: Player) extends PrintEvent
 
 case class payRentEvent(from: Player, to: Player) extends PrintEvent
 
-case class buyStreetEvent(player: Player, street: Street) extends PrintEvent
+case class buyStreetEvent(player: Player, street: Buyable) extends PrintEvent
 
 case class buyTrainstationEvent(player: Player, street: Street) extends PrintEvent
 

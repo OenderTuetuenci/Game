@@ -1,6 +1,7 @@
 package model
 
 trait Cell{
+    val name:String
     def onPlayerEntered(enteredPlayer: Int):String
 }
 

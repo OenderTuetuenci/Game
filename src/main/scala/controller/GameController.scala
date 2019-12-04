@@ -13,7 +13,6 @@ class GameController extends Observable {
     val boardController = new BoardController(this)
     var humanPlayers = 0
     var npcPlayers = 0
-    var playerCount = 0
     var gameOver = false
     var board: Vector[Cell] = Vector[Cell]()
     var players: Vector[Player] = Vector[Player]()
@@ -26,14 +25,18 @@ class GameController extends Observable {
         board = boardController.createBoard
         humanPlayers = playerNames.length
         npcPlayers = npcNames.length
-        playerCount = humanPlayers + npcPlayers
     }
+    def checkGameOver(): Boolean = players.size == 1
+
     def run(): Unit = {
-        GameStates.runState
+        GameStates.handle(runRoundEvent())
+        gameOver = checkGameOver()
+        if(gameOver)
+            notifyObservers(gameFinishedEvent(players(0)))
     }
 
     def runRound :Unit ={
-        for(i<- 0 until playerCount){
+        for(i<- players.indices){
             isturn = i
             val roll = rollDice
             if(roll._2)
@@ -71,10 +74,14 @@ class GameController extends Observable {
         val updated = playerController.payRent(board(players(isturn).position).asInstanceOf[Buyable])
         players = updated._2
         board = updated._1
-        playerCount = updated._3
     }
-    def buyStreet : Unit={
-        val updated = playerController.buyStreet(board(players(isturn).position).asInstanceOf[Street])
+    def buy : Unit={
+        val updated = playerController.buy(board(players(isturn).position).asInstanceOf[Buyable])
+        board = updated._1
+        players = updated._2
+    }
+    def buyHome : Unit ={
+        val updated = boardController.buyHome(board(players(isturn).position).asInstanceOf[Street])
         board = updated._1
         players = updated._2
     }
@@ -83,19 +90,20 @@ class GameController extends Observable {
     }
     object HumanOrNpcStrategy{
         var option = "buy"
-        var strategy = human(option)
+        var strategy = nothing
         def selectStrategy(isNpc:Boolean,option: String):Unit={
             if(isNpc)
                 strategy = npc(option)
             else
                 strategy = human(option)
         }
+        def nothing : Unit = {}
         def human(option:String):Unit = {
             if(option == "buy"){
                 notifyObservers(askBuyEvent())
                 notifyObservers(answerEvent())
                 if(answer == "yes"){
-                    buyStreet
+                    buy
                 }
             }
             else if(option == "pay"){
@@ -103,12 +111,12 @@ class GameController extends Observable {
             }
         }
         def npc(option:String):Unit = {
-            if(option == "buy"){
-                buyStreet
-            }
-            else if(option == "pay"){
-                payRent
-            }
+           option match {
+               case "buy" => buy
+               case "pay" => payRent
+               case "buy home" => buyHome
+               case _ =>
+           }
         }
     }
     object GameStates {
@@ -120,19 +128,16 @@ class GameController extends Observable {
                 case e: beforeGameStartsEvent => runState = beforeGameStarts // rollfor
                 //case e: rollForPositionsEvent => runState = rollForPositionsState // createplayers
                 case e: runRoundEvent => runState = runRoundState // checkgameover
-                case e: checkGameOverEvent => runState = checkGameOverState // runround or gameoverstate
                 case e: gameOverEvent => runState = gameOverState // end
             }
         }
 
         def beforeGameStarts(): Unit = {
             notifyObservers(newGameEvent())
-            runState = runRoundState
         }
 
         def rollForPositionsState:Unit = {
             //notifyObservers(beforeStart)
-            runState = runRoundState
         }
 
         def runRoundState:Unit = {
@@ -140,10 +145,7 @@ class GameController extends Observable {
             runRound
             notifyObservers(printEverythingEvent())
             notifyObservers(endRoundEvent(round))
-            runState = checkGameOverState
         }
-
-        def checkGameOverState: Unit = if (gameOver) runState = gameOverState else runState = runRoundState
 
         def gameOverState = {
             notifyObservers(printEverythingEvent())

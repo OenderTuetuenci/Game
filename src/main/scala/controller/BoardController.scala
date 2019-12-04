@@ -84,7 +84,7 @@ class BoardController(gameController: GameController) {
 
         if (option == "buy") {
             // wer geld hat kauft die straße
-            playerController.buyStreet(field)
+            playerController.buy(field)
             //ansonsten miete zahlen falls keine hypothek
         } else if (option == "pay") {
             if (!field.mortgage) playerController.payRent(field)

@@ -48,12 +48,11 @@ class PlayerController(gameController: GameController){
             }
         }
     }
-    def checkDept(player: Int):(Vector[Cell],Vector[Player],Int) = {
+    def checkDept(player: Int):(Vector[Cell],Vector[Player]) = {
         // wenn spieler im minus its wird
         // so lange verkauft bis im plus oder nichts mehr verkauft wurde dann gameover
         var board = gameController.board
         var players = gameController.players
-        var playerCount = gameController.playerCount
         val isturn = gameController.isturn
         if (players(isturn).money <= 0) {
             gameController.print(playerHasDeptEvent(players(isturn)))
@@ -110,14 +109,13 @@ class PlayerController(gameController: GameController){
                 println(players)
                 players.filterNot(o => o == players(isturn)) // spieler aus dem spiel nehmen
                 println(players)
-                playerCount -= 1 // playercount muss auch um 1 verringert werden
                 gameController.print(brokeEvent(players(isturn)))
             }
         }
-        (board,players,playerCount)
+        (board,players)
     }
 
-    def buyStreet(field: Street): (Vector[Cell],Vector[Player]) = {
+    def buy(field: Buyable): (Vector[Cell],Vector[Player]) = {
         var board = gameController.board
         var players = gameController.players
         val isturn = gameController.isturn
@@ -141,7 +139,6 @@ class PlayerController(gameController: GameController){
         // schauen ob über los gegangen
         if (players(isturn).position >= 40) {
             gameController.print(playerWentOverGoEvent(players(isturn)))
-            players = players.updated(isturn, players(isturn).incMoney(1000))
             players = players.updated(isturn, players(isturn).moveBack(40))
         }
         // neue position ausgeben
@@ -166,13 +163,15 @@ class PlayerController(gameController: GameController){
       players
     }
 
-    def payRent(field: Buyable): (Vector[Cell],Vector[Player],Int) = {
+    def payRent(field: Buyable): (Vector[Cell],Vector[Player]) = {
       var players = gameController.players
       val isturn = gameController.isturn
       // mietpreis holen
       val rent = field.rent
       //miete abziehen
+      println(players(isturn).money)
       players = players.updated(isturn, players(isturn).decMoney(rent))
+      println(players(isturn).money)
       players = players.updated(field.owner, players(field.owner).incMoney(rent))
       gameController.print(payRentEvent(players(isturn), players(field.owner)))
       // schauen ob player ins minus gekommen ist
