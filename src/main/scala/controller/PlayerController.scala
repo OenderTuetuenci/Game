@@ -30,7 +30,6 @@ class PlayerController(gameController: GameController){
                         if (s.mortgage && players(isturn).money > s.price) {
                             board = board.updated(i, board(i).asInstanceOf[Street].payMortgage)
                             players = players.updated(isturn, players(isturn).decMoney(s.price))
-                            checkDept(-1)
                             gameController.print(playerPaysHyptohekOnStreetEvent(players(isturn), board(i).asInstanceOf[Street]))
                         }
                     }
@@ -40,7 +39,6 @@ class PlayerController(gameController: GameController){
                         if (s.hypothek && players(isturn).money > s.price) {
                             board = board.updated(i, board(i).asInstanceOf[Trainstation].payHypothek())
                             players = players.updated(isturn, players(isturn).decMoney(s.price))
-                            checkDept(-1)
                             gameController.print(playerPaysHyptohekOnTrainstationEvent(players(isturn), board(i).asInstanceOf[Trainstation]))
                         }
                     }
@@ -48,12 +46,12 @@ class PlayerController(gameController: GameController){
             }
         }
     }
-    def checkDept(player: Int):(Vector[Cell],Vector[Player]) = {
+    def checkDept(playerState: Vector[Player]):(Vector[Cell],Vector[Player]) = {
         // wenn spieler im minus its wird
         // so lange verkauft bis im plus oder nichts mehr verkauft wurde dann gameover
         var board = gameController.board
-        var players = gameController.players
         val isturn = gameController.isturn
+        var players = playerState
         if (players(isturn).money <= 0) {
             gameController.print(playerHasDeptEvent(players(isturn)))
             var actionDone = false
@@ -106,9 +104,7 @@ class PlayerController(gameController: GameController){
 
             // wenn immernoch pleite dann game over oder todo "declare bankrupt" später
             if (players(isturn).money <= 0) {
-                println(players)
-                players.filterNot(o => o == players(isturn)) // spieler aus dem spiel nehmen
-                println(players)
+                players = players.filterNot(o => o == players(isturn)) // spieler aus dem spiel nehmen
                 gameController.print(brokeEvent(players(isturn)))
             }
         }
@@ -121,6 +117,7 @@ class PlayerController(gameController: GameController){
         val isturn = gameController.isturn
         if (players(isturn).money >= field.price) {
             players = players.updated(isturn, players(isturn).decMoney(field.price))
+            players = players.updated(isturn,players(isturn).buyStreet(players(isturn).position))
             // spieler.besitz add streetnr
             board = board.updated(players(isturn).position, field.setOwner(isturn))
         }
@@ -175,7 +172,7 @@ class PlayerController(gameController: GameController){
       players = players.updated(field.owner, players(field.owner).incMoney(rent))
       gameController.print(payRentEvent(players(isturn), players(field.owner)))
       // schauen ob player ins minus gekommen ist
-      checkDept(field.owner)
+      checkDept(players)
   }
 
 
