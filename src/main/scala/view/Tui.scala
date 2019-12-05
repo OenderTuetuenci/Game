@@ -3,6 +3,7 @@ package view
 import controller._
 import model._
 import util.Observer
+import util.createGameCommand
 
 import scala.io.StdIn._
 
@@ -15,6 +16,10 @@ class Tui(controller: GameController) extends Observer {
         var worked = true
         var string = ""
         e match {
+            case e: askUndoEvent => {
+                println("Undo?")
+                controller.answer = readLine()
+            }
             case e: answerEvent => controller.answer = readLine()
             case e: newGameEvent => getPlayerCount
             case e: askBuyEvent => string = askBuyString
@@ -222,6 +227,6 @@ class Tui(controller: GameController) extends Observer {
         for (i <- 0 until npcCount) {
             npcNames(i) = "NPC " + (i + 1)
         }
-        controller.createGame(playerNames,npcNames);
+        controller.undoManager.doStep(new createGameCommand(controller,playerNames,npcNames))
     }
 }

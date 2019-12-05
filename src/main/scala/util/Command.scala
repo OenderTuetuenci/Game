@@ -1,6 +1,7 @@
 package util
 
 import controller.GameController
+import model.newGameEvent
 
 trait Command {
   def doStep:Unit
@@ -9,9 +10,9 @@ trait Command {
 }
 
 class createGameCommand(controller: GameController,npcNames:Array[String],playerNames:Array[String]) extends Command{
-  override def doStep: Unit = controller.createGame(playerNames,npcNames)
-  override def redoStep: Unit = controller.createGame(playerNames,npcNames)
-  override def undoStep: Unit = controller.createGame(Array[String](),Array[String]())
+  override def doStep: Unit = controller.createGame(npcNames,playerNames)
+  override def redoStep: Unit = controller.createGame(npcNames,playerNames)
+  override def undoStep: Unit = controller.notifyObservers(newGameEvent())
 }
 
 class UndoManager{

@@ -4,11 +4,13 @@ package controller
 
 
 import model._
-import util.Observable;
+import util.{Observable, UndoManager}
+
 import scala.io.StdIn._
 
 class GameController extends Observable {
     val dice = Dice()
+    val undoManager = new UndoManager
     val playerController = new PlayerController(this)
     val boardController = new BoardController(this)
     var humanPlayers = 0
@@ -25,6 +27,10 @@ class GameController extends Observable {
         board = boardController.createBoard
         humanPlayers = playerNames.length
         npcPlayers = npcNames.length
+        notifyObservers(askUndoEvent())
+        if(answer == "yes") {
+            undoManager.undoStep
+        }
     }
     def checkGameOver(): (Boolean,Int) = {
         var playerwithmoney = 0
