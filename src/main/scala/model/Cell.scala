@@ -6,10 +6,12 @@ trait Cell{
 }
 
 trait Buyable extends Cell {
+    val mortgage:Boolean
     val price:Int
     val rent:Int
     val owner:Int
     def setOwner(x:Int):Buyable
+    def getMortgage():Buyable
 }
 
 case class Street(name: String, group: Int, price: Int, owner: Int, rent: Int, home: Int, mortgage: Boolean) extends Buyable{
@@ -22,7 +24,7 @@ case class Street(name: String, group: Int, price: Int, owner: Int, rent: Int, h
 
     override def setOwner(x: Int): Buyable = Street(name, group, price, x, rent, home, mortgage)
 
-    def getMortgage: Street = Street(name, group, price, owner, rent, home, mortgage = true)
+    override def getMortgage: Buyable = Street(name, group, price, owner, rent, home, mortgage = true)
 
     def payMortgage: Street = Street(name, group, price, owner, rent, home, mortgage = false)
 

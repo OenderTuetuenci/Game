@@ -13,7 +13,7 @@ class GameController extends Observable {
     val boardController = new BoardController(this)
     var humanPlayers = 0
     var npcPlayers = 0
-    var gameOver = false
+    var gameOver = (false,-1)
     var board: Vector[Cell] = Vector[Cell]()
     var players: Vector[Player] = Vector[Player]()
     var isturn = 0 // aktueller spieler
@@ -26,26 +26,38 @@ class GameController extends Observable {
         humanPlayers = playerNames.length
         npcPlayers = npcNames.length
     }
-    def checkGameOver(): Boolean = players.size == 1
+    def checkGameOver(): (Boolean,Int) = {
+        var playerwithmoney = 0
+        var winner = 0
+        for(i<-players.indices){
+            if(players(i).money > 0) {
+                playerwithmoney+=1
+                winner = i
+            }
+        }
+        (playerwithmoney == 1,winner)
+    }
 
     def run(): Unit = {
         GameStates.handle(runRoundEvent())
         gameOver = checkGameOver()
-        if(gameOver)
-            notifyObservers(gameFinishedEvent(players(0)))
+        if(gameOver._1)
+            notifyObservers(gameFinishedEvent(players(gameOver._2)))
     }
 
     def runRound :Unit ={
-        for(i<- players.indices){
+        for(i<- players.indices) {
             isturn = i
-            val roll = rollDice
-            if(roll._2)
-                players = players.updated(i,players(i).moveToJail)
-            else {
-                players = playerController.movePlayer(roll._1)
-                val option = board(players(i).position).onPlayerEntered(i)
-                HumanOrNpcStrategy.selectStrategy(players(i).isNpc, option)
-                HumanOrNpcStrategy.strategy
+            if (players(isturn).money > 0) {
+                val roll = rollDice
+                if (roll._2)
+                    players = players.updated(i, players(i).moveToJail)
+                else {
+                    players = playerController.movePlayer(roll._1)
+                    val option = board(players(i).position).onPlayerEntered(i)
+                    HumanOrNpcStrategy.selectStrategy(players(i).isNpc, option)
+                    HumanOrNpcStrategy.strategy
+                }
             }
         }
         round+=1

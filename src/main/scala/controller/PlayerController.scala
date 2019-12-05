@@ -57,7 +57,7 @@ class PlayerController(gameController: GameController){
             var actionDone = false
             breakable { // break wenn player plus -> breakable from scala.util.
                 do {
-                    for (i <- players(isturn).ownedStreet) {
+                    for (i <- board.indices) {
                         actionDone = false
                         board(i) match {
                             //todo straßen, karten, ... verkaufen, später an spieler oder bank
@@ -67,31 +67,16 @@ class PlayerController(gameController: GameController){
                                     // todo hotels dann haeuser zuerst verkaufen
                                     // strasse mit hypothek belasten
                                     if (!s.mortgage) {
-                                        board = board.updated(i, board(i).asInstanceOf[Street].getMortgage)
+                                        board = board.updated(i, board(i).asInstanceOf[Buyable].getMortgage)
                                         players = players.updated(isturn, players(isturn).incMoney(s.price))
                                         gameController.print(playerUsesHyptohekOnStreetEvent(players(isturn), board(i).asInstanceOf[Street]))
                                         actionDone = true
                                     } else {
                                         //sonst straße verkaufen an bank todo später an spieler
-                                        board = board.updated(i, board(i).asInstanceOf[Street].setOwner(-1))
+                                        board = board.updated(i, board(i).asInstanceOf[Buyable].setOwner(-1))
                                         players = players.updated(isturn, players(isturn).incMoney(s.price))
+                                        players = players.updated(isturn, players(isturn).sellStreet(i))
                                         gameController.print(playerSellsStreetEvent(players(isturn), board(i).asInstanceOf[Street]))
-                                        actionDone = true
-                                    }
-                                }
-                            case s: Trainstation =>
-                                if (board(i).asInstanceOf[Trainstation].owner == isturn) {
-                                    // bahnhof mit hypothek belasten
-                                    if (!s.hypothek) {
-                                        board = board.updated(i, board(i).asInstanceOf[Trainstation].getHypothek())
-                                        players = players.updated(isturn, players(isturn).incMoney(s.price))
-                                        gameController.print(playerUsesHyptohekOnTrainstationEvent(players(isturn), board(i).asInstanceOf[Trainstation]))
-                                        actionDone = true
-                                    } else {
-                                        // an bank verkaufen
-                                        board = board.updated(i, board(i).asInstanceOf[Trainstation].setOwner(-1))
-                                        players = players.updated(isturn, players(isturn).incMoney(s.price))
-                                        gameController.print(playerSellsTrainstationEvent(players(isturn), board(i).asInstanceOf[Trainstation]))
                                         actionDone = true
                                     }
                                 }
@@ -104,7 +89,7 @@ class PlayerController(gameController: GameController){
 
             // wenn immernoch pleite dann game over oder todo "declare bankrupt" später
             if (players(isturn).money <= 0) {
-                players = players.filterNot(o => o == players(isturn)) // spieler aus dem spiel nehmen
+                //players = players.filterNot(o => o == players(isturn))// spieler aus dem spiel nehmen
                 gameController.print(brokeEvent(players(isturn)))
             }
         }

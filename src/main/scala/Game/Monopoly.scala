@@ -12,7 +12,7 @@ object Monopoly {
 
 
     def main(args: Array[String]): Unit = {
-        while (!gameController.gameOver)
+        while (!gameController.gameOver._1)
             gameController.run()
     }
 }
