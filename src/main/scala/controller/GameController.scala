@@ -46,9 +46,9 @@ class GameController extends Observable {
 
     def run(): Unit = {
         GameStates.handle(runRoundEvent())
-        gameOver = checkGameOver()
+        GameStates.handle(checkGameOverEvent())
         if(gameOver._1)
-            notifyObservers(gameFinishedEvent(players(gameOver._2)))
+            GameStates.handle(gameOverEvent())
     }
 
     def runRound :Unit ={
@@ -114,6 +114,7 @@ class GameController extends Observable {
                 case e: beforeGameStartsEvent => runState = beforeGameStarts // rollfor
                 //case e: rollForPositionsEvent => runState = rollForPositionsState // createplayers
                 case e: runRoundEvent => runState = runRoundState // checkgameover
+                case e: checkGameOverEvent => runState = checkGameOverState // end
                 case e: gameOverEvent => runState = gameOverState // end
             }
         }
@@ -133,8 +134,13 @@ class GameController extends Observable {
             notifyObservers(endRoundEvent(round))
         }
 
+        def checkGameOverState = {
+            gameOver = checkGameOver()
+        }
+
         def gameOverState = {
             notifyObservers(printEverythingEvent())
+            notifyObservers(gameFinishedEvent(players(gameOver._2)))
         }
 
     }
