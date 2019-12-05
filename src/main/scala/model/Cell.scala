@@ -99,20 +99,20 @@ case class Elektrizitaetswerk(name: String, group: Int, price: Int, owner: Int, 
 }
 
 
-case class Trainstation(name: String, group: Int, price: Int, owner: Int, rent: Int, hypothek: Boolean) extends Cell {
+case class Trainstation(name: String, group: Int, price: Int, owner: Int, rent: Int, mortgage: Boolean) extends Buyable {
     override def onPlayerEntered(enteredPlayer: Int): String = {
         println("\nplayer entered " + name)
         "\nplayer entered SouthTrainstation"
     }
 
-    def setOwner(x: Int): Trainstation = Trainstation(name, group, price, x, rent, hypothek)
+    def setOwner(x: Int): Trainstation = Trainstation(name, group, price, x, rent, mortgage)
 
-    def getHypothek(): Trainstation = Trainstation(name, group, price, owner, rent, hypothek = true)
+    def getMortgage(): Trainstation = Trainstation(name, group, price, owner, rent, mortgage = true)
 
-    def payHypothek(): Trainstation = Trainstation(name, group, price, owner, rent, hypothek = false)
+    def payHypothek(): Trainstation = Trainstation(name, group, price, owner, rent, mortgage = false)
 
     override def toString: String = {
-        name + " group: " + group + " price: " + price + " rent: " + rent + " hypothek: " + hypothek
+        name + " group: " + group + " price: " + price + " rent: " + rent + " mortgage: " + mortgage
     }
 }
 

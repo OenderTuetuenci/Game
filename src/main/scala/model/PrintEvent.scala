@@ -2,6 +2,8 @@ package model
 
 trait PrintEvent
 
+case class askBuyHomeEvent() extends PrintEvent
+
 case class askUndoEvent() extends PrintEvent
 
 case class answerEvent() extends PrintEvent

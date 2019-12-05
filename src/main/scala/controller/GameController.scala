@@ -61,8 +61,7 @@ class GameController extends Observable {
                 else {
                     players = playerController.movePlayer(roll._1)
                     val option = board(players(i).position).onPlayerEntered(i)
-                    HumanOrNpcStrategy.selectStrategy(players(i).isNpc, option)
-                    HumanOrNpcStrategy.strategy
+                    players(isturn).strategy.execute(option)
                 }
             }
         }

@@ -3,7 +3,7 @@ package controller
 import controller.BoardController
 import controller.GameController
 import model._
-import util.Observable
+import util._
 
 import scala.util.control.Breaks.{break, breakable}
 
@@ -11,9 +11,9 @@ class PlayerController(gameController: GameController){
   def createPlayers(playerNames:Array[String],npcNames:Array[String]): Vector[Player] = {
     var players:Vector[Player] = Vector()
     for(player <-playerNames)
-      players = players :+ Player(player)
+      players = players :+ Player(player,strategy = HumanStrategy(gameController))
     for(npc <-npcNames)
-      players = players :+ Player(npc,isNpc = true)
+      players = players :+ Player(npc,strategy = NPCStrategy(gameController))
     players
   }
   def checkHypothek(): Unit = {
@@ -36,7 +36,7 @@ class PlayerController(gameController: GameController){
                 case s: Trainstation =>
                     if (board(i).asInstanceOf[Trainstation].owner == isturn) {
                         // wenn er die hypothek zahlen kann tut er dies
-                        if (s.hypothek && players(isturn).money > s.price) {
+                        if (s.mortgage && players(isturn).money > s.price) {
                             board = board.updated(i, board(i).asInstanceOf[Trainstation].payHypothek())
                             players = players.updated(isturn, players(isturn).decMoney(s.price))
                             gameController.print(playerPaysHyptohekOnTrainstationEvent(players(isturn), board(i).asInstanceOf[Trainstation]))

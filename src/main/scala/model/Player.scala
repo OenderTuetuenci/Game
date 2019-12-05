@@ -1,7 +1,9 @@
 package model
 
+import util.Strategy
+
 case class Player(name: String, position: Int = 0, money: Int = 10000, jailCount: Int = -1,
-                  ownedStreet: Vector[Int] = Vector[Int](), turnPosition: Int = 0, rollForPosition: Int = 0, isNpc: Boolean = false) {
+                  ownedStreet: Vector[Int] = Vector[Int](), turnPosition: Int = 0, rollForPosition: Int = 0, strategy: Strategy) {
     override def toString: String = {
         "name: " + this.name + " pos: " + this.position + " money: " + this.money + " roundsInJail: " + this.jailCount + " ownedStreets: " + this.ownedStreet.mkString(",") + " rollForPosition: " + this.rollForPosition + " turnPosition: " + this.turnPosition
     }
