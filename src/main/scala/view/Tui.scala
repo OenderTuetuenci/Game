@@ -20,10 +20,10 @@ class Tui(controller: GameController) extends Observer {
                 println("Undo?")
                 controller.answer = readLine()
             }
-            case e: askBuyHomeEvent => string = askBuyHomeString
+            case e: askBuyHomeEvent => askBuyHomeString
             case e: answerEvent => controller.answer = readLine()
             case e: newGameEvent => getPlayerCount
-            case e: askBuyEvent => string = askBuyString
+            case e: askBuyEvent => askBuyString
             case e: gameIsGoingToStartEvent => string = getGameIsGoingToStartString(e)
             case e: displayRollForPositionsEvent => string = getRollForPositionsString(e)
             case e: brokeEvent => string = getBrokeEventString(e)
@@ -57,9 +57,15 @@ class Tui(controller: GameController) extends Observer {
         println(string)
         worked
     }
-    def askBuyHomeString : String = "Do u want to buy a Home on this Street?"
+    def askBuyHomeString : Unit = {
+        println("Do u want to buy a Home on this Street?")
+        controller.answer = readLine()
+    }
 
-    def askBuyString : String = "Do u want to buy this street?"
+    def askBuyString : Unit = {
+        println("Do u want to buy this street?")
+        controller.answer = readLine()
+    }
 
     def getGameIsGoingToStartString(e: gameIsGoingToStartEvent): String = "The Game is going to start."
 

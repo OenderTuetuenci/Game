@@ -105,37 +105,6 @@ class GameController extends Observable {
     def print (e:PrintEvent): Unit ={
         notifyObservers(e)
     }
-    object HumanOrNpcStrategy{
-        var option = "buy"
-        var strategy = nothing
-        def selectStrategy(isNpc:Boolean,option: String):Unit={
-            if(isNpc)
-                strategy = npc(option)
-            else
-                strategy = human(option)
-        }
-        def nothing : Unit = {}
-        def human(option:String):Unit = {
-            if(option == "buy"){
-                notifyObservers(askBuyEvent())
-                notifyObservers(answerEvent())
-                if(answer == "yes"){
-                    buy
-                }
-            }
-            else if(option == "pay"){
-                payRent
-            }
-        }
-        def npc(option:String):Unit = {
-           option match {
-               case "buy" => buy
-               case "pay" => payRent
-               case "buy home" => buyHome
-               case _ =>
-           }
-        }
-    }
     object GameStates {
 
         var runState = beforeGameStarts
