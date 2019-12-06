@@ -72,6 +72,8 @@ object Monopoly extends JFXApp {
         padding = Insets(7)
     }
 
+    // Dialogs
+
     def textInputDialog(): Unit = {
         val dialog = new TextInputDialog(defaultValue = "walter") {
             initOwner(stage)
