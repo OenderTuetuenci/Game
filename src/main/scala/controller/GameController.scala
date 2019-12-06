@@ -82,7 +82,7 @@ class GameController extends Observable {
             }
             rolls -=1
         }
-        if(paschcount == 3)
+        if(paschcount >= 3)
             jailtime = true
         (sum,jailtime)
     }
