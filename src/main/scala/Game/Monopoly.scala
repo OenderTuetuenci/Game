@@ -26,7 +26,7 @@ import scalafx.scene.paint.{LinearGradient, Stops}
 import scalafx.scene.text.Text
 import java.io.{FileNotFoundException, PrintWriter, StringWriter}
 
-import Game.Monopoly.button
+import Game.Monopoly.{button, informationDialog, onQuit, onStartGame}
 
 import scala.language.implicitConversions
 import scalafx.Includes._
@@ -41,19 +41,7 @@ import scalafx.scene.layout.{GridPane, Priority, VBox}
 // todo sbt -> run ....https://github.com/scalafx/scalafx-hello-world/tree/SFX-8
 //todo dialogs: https://github.com/scalafx/scalafx/blob/master/scalafx-demos/src/main/scala/scalafx/controls/DialogsDemo.scala
 object Monopoly extends JFXApp {
-    stage = new PrimaryStage {
-        title = "ScalaFX Hello World"
-        scene = new Scene {
-            fill = Black
-            content = new VBox {
-                padding = Insets(20)
-                children = Seq(
-                    button("Start game", onStartGame),
-                    button("Information", informationDialog),
-                    button("Quit", onQuit),
-                )}
-        }
-    }
+    openMainWindow()
 
     // functions
 
@@ -66,6 +54,68 @@ object Monopoly extends JFXApp {
     }
 
     def onStartGame() = {
+        openGetPlayersWindow()
+        // players
+        // npc
+        // names
+        // ok.clicked(gamestate.handle(getplayers(players,npc,names)))
+        print("start game")
+    }
+
+    // widgets
+
+    def button[R](text: String, action: () => R) = new Button(text) {
+        onAction = handle {action()}
+        alignmentInParent = Pos.Center
+        hgrow = Priority.Always
+        maxWidth = Double.MaxValue
+        padding = Insets(7)
+    }
+
+    def textInputDialog(): Unit = {
+        val dialog = new TextInputDialog(defaultValue = "walter") {
+            initOwner(stage)
+            title = "Text Input Dialog"
+            headerText = "Look, a Text Input Dialog."
+            contentText = "Please enter your name:"
+        }
+
+        val result = dialog.showAndWait()
+        result match {
+            case Some(name) => println("Your name: " + name)
+            case None       => println("Dialog was canceled.")
+        }
+    }
+
+    def informationDialog(): Unit = {
+        new Alert(AlertType.Information) {
+            initOwner(stage)
+            title = "Information Dialog"
+            headerText = "Look, an Information Dialog."
+            contentText = "I have a great message for you!"
+        }.showAndWait()
+    }
+
+    // Windows
+
+    def openMainWindow() = {
+        stage = new PrimaryStage {
+            title = "ScalaFX Hello World"
+            scene = new Scene {
+                fill = Black
+                content = new VBox {
+                    padding = Insets(20)
+                    children = Seq(
+                        button("Start game", onStartGame),
+                        button("Information", informationDialog),
+                        button("Quit", onQuit),
+                    )
+                }
+            }
+        }
+    }
+
+    def openGetPlayersWindow() = {
         // open window get players an npc
         stage = new PrimaryStage {
             title = "How many players and npc?"
@@ -111,45 +161,6 @@ object Monopoly extends JFXApp {
                     )}
             }
         }
-        // players
-        // npc
-        // names
-        // ok.clicked(gamestate.handle(getplayers(players,npc,names)))
-        print("start game")
-    }
-
-    // widgets
-
-    def button[R](text: String, action: () => R) = new Button(text) {
-        onAction = handle {action()}
-        alignmentInParent = Pos.Center
-        hgrow = Priority.Always
-        maxWidth = Double.MaxValue
-        padding = Insets(7)
-    }
-
-    def textInputDialog(): Unit = {
-        val dialog = new TextInputDialog(defaultValue = "walter") {
-            initOwner(stage)
-            title = "Text Input Dialog"
-            headerText = "Look, a Text Input Dialog."
-            contentText = "Please enter your name:"
-        }
-
-        val result = dialog.showAndWait()
-        result match {
-            case Some(name) => println("Your name: " + name)
-            case None       => println("Dialog was canceled.")
-        }
-    }
-
-    def informationDialog(): Unit = {
-        new Alert(AlertType.Information) {
-            initOwner(stage)
-            title = "Information Dialog"
-            headerText = "Look, an Information Dialog."
-            contentText = "I have a great message for you!"
-        }.showAndWait()
     }
 
 }
