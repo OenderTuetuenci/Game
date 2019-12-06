@@ -15,6 +15,9 @@ class createGameCommand(controller: GameController,npcNames:Array[String],player
   override def undoStep: Unit = controller.notifyObservers(newGameEvent())
 }
 
+//todo runround undo
+class createRunRoundCommand()
+
 class UndoManager{
   private var undoStack:List[Command] = Nil
   private var redoStack:List[Command] = Nil

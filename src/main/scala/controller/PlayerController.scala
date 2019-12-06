@@ -30,7 +30,7 @@ class PlayerController(gameController: GameController){
                         if (s.mortgage && players(isturn).money > s.price) {
                             board = board.updated(i, board(i).asInstanceOf[Street].payMortgage)
                             players = players.updated(isturn, players(isturn).decMoney(s.price))
-                            gameController.print(playerPaysHyptohekOnStreetEvent(players(isturn), board(i).asInstanceOf[Street]))
+                            gameController.printFun(playerPaysHyptohekOnStreetEvent(players(isturn), board(i).asInstanceOf[Street]))
                         }
                     }
                 case s: Trainstation =>
@@ -39,7 +39,7 @@ class PlayerController(gameController: GameController){
                         if (s.mortgage && players(isturn).money > s.price) {
                             board = board.updated(i, board(i).asInstanceOf[Trainstation].payHypothek())
                             players = players.updated(isturn, players(isturn).decMoney(s.price))
-                            gameController.print(playerPaysHyptohekOnTrainstationEvent(players(isturn), board(i).asInstanceOf[Trainstation]))
+                            gameController.printFun(playerPaysHyptohekOnTrainstationEvent(players(isturn), board(i).asInstanceOf[Trainstation]))
                         }
                     }
                 case _ =>
@@ -53,7 +53,7 @@ class PlayerController(gameController: GameController){
         val isturn = gameController.isturn
         var players = playerState
         if (players(isturn).money <= 0) {
-            gameController.print(playerHasDeptEvent(players(isturn)))
+            gameController.printFun(playerHasDeptEvent(players(isturn)))
             var actionDone = false
             breakable { // break wenn player plus -> breakable from scala.util.
                 do {
@@ -69,14 +69,14 @@ class PlayerController(gameController: GameController){
                                     if (!s.mortgage) {
                                         board = board.updated(i, board(i).asInstanceOf[Buyable].getMortgage)
                                         players = players.updated(isturn, players(isturn).incMoney(s.price))
-                                        gameController.print(playerUsesHyptohekOnStreetEvent(players(isturn), board(i).asInstanceOf[Street]))
+                                        gameController.printFun(playerUsesHyptohekOnStreetEvent(players(isturn), board(i).asInstanceOf[Street]))
                                         actionDone = true
                                     } else {
                                         //sonst straße verkaufen an bank todo später an spieler
                                         board = board.updated(i, board(i).asInstanceOf[Buyable].setOwner(-1))
                                         players = players.updated(isturn, players(isturn).incMoney(s.price))
                                         players = players.updated(isturn, players(isturn).sellStreet(i))
-                                        gameController.print(playerSellsStreetEvent(players(isturn), board(i).asInstanceOf[Street]))
+                                        gameController.printFun(playerSellsStreetEvent(players(isturn), board(i).asInstanceOf[Street]))
                                         actionDone = true
                                     }
                                 }
@@ -90,7 +90,7 @@ class PlayerController(gameController: GameController){
             // wenn immernoch pleite dann game over oder todo "declare bankrupt" später
             if (players(isturn).money <= 0) {
                 //players = players.filterNot(o => o == players(isturn))// spieler aus dem spiel nehmen
-                gameController.print(brokeEvent(players(isturn)))
+                gameController.printFun(brokeEvent(players(isturn)))
             }
         }
         (board,players)
@@ -106,7 +106,7 @@ class PlayerController(gameController: GameController){
             // spieler.besitz add streetnr
             board = board.updated(players(isturn).position, field.setOwner(isturn))
         }
-        gameController.print(buyStreetEvent(players(isturn), field))
+        gameController.printFun(buyStreetEvent(players(isturn), field))
         (board,players)
     }
 
@@ -120,11 +120,11 @@ class PlayerController(gameController: GameController){
         players = players.updated(isturn, players(isturn).move(sumDiceThrow))
         // schauen ob über los gegangen
         if (players(isturn).position >= 40) {
-            gameController.print(playerWentOverGoEvent(players(isturn)))
+            gameController.printFun(playerWentOverGoEvent(players(isturn)))
             players = players.updated(isturn, players(isturn).moveBack(40))
         }
         // neue position ausgeben
-        gameController.print(playerMoveEvent(players(isturn)))
+        gameController.printFun(playerMoveEvent(players(isturn)))
         // aktion fuer betretetenes feld ausloesen
         /*val field = board(players(isturn).position)
         field match {
@@ -155,7 +155,7 @@ class PlayerController(gameController: GameController){
       players = players.updated(isturn, players(isturn).decMoney(rent))
       println(players(isturn).money)
       players = players.updated(field.owner, players(field.owner).incMoney(rent))
-      gameController.print(payRentEvent(players(isturn), players(field.owner)))
+      gameController.printFun(payRentEvent(players(isturn), players(field.owner)))
       // schauen ob player ins minus gekommen ist
       checkDept(players)
   }

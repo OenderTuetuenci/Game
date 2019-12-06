@@ -16,7 +16,8 @@ class Tui(controller: GameController) extends Observer {
         var worked = true
         var string = ""
         e match {
-            case e: askUndoEvent => {
+            //Input
+            case e: askUndoGetPlayersEvent => {
                 println("Undo?")
                 controller.answer = readLine()
             }
@@ -24,6 +25,7 @@ class Tui(controller: GameController) extends Observer {
             case e: answerEvent => controller.answer = readLine()
             case e: newGameEvent => getPlayerCount
             case e: askBuyEvent => askBuyString
+            //Output
             case e: gameIsGoingToStartEvent => string = getGameIsGoingToStartString(e)
             case e: displayRollForPositionsEvent => string = getRollForPositionsString(e)
             case e: brokeEvent => string = getBrokeEventString(e)

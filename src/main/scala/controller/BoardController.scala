@@ -80,7 +80,7 @@ class BoardController(gameController: GameController) {
         val isturn = gameController.isturn
         val option = field.onPlayerEntered(isturn)
         val playerController = gameController.playerController
-        gameController.print(optionEvent(option))
+        gameController.printFun(optionEvent(option))
 
         if (option == "buy") {
             // wer geld hat kauft die straße
@@ -88,7 +88,7 @@ class BoardController(gameController: GameController) {
             //ansonsten miete zahlen falls keine hypothek
         } else if (option == "pay") {
             if (!field.mortgage) playerController.payRent(field)
-            else gameController.print(streetOnHypothekEvent(field))
+            else gameController.printFun(streetOnHypothekEvent(field))
 
         } else if (option == "buy home") {
             buyHome(field)
