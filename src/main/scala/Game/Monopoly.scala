@@ -50,16 +50,16 @@ object Monopoly extends JFXApp {
     }
 
     def onContinue() = {
-        print("continue")
-    }
-
-    def onStartGame() = {
-        openGetPlayersWindow()
         // players
         // npc
         // names
         // ok.clicked(gamestate.handle(getplayers(players,npc,names)))
-        print("start game")
+
+        print("continue")
+    }
+
+    def onStartGame() = {
+        openGetPlayersWindow() // .exec_()
     }
 
     // widgets
@@ -116,6 +116,7 @@ object Monopoly extends JFXApp {
             }
         }
     }
+
 
     def openGetPlayersWindow() = {
         // open window get players an npc
