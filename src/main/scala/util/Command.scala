@@ -9,9 +9,11 @@ trait Command {
   def undoStep:Unit
 }
 
-class createGameCommand(controller: GameController,npcNames:Array[String],playerNames:Array[String]) extends Command{
-  override def doStep: Unit = controller.createGame(npcNames,playerNames)
-  override def redoStep: Unit = controller.createGame(npcNames,playerNames)
+class createGameCommand(controller: GameController, npcNames: Vector[String], playerNames: Vector[String]) extends Command {
+  override def doStep: Unit = controller.createGame(npcNames, playerNames)
+
+  override def redoStep: Unit = controller.createGame(npcNames, playerNames)
+
   override def undoStep: Unit = controller.notifyObservers(newGameEvent())
 }
 

@@ -3,7 +3,7 @@ package util
 import model._
 
 trait Observer{
-    def update(e: PrintEvent): Boolean
+    def update(e: PrintEvent): Any
 
 }
 

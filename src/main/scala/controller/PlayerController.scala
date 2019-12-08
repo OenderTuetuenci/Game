@@ -1,22 +1,24 @@
 package controller
 
-import controller.BoardController
-import controller.GameController
 import model._
-import util._
 
 import scala.util.control.Breaks.{break, breakable}
 
-class PlayerController(gameController: GameController){
-  def createPlayers(playerNames:Array[String],npcNames:Array[String]): Vector[Player] = {
-    var players:Vector[Player] = Vector()
-    for(player <-playerNames)
-      players = players :+ Player(player,strategy = HumanStrategy(gameController))
-    for(npc <-npcNames)
-      players = players :+ Player(npc,strategy = NPCStrategy(gameController))
-    players
-  }
-  def checkHypothek(): Unit = {
+class PlayerController(gameController: GameController) {
+    def createPlayers(playerNames: Vector[String], npcNames: Vector[String]): Vector[Player] = {
+        var players: Vector[Player] = Vector()
+        for (name <- playerNames) {
+            gameController.playerCount += 1
+            players = players :+ Player(name, strategy = HumanStrategy(gameController))
+        }
+        for (name <- npcNames) {
+            gameController.playerCount += 1
+            players = players :+ Player(name, strategy = NPCStrategy(gameController), isNpc = true)
+        }
+        players
+    }
+
+    def checkHypothek(): Unit = {
         var board = gameController.board
         var players = gameController.players
         val isturn = gameController.isturn
@@ -46,7 +48,82 @@ class PlayerController(gameController: GameController){
             }
         }
     }
-    def checkDept(playerState: Vector[Player]):(Vector[Cell],Vector[Player]) = {
+
+    def buy(field: Buyable): (Vector[Cell], Vector[Player]) = {
+        var board = gameController.board
+        var players = gameController.players
+        val isturn = gameController.isturn
+        if (players(isturn).money >= field.price) {
+            players = players.updated(isturn, players(isturn).decMoney(field.price))
+            players = players.updated(isturn, players(isturn).buyStreet(players(isturn).position))
+            // spieler.besitz add streetnr
+            board = board.updated(players(isturn).position, field.setOwner(isturn))
+        }
+        gameController.printFun(buyStreetEvent(players(isturn), field))
+        (board, players)
+    }
+
+    def wuerfeln: (Int, Int, Boolean) = {
+        val roll1 = gameController.dice.roll
+        val roll2 = gameController.dice.roll
+        var pasch = false
+        if (gameController.dice.checkPash(roll1, roll2)) {
+            pasch = true
+        }
+        (roll1, roll2, pasch)
+    }
+
+    def movePlayer(sumDiceThrow: Int): Vector[Player] = {
+        // spieler bewegen
+        val board = gameController.board
+        var players = gameController.players
+        val isturn = gameController.isturn
+        val boardController = gameController.boardController
+
+        players = players.updated(isturn, players(isturn).move(sumDiceThrow))
+        // schauen ob über los gegangen
+        if (players(isturn).position >= 40) {
+            gameController.printFun(playerWentOverGoEvent(players(isturn)))
+            players = players.updated(isturn, players(isturn).moveBack(40))
+        }
+        // neue position ausgeben
+        gameController.printFun(playerMoveEvent(players(isturn)))
+        // aktion fuer betretetenes feld ausloesen
+        /*val field = board(players(isturn).position)
+        field match {
+            case e: Los => boardController.activateStart(e.asInstanceOf[Los])
+            case e: Street => boardController.activateStreet(e.asInstanceOf[Street])
+            case e: Trainstation => boardController.activateTrainstation(e.asInstanceOf[Trainstation])
+            case e: Eventcell => boardController.activateEvent(e.asInstanceOf[Eventcell])
+            case e: CommunityChest => boardController.activateCommunityChest(e.asInstanceOf[CommunityChest])
+            case e: IncomeTax => boardController.activateIncomeTax(e.asInstanceOf[IncomeTax])
+            case e: Elektrizitaetswerk => boardController.activateElektrizitaetswerk(e.asInstanceOf[Elektrizitaetswerk])
+            case e: Wasserwerk => boardController.activateWasserwerk(e.asInstanceOf[Wasserwerk])
+            case e: Zusatzsteuer => boardController.activateZusatzsteuer(e.asInstanceOf[Zusatzsteuer])
+            case e: FreiParken => boardController.activateFreiParken(e.asInstanceOf[FreiParken])
+            case e: GoToJail => boardController.activateGoToJail(e.asInstanceOf[GoToJail])
+            case e: Jail => boardController.activateJail(e.asInstanceOf[Jail])
+            case _ =>
+        }*/
+        players
+    }
+
+    def payRent(field: Buyable): (Vector[Cell], Vector[Player]) = {
+        var players = gameController.players
+        val isturn = gameController.isturn
+        // mietpreis holen
+        val rent = field.rent
+        //miete abziehen
+        println(players(isturn).money)
+        players = players.updated(isturn, players(isturn).decMoney(rent))
+        println(players(isturn).money)
+        players = players.updated(field.owner, players(field.owner).incMoney(rent))
+        gameController.printFun(payRentEvent(players(isturn), players(field.owner)))
+        // schauen ob player ins minus gekommen ist
+        checkDept(players)
+    }
+
+    def checkDept(playerState: Vector[Player]): (Vector[Cell], Vector[Player]) = {
         // wenn spieler im minus its wird
         // so lange verkauft bis im plus oder nichts mehr verkauft wurde dann gameover
         var board = gameController.board
@@ -93,72 +170,8 @@ class PlayerController(gameController: GameController){
                 gameController.printFun(brokeEvent(players(isturn)))
             }
         }
-        (board,players)
+        (board, players)
     }
-
-    def buy(field: Buyable): (Vector[Cell],Vector[Player]) = {
-        var board = gameController.board
-        var players = gameController.players
-        val isturn = gameController.isturn
-        if (players(isturn).money >= field.price) {
-            players = players.updated(isturn, players(isturn).decMoney(field.price))
-            players = players.updated(isturn,players(isturn).buyStreet(players(isturn).position))
-            // spieler.besitz add streetnr
-            board = board.updated(players(isturn).position, field.setOwner(isturn))
-        }
-        gameController.printFun(buyStreetEvent(players(isturn), field))
-        (board,players)
-    }
-
-    def movePlayer(sumDiceThrow: Int): Vector[Player] = {
-        // spieler bewegen
-        val board = gameController.board
-        var players = gameController.players
-        val isturn = gameController.isturn
-        val boardController = gameController.boardController
-
-        players = players.updated(isturn, players(isturn).move(sumDiceThrow))
-        // schauen ob über los gegangen
-        if (players(isturn).position >= 40) {
-            gameController.printFun(playerWentOverGoEvent(players(isturn)))
-            players = players.updated(isturn, players(isturn).moveBack(40))
-        }
-        // neue position ausgeben
-        gameController.printFun(playerMoveEvent(players(isturn)))
-        // aktion fuer betretetenes feld ausloesen
-        /*val field = board(players(isturn).position)
-        field match {
-            case e: Los => boardController.activateStart(e.asInstanceOf[Los])
-            case e: Street => boardController.activateStreet(e.asInstanceOf[Street])
-            case e: Trainstation => boardController.activateTrainstation(e.asInstanceOf[Trainstation])
-            case e: Eventcell => boardController.activateEvent(e.asInstanceOf[Eventcell])
-            case e: CommunityChest => boardController.activateCommunityChest(e.asInstanceOf[CommunityChest])
-            case e: IncomeTax => boardController.activateIncomeTax(e.asInstanceOf[IncomeTax])
-            case e: Elektrizitaetswerk => boardController.activateElektrizitaetswerk(e.asInstanceOf[Elektrizitaetswerk])
-            case e: Wasserwerk => boardController.activateWasserwerk(e.asInstanceOf[Wasserwerk])
-            case e: Zusatzsteuer => boardController.activateZusatzsteuer(e.asInstanceOf[Zusatzsteuer])
-            case e: FreiParken => boardController.activateFreiParken(e.asInstanceOf[FreiParken])
-            case e: GoToJail => boardController.activateGoToJail(e.asInstanceOf[GoToJail])
-            case e: Jail => boardController.activateJail(e.asInstanceOf[Jail])
-            case _ =>
-        }*/
-      players
-    }
-
-    def payRent(field: Buyable): (Vector[Cell],Vector[Player]) = {
-      var players = gameController.players
-      val isturn = gameController.isturn
-      // mietpreis holen
-      val rent = field.rent
-      //miete abziehen
-      println(players(isturn).money)
-      players = players.updated(isturn, players(isturn).decMoney(rent))
-      println(players(isturn).money)
-      players = players.updated(field.owner, players(field.owner).incMoney(rent))
-      gameController.printFun(payRentEvent(players(isturn), players(field.owner)))
-      // schauen ob player ins minus gekommen ist
-      checkDept(players)
-  }
 
 
 }

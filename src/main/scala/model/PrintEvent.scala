@@ -71,3 +71,7 @@ case class playerWentOverGoEvent(player: Player) extends PrintEvent
 case class playerWentOnGoEvent(player: Player) extends PrintEvent
 
 case class falseTestEvent() extends PrintEvent
+
+case class OpenMainWindow() extends PrintEvent
+
+case class OpenGameWindow() extends PrintEvent

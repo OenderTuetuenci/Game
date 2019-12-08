@@ -1,9 +1,18 @@
 package view
 
+import Game.Monopoly.stage
 import controller._
 import model._
+import scalafx.Includes.handle
+import scalafx.application.JFXApp.PrimaryStage
+import scalafx.geometry.{Insets, Pos}
+import scalafx.scene.Scene
+import scalafx.scene.control.Button
+import scalafx.scene.layout.{Priority, VBox}
+import scalafx.scene.paint.Color.{Black, PaleGreen, SeaGreen}
+import scalafx.scene.paint.{LinearGradient, Stops}
+import scalafx.scene.text.Text
 import util.Observer
-import util.createGameCommand
 
 import scala.io.StdIn._
 
@@ -12,10 +21,15 @@ class Tui(controller: GameController) extends Observer {
 
     def getController: GameController = controller
 
-    override def update(e: PrintEvent): Boolean = {
+    override def update(e: PrintEvent): Any = {
         var worked = true
         var string = ""
         e match {
+            //GUI
+            case e: OpenMainWindow => openMainWindow()
+            case e: OpenGameWindow => openGameWindow()
+
+
             //Input
             case e: askUndoGetPlayersEvent => {
                 println("Undo?")
@@ -46,7 +60,7 @@ class Tui(controller: GameController) extends Observer {
             case e: endRoundEvent => string = getEndRoundString(e)
             case e: playerMoveToJail => string = getPlayerMoveToJailString(e)
             case e: optionEvent => string = getOptionString(e)
-            case e: printEverythingEvent => string = getPlayerAndBoardToString
+            case e: printEverythingEvent => getPlayerAndBoardToString
             case e: playerMoveEvent => string = getPlayerMovedString(e)
             case e: playerIsFreeEvent => string = getPlayerIsFreeString(e)
             case e: playerRemainsInJailEvent => string = getPlayerRemainsInJailString(e)
@@ -54,10 +68,7 @@ class Tui(controller: GameController) extends Observer {
             case e: playerWentOnGoEvent => string = getPlayerWentOnGoString(e)
             case e: streetOnHypothekEvent => string = getStreetOnHypothekString(e)
             case e: playerHasDeptEvent => string = getPlayerHasDeptEventString(e)
-            case _ => worked = false
         }
-        println(string)
-        worked
     }
     def askBuyHomeString : Unit = {
         println("Do u want to buy a Home on this Street?")
@@ -125,6 +136,7 @@ class Tui(controller: GameController) extends Observer {
             if (playersOnThisField != "") string += " | players on this field: " + playersOnThisField
             string += "\n"
         }
+        print(string)
         string
     }
 
@@ -222,22 +234,78 @@ class Tui(controller: GameController) extends Observer {
 
     def getOptionString(e: optionEvent): String = "option: " + e.option
 
-    def getPlayerCount:Unit = {
+    def getPlayerCount: Unit = {
         print("How many players?: ") // todo how many npc
         val playerCount = readInt()
         print("how many npc?: ")
         val npcCount = readInt()
 
-        val playerNames: Array[String] = Array.ofDim(playerCount)
-        val npcNames: Array[String] = Array.ofDim(npcCount)
-        // spieler mit namen einlesensr
-        for (i <- 0 until playerCount) {
-            println("Enter name player" + (i + 1) + ":")
-            playerNames(i) = readLine()
+
+    }
+
+    // todo gui /////////////////////////////////////////////////////////////////////////
+
+    // widgets
+
+    def openMainWindow(): PrimaryStage = {
+        stage = new PrimaryStage {
+            title = "Monopoly SE"
+            scene = new Scene {
+                fill = Black
+                content = new VBox {
+                    padding = Insets(20)
+                    children = Seq(
+                        new Text {
+                            text = "Monopoly"
+                            style = "-fx-font-size: 48pt"
+                            fill = new LinearGradient(
+                                endX = 0,
+                                stops = Stops(PaleGreen, SeaGreen))
+                        },
+                        button("Start game", controller.onStartGame),
+                        button("Information", controller.onInformation),
+                        button("Quit", controller.onQuit),
+                    )
+                }
+            }
         }
-        for (i <- 0 until npcCount) {
-            npcNames(i) = "NPC " + (i + 1)
+        stage
+    }
+
+    // windows
+
+    def button[R](text: String, action: () => R) = new Button(text) {
+        onAction = handle {
+            action()
         }
-        controller.undoManager.doStep(new createGameCommand(controller,playerNames,npcNames))
+        alignmentInParent = Pos.Center
+        hgrow = Priority.Always
+        maxWidth = Double.MaxValue
+        padding = Insets(7)
+    }
+
+    def openGameWindow(): PrimaryStage = {
+        stage = new PrimaryStage {
+            title = "Monopoly SE"
+            scene = new Scene {
+                fill = Black
+                content = new VBox {
+                    padding = Insets(20)
+                    children = Seq(
+                        new Text {
+                            text = "Game"
+                            style = "-fx-font-size: 48pt"
+                            fill = new LinearGradient(
+                                endX = 0,
+                                stops = Stops(PaleGreen, SeaGreen))
+                        },
+                        //                        button("Start game", onStartGame),
+                        //                        button("Information", onInformation),
+                        //                        button("Quit", onQuit),
+                    )
+                }
+            }
+        }
+        stage
     }
 }
