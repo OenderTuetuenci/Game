@@ -166,7 +166,10 @@ class GameController extends Observable {
             print("rollforposstate")
             for (i <- 0 until playerCount) {
                 isturn = i
-                players(isturn).strategy.execute("rollDice")
+                players(isturn).strategy.execute("rollDice") match {
+                    case (a: Int, b: Int, c: Boolean) => print(a, b, c)
+                }
+
                 //                if (player.isNpc) {
                 //                    val ret = playerController.wuerfeln
                 //                    println(ret._1, ret._2, ret._3)
