@@ -247,6 +247,16 @@ class Tui(controller: GameController) extends Observer {
 
     // widgets
 
+    def button[R](text: String, action: () => R) = new Button(text) {
+        onAction = handle {
+            action()
+        }
+        alignmentInParent = Pos.Center
+        hgrow = Priority.Always
+        maxWidth = Double.MaxValue
+        padding = Insets(7)
+    }
+
     def openMainWindow(): PrimaryStage = {
         stage = new PrimaryStage {
             title = "Monopoly SE"
@@ -273,16 +283,6 @@ class Tui(controller: GameController) extends Observer {
     }
 
     // windows
-
-    def button[R](text: String, action: () => R) = new Button(text) {
-        onAction = handle {
-            action()
-        }
-        alignmentInParent = Pos.Center
-        hgrow = Priority.Always
-        maxWidth = Double.MaxValue
-        padding = Insets(7)
-    }
 
     def openGameWindow(): PrimaryStage = {
         stage = new PrimaryStage {

@@ -169,15 +169,6 @@ class GameController extends Observable {
                 players(isturn).strategy.execute("rollDice") match {
                     case (a: Int, b: Int, c: Boolean) => print(a, b, c)
                 }
-
-                //                if (player.isNpc) {
-                //                    val ret = playerController.wuerfeln
-                //                    println(ret._1, ret._2, ret._3)
-                //                }
-                //                else {
-                //                    val ret =  DialogStrategy.rollDiceDialog(currentStage, player)
-                //                    println(ret._1, ret._2, ret._3)
-                //                }
             }
             //            // jeden einmal wuerfeln lassen
             //            for (i <- 0 until humanPlayers) {
