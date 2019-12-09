@@ -3,18 +3,22 @@ package view
 import Game.Monopoly.stage
 import controller._
 import model._
-import scalafx.Includes.handle
+import scalafx.Includes.{handle, _}
 import scalafx.application.JFXApp.PrimaryStage
+import scalafx.application.Platform
 import scalafx.geometry.{Insets, Pos}
 import scalafx.scene.Scene
-import scalafx.scene.control.Button
-import scalafx.scene.layout.{Priority, VBox}
+import scalafx.scene.control.Alert.AlertType
+import scalafx.scene.control.ButtonBar.ButtonData
+import scalafx.scene.control._
+import scalafx.scene.layout.{GridPane, Priority, VBox}
 import scalafx.scene.paint.Color.{Black, PaleGreen, SeaGreen}
 import scalafx.scene.paint.{LinearGradient, Stops}
 import scalafx.scene.text.Text
 import util.Observer
 
 import scala.io.StdIn._
+import scala.language.implicitConversions
 
 class Tui(controller: GameController) extends Observer {
     controller.add(this)
@@ -26,8 +30,13 @@ class Tui(controller: GameController) extends Observer {
         var string = ""
         e match {
             //GUI
-            case e: OpenMainWindow => openMainWindow()
-            case e: OpenGameWindow => openGameWindow()
+            case e: OpenMainWindowEvent => mainWindow()
+            case e: OpenGameWindowEvent => gameWindow()
+            case e: OpenGetPlayersDialogEvent => getPlayersDialog(e)
+            case e: OpenGetNameDialogEvent => getPlayerNameDialog(e)
+            case e: OpenRollDiceDialogEvent => rollDiceDialog(e)
+            case e: OpenInformationDialogEvent => informationDialog(e)
+            case e: OpenConfirmationDialogEvent => confirmationDialog(e)
 
 
             //Input
@@ -257,7 +266,10 @@ class Tui(controller: GameController) extends Observer {
         padding = Insets(7)
     }
 
-    def openMainWindow(): PrimaryStage = {
+    // windows
+
+
+    def mainWindow(): PrimaryStage = {
         stage = new PrimaryStage {
             title = "Monopoly SE"
             scene = new Scene {
@@ -279,12 +291,11 @@ class Tui(controller: GameController) extends Observer {
                 }
             }
         }
+        controller.currentStage = stage
         stage
     }
 
-    // windows
-
-    def openGameWindow(): PrimaryStage = {
+    def gameWindow(): PrimaryStage = {
         stage = new PrimaryStage {
             title = "Monopoly SE"
             scene = new Scene {
@@ -306,6 +317,193 @@ class Tui(controller: GameController) extends Observer {
                 }
             }
         }
+        controller.currentStage = stage
         stage
     }
+
+    // Dialogs
+
+    def getPlayersDialog(e: OpenGetPlayersDialogEvent): (String, String) = {
+
+        case class Result(playerCount: String, npcCount: String)
+
+        // create dialog
+        val dialog = new Dialog[Result]() {
+            initOwner(e.stage)
+            title = "Start Game"
+            headerText = "How many players and npc"
+            //graphic = new ImageView(this.getClass.getResource("login_icon.png").toString)
+        }
+        // Set the button types.
+        val startButtonType = new ButtonType("Start", ButtonData.OKDone)
+        dialog.dialogPane().buttonTypes = Seq(startButtonType, ButtonType.Cancel)
+        // Create labels and fields.
+        val tfPlayerCount = new TextField() {
+            promptText = "playerCount"
+        }
+        val tfNpcCount = new TextField() {
+            promptText = "npcCount"
+        }
+        val grid = new GridPane() {
+            hgap = 10
+            vgap = 10
+            padding = Insets(20, 100, 10, 10)
+
+            add(new Label("Players:"), 0, 0)
+            add(tfPlayerCount, 1, 0)
+            add(new Label("Npc:"), 0, 1)
+            add(tfNpcCount, 1, 1)
+        }
+        // Enable/Disable button depending on whether a username was entered.
+        val startButton = dialog.dialogPane().lookupButton(startButtonType)
+        startButton.disable = true
+        // Do some validation (disable when username is empty).
+        tfPlayerCount.text.onChange { (_, _, newValue) => startButton.disable = newValue.trim().isEmpty }
+        tfNpcCount.text.onChange { (_, _, newValue) => startButton.disable = newValue.trim().isEmpty }
+        dialog.dialogPane().content = grid
+        // Request focus on the username field by default.
+        Platform.runLater(tfPlayerCount.requestFocus())
+        // Convert the result to a username-password-pair when the login button is clicked.
+        dialog.resultConverter = dialogButton =>
+            if (dialogButton == startButtonType) Result(tfPlayerCount.text(), tfNpcCount.text())
+            else null
+
+        val result = dialog.showAndWait()
+
+        result match {
+            case Some(Result(p, npc)) => {
+                controller.humanPlayers = p.toInt
+                controller.npcPlayers = npc.toInt
+                (p, npc)
+            }
+            case None => ("Dialog returned", "None")
+        }
+    }
+
+
+    def getPlayerNameDialog(e: OpenGetNameDialogEvent): String = {
+
+        case class Result(playerName: String)
+
+        // Create the custom dialog.
+        val dialog = new Dialog[Result]() {
+            initOwner(e.stage)
+            title = "Enter Player names:"
+            headerText = "Player 1 enter name"
+            //graphic = new ImageView(this.getClass.getResource("login_icon.png").toString)
+        }
+
+        // Set the button types.
+        val startButtonType = new ButtonType("Start", ButtonData.OKDone)
+        dialog.dialogPane().buttonTypes = Seq(startButtonType, ButtonType.Cancel)
+
+        // Create the username and password labels and fields.
+        val tfPlayerName = new TextField() {
+            promptText = "Player 1 name"
+        }
+
+        val grid = new GridPane() {
+            hgap = 10
+            vgap = 10
+            padding = Insets(20, 100, 10, 10)
+
+            add(new Label("Player 1 Name:"), 0, 0)
+            add(tfPlayerName, 1, 0)
+
+        }
+
+        // Enable/Disable login button depending on whether a username was entered.
+        val startButton = dialog.dialogPane().lookupButton(startButtonType)
+        startButton.disable = true
+
+        // Do some validation (disable when username is empty).
+        tfPlayerName.text.onChange { (_, _, newValue) => startButton.disable = newValue.trim().isEmpty }
+
+        dialog.dialogPane().content = grid
+
+        // Request focus on the username field by default.
+        Platform.runLater(tfPlayerName.requestFocus())
+
+        // Convert the result to a username-password-pair when the login button is clicked.
+        dialog.resultConverter = dialogButton =>
+            if (dialogButton == startButtonType) Result(tfPlayerName.text())
+            else null
+
+        val result = dialog.showAndWait()
+
+        result match {
+            case Some(Result(n)) => {
+                controller.playerNames = controller.playerNames :+ n
+                n
+            }
+            case None => "Dialog returned: None"
+        }
+    }
+
+    def rollDiceDialog(e: OpenRollDiceDialogEvent): (Int, Int, Boolean) = {
+        case class Result(roll1: Int, roll2: Int, pasch: Boolean)
+        // Create the custom dialog.
+        val dialog = new Dialog[Result]() {
+            initOwner(e.stage)
+            title = "Roll Dice:"
+            headerText = "Player " + e.player.name + " roll dice"
+            //graphic = new ImageView(this.getClass.getResource("login_icon.png").toString)
+        }
+
+        // Set the button types.
+        val startButtonType = new ButtonType("Roll Dice")
+        dialog.dialogPane().buttonTypes = Seq(startButtonType)
+        val grid = new GridPane() {
+            hgap = 10
+            vgap = 10
+            padding = Insets(20, 100, 10, 10)
+
+            add(new Label("Roll"), 0, 0)
+        }
+
+        dialog.dialogPane().content = grid
+
+        // Convert the result to a username-password-pair when the login button is clicked.
+        dialog.resultConverter = dialogButton =>
+            if (dialogButton == startButtonType) {
+                val (a, b, c) = controller.playerController.wuerfeln
+                Result(a, b, c)
+            } else Result(0, 0, false)
+        val result = dialog.showAndWait()
+
+        result match {
+            case Some(Result(roll1, roll2, pasch)) => {
+                (roll1, roll2, pasch)
+            }
+            case None => (0, 0, false)
+        }
+    }
+
+    def informationDialog(e: OpenInformationDialogEvent): Unit = {
+        new Alert(AlertType.Information) {
+            initOwner(e.stage)
+            title = "Information Dialog"
+            headerText = "Look, an Information Dialog."
+            contentText = "I have a great message for you!"
+        }.showAndWait()
+    }
+
+    def confirmationDialog(e: OpenConfirmationDialogEvent): String = {
+        val alert = new Alert(AlertType.Confirmation) {
+            initOwner(e.stage)
+            title = "Confirmation Dialog"
+            headerText = "Look, a Confirmation Dialog."
+            contentText = "Do you want to quit?"
+        }
+
+        val result = alert.showAndWait()
+
+        result match {
+            case Some(ButtonType.OK) => "Quit"
+            case _ => "Cancel"
+        }
+    }
+
 }
+
+

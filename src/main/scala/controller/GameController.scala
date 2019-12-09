@@ -17,10 +17,11 @@ class GameController extends Observable {
     var players: Vector[Player] = Vector[Player]()
     var playerNames: Vector[String] = Vector[String]()
     var npcNames: Vector[String] = Vector[String]()
-    var isturn = 0 // aktueller spieler
     var round = 1
     var answer = ""
+    //todo gui
     var currentStage = new PrimaryStage()
+    var isturn = 0 // aktueller spieler
 
 
     def createGame(playerNames: Vector[String], npcNames: Vector[String]): Unit = {
@@ -113,24 +114,25 @@ class GameController extends Observable {
 
 
     def onQuit() = {
-        DialogStrategy.open(currentStage, "confirmQuit")
+        notifyObservers(OpenConfirmationDialogEvent(currentStage))
     }
 
     def onInformation() = {
-        DialogStrategy.open(currentStage, "information")
+        notifyObservers(OpenInformationDialogEvent(currentStage))
     }
 
 
     def onStartGame() = {
-        DialogStrategy.open(currentStage, "getPlayers") match {
-            case tuple@(p: String, npc: String) =>
-                GameStates.handle(getPlayersEvent(p, npc))
-        }
+        notifyObservers(OpenGetPlayersDialogEvent(currentStage))
+        GameStates.handle(getPlayersEvent(humanPlayers, npcPlayers))
         GameStates.handle(createBoardAndPlayersEvent(playerNames, npcNames))
         notifyObservers(printEverythingEvent())
-        notifyObservers(OpenGameWindow())
+        notifyObservers(OpenGameWindowEvent())
         notifyObservers(displayRollForPositionsEvent())
         GameStates.handle(rollForPositionsEvent())
+        //todo
+        // do runround while not checkgameover
+        // gameover
     }
 
     object GameStates {
@@ -153,8 +155,7 @@ class GameController extends Observable {
             // spieler mit namen einlesensr
             for (i <- 0 until e.playerCount.toInt) {
                 println("Enter name player" + (i + 1) + ":")
-                val result = DialogStrategy.open(currentStage, "getPlayerName").toString
-                playerNames = playerNames :+ result
+                notifyObservers(OpenGetNameDialogEvent(currentStage)) // adds player in tui/gui... dialog
             }
             for (i <- 0 until e.npcCount.toInt) {
                 npcNames = npcNames :+ "NPC " + (i + 1)

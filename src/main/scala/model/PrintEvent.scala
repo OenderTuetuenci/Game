@@ -1,5 +1,7 @@
 package model
 
+import scalafx.application.JFXApp.PrimaryStage
+
 trait PrintEvent
 
 case class askBuyHomeEvent() extends PrintEvent
@@ -72,6 +74,18 @@ case class playerWentOnGoEvent(player: Player) extends PrintEvent
 
 case class falseTestEvent() extends PrintEvent
 
-case class OpenMainWindow() extends PrintEvent
+// GUI
 
-case class OpenGameWindow() extends PrintEvent
+case class OpenMainWindowEvent() extends PrintEvent
+
+case class OpenGameWindowEvent() extends PrintEvent
+
+case class OpenGetPlayersDialogEvent(stage: PrimaryStage) extends PrintEvent
+
+case class OpenGetNameDialogEvent(stage: PrimaryStage) extends PrintEvent
+
+case class OpenRollDiceDialogEvent(stage: PrimaryStage, player: Player) extends PrintEvent
+
+case class OpenInformationDialogEvent(stage: PrimaryStage) extends PrintEvent
+
+case class OpenConfirmationDialogEvent(stage: PrimaryStage) extends PrintEvent

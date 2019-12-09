@@ -3,6 +3,7 @@ package Game
 //
 
 import controller._
+import model.OpenMainWindowEvent
 import view.Tui
 //
 //// todo undo pattern spieleranzahl namen wie viele spieler und bots im beforegamestartsstate
@@ -26,5 +27,5 @@ import scala.language.implicitConversions
 object Monopoly extends JFXApp {
     val gameController = new GameController
     val tui = new Tui(gameController)
-    gameController.currentStage = tui.openMainWindow()
+    gameController.notifyObservers(OpenMainWindowEvent())
 }

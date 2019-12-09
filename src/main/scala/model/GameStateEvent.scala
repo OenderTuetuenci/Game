@@ -2,7 +2,7 @@ package model
 
 trait GameStateEvent
 
-case class getPlayersEvent(playerCount: String, npcCount: String) extends GameStateEvent
+case class getPlayersEvent(playerCount: Int, npcCount: Int) extends GameStateEvent
 
 case class rollForPositionsEvent() extends GameStateEvent
 
