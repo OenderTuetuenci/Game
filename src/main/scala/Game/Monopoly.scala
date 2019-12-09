@@ -1,7 +1,5 @@
 package Game
 
-//
-
 import controller._
 import model.OpenMainWindowEvent
 import view.Tui

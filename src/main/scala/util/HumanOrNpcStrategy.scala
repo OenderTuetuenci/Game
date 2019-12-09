@@ -1,5 +1,6 @@
-package controller
+package util
 
+import controller.GameController
 import model.{OpenRollDiceDialogEvent, askBuyEvent, askBuyHomeEvent}
 
 trait HumanOrNpcStrategy {
