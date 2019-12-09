@@ -137,7 +137,7 @@ class GameController extends Observable {
 
         var runState = initState
 
-        def handle(e: GameStateEvent) = {
+        def handle(e: GameStateEvent): Any = {
             e match {
                 case e: getPlayersEvent => runState = getPlayersState(e)
                 case e: rollForPositionsEvent => runState = rollForPositionsState
@@ -146,7 +146,7 @@ class GameController extends Observable {
                 case e: checkGameOverEvent => runState = checkGameOverState
                 case e: gameOverEvent => runState = gameOverState
             }
-            //runState
+            runState
         }
 
         def getPlayersState(e: getPlayersEvent) = {
@@ -163,44 +163,46 @@ class GameController extends Observable {
         }
 
         def rollForPositionsState = {
-            print("rollforposstate")
+            println("rollforposstate")
             for (i <- 0 until playerCount) {
+                // jeden einmal wuerfeln lassen
                 isturn = i
                 players(isturn).strategy.execute("rollDice") match {
-                    case (a: Int, b: Int, c: Boolean) => print(a, b, c)
+                    case (roll1: Int, roll2: Int, pasch: Boolean) => println(roll1, roll2, pasch)
+                        //ergebnis speichern für jeden spieler
+                        players = players.updated(i, players(i).setRollForPosition(roll1 + roll2))
+                }
+
+            }
+            //nach reihenfolge sortieren
+            players = players.sortBy(-_.rollForPosition) // - für reversed
+            //reihenfolge erstmalig festlegen
+            println("spieler mit reihenfolge:")
+            for (i <- 0 until playerCount) {
+                players = players.updated(i, players(i).setTurnPosition(i))
+                println(players(i))
+            }
+            // Spieler suchen die das gleiche gewuerfelt haben
+            var rolledSame: Vector[Player] = Vector[Player]()
+            for (i <- 0 until playerCount) {
+                for (j <- (i + 1) until playerCount) {
+                    if (players(i).rollForPosition == players(j).rollForPosition) {
+                        // nur die die noch nicht drinnen sind hinzufuegen
+                        if (!rolledSame.exists(_.name == players(i).name)) {
+                            rolledSame = rolledSame :+ players(i)
+                        }
+                        if (!rolledSame.exists(_.name == players(j).name)) {
+                            rolledSame = rolledSame :+ players(j)
+                        }
+
+                    }
                 }
             }
-            //            // jeden einmal wuerfeln lassen
-            //            for (i <- 0 until humanPlayers) {
-            //                //todo if player is npc or not
-            //                val rollDices = playerController.wuerfeln
-            //                println(players(i).name + " rolled " + (rollDices._1 + rollDices._2))
-            //                //ergebnis speichern für jeden spieler
-            //                players = players.updated(i, players(i).setRollForPosition(rollDices._1 + rollDices._2))
-            //            }
-            //            // nach reihenfolge sortieren
-            //            players = players.sortBy(-_.rollForPosition) // - für reversed
-            //            //reihenfolge erstmalig festlegen
-            //            println("spieler mit reihenfolge:")
-            //            for (i <- 0 until humanPlayers) {
-            //                players = players.updated(i, players(i).setTurnPosition(i))
-            //                println(players(i))
-            //            }
-            //            // Spieler suchen die das gleiche gewuerfelt haben
-            //            var rolledSame: Vector[Player] = Vector[Player]()
-            //            for (i <- 0 until humanPlayers) {
-            //                for (j <- (i + 1) until humanPlayers) {
-            //                    if (players(i).rollForPosition == players(j).rollForPosition) {
-            //                        rolledSame = rolledSame :+ players(i)
-            //                        rolledSame = rolledSame :+ players(j)
-            //                    }
-            //                }
-            //            }
-            //            println("leute die nochmal würfeln dürfen ")
-            //            for (player <- rolledSame) println(player)
-            //            //todo lass alle die jeweils das gleiche gewuerfelt haben
-            //            // so lange nochmal würfeln aber nur ihre position untereinander tauschen
-            //            // bis keiner mehr das gleiche würfelt
+            println("leute die nochmal würfeln dürfen ")
+            for (player <- rolledSame) println(player)
+            //todo lass alle die jeweils das gleiche gewuerfelt haben
+            // so lange nochmal würfeln aber nur ihre position untereinander tauschen
+            // bis keiner mehr das gleiche würfelt
             //
             //            var playersRollingAgain: Vector[Player] = Vector[Player]()
             //            var playersRollingAgainPositions: Vector[Int] = Vector[Int]()
