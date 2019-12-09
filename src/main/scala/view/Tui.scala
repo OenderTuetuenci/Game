@@ -268,7 +268,6 @@ class Tui(controller: GameController) extends Observer {
 
     // windows
 
-
     def mainWindow(): PrimaryStage = {
         stage = new PrimaryStage {
             title = "Monopoly SE"
@@ -389,7 +388,7 @@ class Tui(controller: GameController) extends Observer {
         val dialog = new Dialog[Result]() {
             initOwner(e.stage)
             title = "Enter Player names:"
-            headerText = "Player 1 enter name"
+            headerText = "Player " + e.currPlayer + " enter name"
             //graphic = new ImageView(this.getClass.getResource("login_icon.png").toString)
         }
 
@@ -399,7 +398,7 @@ class Tui(controller: GameController) extends Observer {
 
         // Create the username and password labels and fields.
         val tfPlayerName = new TextField() {
-            promptText = "Player 1 name"
+            promptText = "Enter name"
         }
 
         val grid = new GridPane() {
@@ -407,7 +406,7 @@ class Tui(controller: GameController) extends Observer {
             vgap = 10
             padding = Insets(20, 100, 10, 10)
 
-            add(new Label("Player 1 Name:"), 0, 0)
+            add(new Label("Name:"), 0, 0)
             add(tfPlayerName, 1, 0)
 
         }

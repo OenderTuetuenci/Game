@@ -82,7 +82,7 @@ case class OpenGameWindowEvent() extends PrintEvent
 
 case class OpenGetPlayersDialogEvent(stage: PrimaryStage) extends PrintEvent
 
-case class OpenGetNameDialogEvent(stage: PrimaryStage) extends PrintEvent
+case class OpenGetNameDialogEvent(stage: PrimaryStage, currPlayer: Int) extends PrintEvent
 
 case class OpenRollDiceDialogEvent(stage: PrimaryStage, player: Player) extends PrintEvent
 

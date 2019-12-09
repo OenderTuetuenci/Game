@@ -155,7 +155,7 @@ class GameController extends Observable {
             // spieler mit namen einlesensr
             for (i <- 0 until e.playerCount.toInt) {
                 println("Enter name player" + (i + 1) + ":")
-                notifyObservers(OpenGetNameDialogEvent(currentStage)) // adds player in tui/gui... dialog
+                notifyObservers(OpenGetNameDialogEvent(currentStage, (i + 1))) // adds player in tui/gui... dialog
             }
             for (i <- 0 until e.npcCount.toInt) {
                 npcNames = npcNames :+ "NPC " + (i + 1)
