@@ -1,6 +1,5 @@
 package controller
 
-import Game.Monopoly._
 import model.{OpenRollDiceDialogEvent, askBuyEvent, askBuyHomeEvent}
 
 trait HumanOrNpcStrategy {
@@ -15,7 +14,7 @@ case class NPCStrategy(controller: GameController) extends HumanOrNpcStrategy {
       case "pay" => pay
       case "buy" => buy
       case "buy home" => buyHome
-      case "rollDice" => gameController.playerController.wuerfeln
+      case "rollDice" => controller.playerController.wuerfeln
       case _ =>
     }
   }
@@ -41,8 +40,8 @@ case class HumanStrategy(controller: GameController) extends HumanOrNpcStrategy 
       case "buy" => buy
       case "buy home" => buyHome
       case "rollDice" =>
-          gameController.notifyObservers(OpenRollDiceDialogEvent(gameController.currentStage, gameController.players(gameController.isturn)))
-          gameController.playerController.wuerfeln
+        controller.notifyObservers(OpenRollDiceDialogEvent(controller.currentStage, controller.players(controller.isturn)))
+        controller.playerController.wuerfeln
       case _ =>
     }
   }

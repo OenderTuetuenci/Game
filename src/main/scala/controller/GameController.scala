@@ -160,7 +160,6 @@ class GameController extends Observable {
             for (i <- 0 until e.npcCount.toInt) {
                 npcNames = npcNames :+ "NPC " + (i + 1)
             }
-
         }
 
         def rollForPositionsState = {
