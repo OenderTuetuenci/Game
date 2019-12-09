@@ -42,6 +42,7 @@ case class HumanStrategy(controller: GameController) extends HumanOrNpcStrategy 
       case "buy home" => buyHome
       case "rollDice" =>
           gameController.notifyObservers(OpenRollDiceDialogEvent(gameController.currentStage, gameController.players(gameController.isturn)))
+          gameController.playerController.wuerfeln
       case _ =>
     }
   }

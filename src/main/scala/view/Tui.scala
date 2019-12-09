@@ -440,7 +440,16 @@ class Tui(controller: GameController) extends Observer {
         }
     }
 
-    def rollDiceDialog(e: OpenRollDiceDialogEvent): (Int, Int, Boolean) = {
+    def rollDiceDialog(e: OpenRollDiceDialogEvent): Unit = {
+        new Alert(AlertType.Information) {
+            initOwner(e.stage)
+            title = "Roll for starting positions"
+            headerText = "Player " + e.player.name
+            contentText = "Roll dices!"
+        }.showAndWait()
+    }
+
+    def rollDiceDialogNoMoreWorking(e: OpenRollDiceDialogEvent): (Int, Int, Boolean) = {
         case class Result(roll1: Int, roll2: Int, pasch: Boolean)
         // Create the custom dialog.
         val dialog = new Dialog[Result]() {
@@ -488,7 +497,7 @@ class Tui(controller: GameController) extends Observer {
         }.showAndWait()
     }
 
-    def confirmationDialog(e: OpenConfirmationDialogEvent): String = {
+    def confirmationDialog(e: OpenConfirmationDialogEvent): Unit = {
         val alert = new Alert(AlertType.Confirmation) {
             initOwner(e.stage)
             title = "Confirmation Dialog"
@@ -499,7 +508,7 @@ class Tui(controller: GameController) extends Observer {
         val result = alert.showAndWait()
 
         result match {
-            case Some(ButtonType.OK) => "Quit"
+            case Some(ButtonType.OK) => System.exit(0)
             case _ => "Cancel"
         }
     }
