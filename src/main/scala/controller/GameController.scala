@@ -1,6 +1,5 @@
 package controller
 
-
 import model._
 import scalafx.application.JFXApp.PrimaryStage
 import util.{Observable, UndoManager}

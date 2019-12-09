@@ -1,6 +1,5 @@
 package view
 
-import Game.Monopoly.stage
 import controller._
 import model._
 import scalafx.Includes.{handle, _}
@@ -30,8 +29,8 @@ class Tui(controller: GameController) extends Observer {
         var string = ""
         e match {
             //GUI
-            case e: OpenMainWindowEvent => mainWindow()
-            case e: OpenGameWindowEvent => gameWindow()
+            case e: OpenMainWindowEvent => mainWindow(e)
+            case e: OpenGameWindowEvent => gameWindow(e)
             case e: OpenGetPlayersDialogEvent => getPlayersDialog(e)
             case e: OpenGetNameDialogEvent => getPlayerNameDialog(e)
             case e: OpenRollDiceDialogEvent => rollDiceDialog(e)
@@ -268,8 +267,8 @@ class Tui(controller: GameController) extends Observer {
 
     // windows
 
-    def mainWindow(): PrimaryStage = {
-        stage = new PrimaryStage {
+    def mainWindow(e: OpenMainWindowEvent) = {
+        controller.currentStage = new PrimaryStage {
             title = "Monopoly SE"
             scene = new Scene {
                 fill = Black
@@ -290,12 +289,10 @@ class Tui(controller: GameController) extends Observer {
                 }
             }
         }
-        controller.currentStage = stage
-        stage
     }
 
-    def gameWindow(): PrimaryStage = {
-        stage = new PrimaryStage {
+    def gameWindow(e: OpenGameWindowEvent) = {
+        controller.currentStage = new PrimaryStage {
             title = "Monopoly SE"
             scene = new Scene {
                 fill = Black
@@ -316,8 +313,6 @@ class Tui(controller: GameController) extends Observer {
                 }
             }
         }
-        controller.currentStage = stage
-        stage
     }
 
     // Dialogs
