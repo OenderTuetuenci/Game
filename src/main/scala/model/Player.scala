@@ -1,6 +1,6 @@
 package model
 
-import util.HumanOrNpcStrategy
+import controller.HumanOrNpcStrategy
 
 case class Player(name: String, position: Int = 0, money: Int = 10000, jailCount: Int = -1,
                   ownedStreet: Vector[Int] = Vector[Int](), turnPosition: Int = 0, rollForPosition: Int = 0, strategy: HumanOrNpcStrategy, isNpc: Boolean = false) {

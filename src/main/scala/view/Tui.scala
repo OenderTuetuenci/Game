@@ -10,7 +10,8 @@ import scalafx.scene.Scene
 import scalafx.scene.control.Alert.AlertType
 import scalafx.scene.control.ButtonBar.ButtonData
 import scalafx.scene.control._
-import scalafx.scene.layout.{GridPane, Priority, VBox}
+import scalafx.scene.image.{Image, ImageView}
+import scalafx.scene.layout._
 import scalafx.scene.paint.Color.{Black, PaleGreen, SeaGreen}
 import scalafx.scene.paint.{LinearGradient, Stops}
 import scalafx.scene.text.Text
@@ -78,12 +79,13 @@ class Tui(controller: GameController) extends Observer {
             case e: playerHasDeptEvent => string = getPlayerHasDeptEventString(e)
         }
     }
-    def askBuyHomeString : Unit = {
+
+    def askBuyHomeString: Unit = {
         println("Do u want to buy a Home on this Street?")
         controller.answer = readLine()
     }
 
-    def askBuyString : Unit = {
+    def askBuyString: Unit = {
         println("Do u want to buy this street?")
         controller.answer = readLine()
     }
@@ -294,26 +296,46 @@ class Tui(controller: GameController) extends Observer {
     def gameWindow(e: OpenGameWindowEvent) = {
         controller.currentStage = new PrimaryStage {
             title = "Monopoly SE"
-            scene = new Scene {
+            scene = new Scene(1100, 800) {
                 fill = Black
-                content = new VBox {
-                    padding = Insets(20)
-                    children = Seq(
+                content = new HBox {
+                    padding = Insets(10)
+                    val pane = new StackPane()
+                    pane.setId("stackpane")
+
+
+                    val boardImage = new ImageView(new Image("file:images/board.jpg",
+                        800,
+                        800,
+                        true,
+                        true))
+                    val playerImage = new ImageView(new Image("file:images/Hat.jpg",
+                        50,
+                        50,
+                        true,
+                        true))
+                    playerImage.setId("playerimage")
+
+
+                    new VBox(
                         new Text {
-                            text = "Game"
+                            text = "Monopoly"
                             style = "-fx-font-size: 48pt"
                             fill = new LinearGradient(
                                 endX = 0,
                                 stops = Stops(PaleGreen, SeaGreen))
                         },
-                        //                        button("Start game", onStartGame),
-                        //                        button("Information", onInformation),
-                        //                        button("Quit", onQuit),
+                        button("Start game", controller.onStartGame),
+                        button("Information", controller.onInformation),
                     )
+
+                    pane.children = List(boardImage, playerImage)
+                    children = pane
                 }
             }
         }
     }
+
 
     // Dialogs
 

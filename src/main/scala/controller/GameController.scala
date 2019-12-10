@@ -1,5 +1,8 @@
 package controller
 
+import java.util.{Timer, TimerTask}
+
+import Game.Monopoly.gameController
 import model._
 import scalafx.application.JFXApp.PrimaryStage
 import util.{Observable, UndoManager}
@@ -111,6 +114,7 @@ class GameController extends Observable {
 
     // functions
 
+    // todo currentstage kann raus tui hat ehe controller
 
     def onQuit() = {
         notifyObservers(OpenConfirmationDialogEvent(currentStage))
@@ -120,18 +124,66 @@ class GameController extends Observable {
         notifyObservers(OpenInformationDialogEvent(currentStage))
     }
 
-
     def onStartGame() = {
-        notifyObservers(OpenGetPlayersDialogEvent(currentStage))
-        GameStates.handle(getPlayersEvent(humanPlayers, npcPlayers))
-        GameStates.handle(createBoardAndPlayersEvent(playerNames, npcNames))
-        notifyObservers(printEverythingEvent())
-        notifyObservers(OpenGameWindowEvent())
-        notifyObservers(displayRollForPositionsEvent())
-        GameStates.handle(rollForPositionsEvent())
-        //todo
-        // do runround while not checkgameover
-        // gameover
+        val playerMoveTest = true
+        if (playerMoveTest) {
+            notifyObservers(OpenGameWindowEvent())
+            movePlayerTimerGui
+        } else {
+            notifyObservers(OpenGetPlayersDialogEvent(currentStage))
+            GameStates.handle(getPlayersEvent(humanPlayers, npcPlayers))
+            GameStates.handle(createBoardAndPlayersEvent(playerNames, npcNames))
+            notifyObservers(OpenGameWindowEvent())
+            notifyObservers(printEverythingEvent())
+            notifyObservers(displayRollForPositionsEvent())
+            GameStates.handle(rollForPositionsEvent())
+            //            todo
+            //             do runround while not checkgameover
+            //             gameover
+        }
+
+
+    }
+
+    def movePlayerTimerGui(): Unit = {
+        val goXY = (350, 350)
+        val jailXY = (-350, 350)
+        val ParkFreeXY = (-350, -350)
+        val GoToJailXy = (350, -350)
+        var xList = List[Double](350, 350, -350, -350)
+        var yList = List[Double](350, 350, -350, -350)
+        xList = List[Double](
+            350, 280, 210, 140, 70, 0, -70, -140, -210, -280, -350,
+            -350, -350, -350, -350, -350, -350, -350, -350, -350, -350,
+            -280, -210, -140, -70, 0, 70, 140, 210, 280, 350,
+            350, 350, 350, 350, 350, 350, 350, 350, 350)
+
+        yList = List[Double](
+            350, 350, 350, 350, 350, 350, 350, 350, 350, 350, 350,
+            280, 210, 140, 70, 0, -70, -140, -210, -280, -350,
+            -350, -350, -350, -350, -350, -350, -350, -350, -350, -350,
+            -280, -210, -140, -70, 0, 70, 140, 210, 280)
+        val len = xList.length
+        var i = 0
+        val timer: Timer = new Timer()
+        timer.schedule(new TimerTask {
+            override def run(): Unit = {
+                println(i + 1)
+                movePlayerGui(xList(i), yList(i))
+                i += 1
+                if (i == len) timer.cancel()
+                timer.purge()
+            }
+        }, 3000, 500)
+
+
+    }
+
+    def movePlayerGui(x: Double, y: Double): Unit = {
+        val playerImage = gameController.currentStage.scene().lookup("#playerimage")
+        println("moveplayer x y " + x + y)
+        playerImage.setTranslateX(x)
+        playerImage.setTranslateY(y)
     }
 
     object GameStates {
@@ -246,12 +298,14 @@ class GameController extends Observable {
             println("createboardandplayersState")
             players = playerController.createPlayers(e.playerNames, e.npcNames)
             board = boardController.createBoard
-
-            //      notifyObservers(askUndoGetPlayersEvent())
-            //      if (answer == "yes") {
-            //        undoManager.undoStep
-            //      }
         }
+
+
+        //      notifyObservers(askUndoGetPlayersEvent())
+        //      if (answer == "yes") {
+        //        undoManager.undoStep
+        //      }
+
 
         def runRoundState: Unit = {
             println("runround")

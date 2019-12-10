@@ -1,7 +1,6 @@
 package controller
 
 import model._
-import util.{HumanStrategy, NPCStrategy}
 
 import scala.util.control.Breaks.{break, breakable}
 
