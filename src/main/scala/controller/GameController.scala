@@ -2,7 +2,6 @@ package controller
 
 import java.util.{Timer, TimerTask}
 
-import Game.Monopoly.gameController
 import model._
 import scalafx.application.JFXApp.PrimaryStage
 import scalafx.scene.control.Label
@@ -27,6 +26,22 @@ class GameController extends Observable {
     //todo gui
     var currentStage = new PrimaryStage()
     var isturn = 0 // aktueller spieler
+    // feldcoords todo in liste mit tupel
+    val goXY = (350, 350)
+    val jailXY = (-350, 350)
+    val ParkFreeXY = (-350, -350)
+    val GoToJailXy = (350, -350)
+    val fieldCoordsX = List[Double](
+        350, 280, 210, 140, 70, 0, -70, -140, -210, -280, -350,
+        -350, -350, -350, -350, -350, -350, -350, -350, -350, -350,
+        -280, -210, -140, -70, 0, 70, 140, 210, 280, 350,
+        350, 350, 350, 350, 350, 350, 350, 350, 350)
+
+    val fieldCoordsY = List[Double](
+        350, 350, 350, 350, 350, 350, 350, 350, 350, 350, 350,
+        280, 210, 140, 70, 0, -70, -140, -210, -280, -350,
+        -350, -350, -350, -350, -350, -350, -350, -350, -350, -350,
+        -280, -210, -140, -70, 0, 70, 140, 210, 280)
 
 
     def createGame(playerNames: Vector[String], npcNames: Vector[String]): Unit = {
@@ -146,42 +161,23 @@ class GameController extends Observable {
                 GameStates.handle(checkGameOverEvent())
             } while (!gameOver)
             GameStates.handle(gameOverEvent())
-            // todo try} while(!GameStates.runState == GameStates.gameOverState))
+            //GameStates.handle(InitGameEvent())
+            notifyObservers(OpenMainWindowEvent())
 
-            //            todo
-            //             do runround while not checkgameover
-            //             gameover
+            // todo try} while(!GameStates.runState == GameStates.gameOverState))
         }
 
 
     }
 
     def movePlayerTimerGui(): Unit = {
-        movePlayerGui(350, 350)
-        val goXY = (350, 350)
-        val jailXY = (-350, 350)
-        val ParkFreeXY = (-350, -350)
-        val GoToJailXy = (350, -350)
-        var xList = List[Double](350, 350, -350, -350)
-        var yList = List[Double](350, 350, -350, -350)
-        xList = List[Double](
-            350, 280, 210, 140, 70, 0, -70, -140, -210, -280, -350,
-            -350, -350, -350, -350, -350, -350, -350, -350, -350, -350,
-            -280, -210, -140, -70, 0, 70, 140, 210, 280, 350,
-            350, 350, 350, 350, 350, 350, 350, 350, 350)
-
-        yList = List[Double](
-            350, 350, 350, 350, 350, 350, 350, 350, 350, 350, 350,
-            280, 210, 140, 70, 0, -70, -140, -210, -280, -350,
-            -350, -350, -350, -350, -350, -350, -350, -350, -350, -350,
-            -280, -210, -140, -70, 0, 70, 140, 210, 280)
-        val len = xList.length
+        val len = fieldCoordsX.length
         var i = 0
         val timer: Timer = new Timer()
         timer.schedule(new TimerTask {
             override def run(): Unit = {
                 println(i + 1)
-                movePlayerGui(xList(i), yList(i))
+                movePlayerGui(fieldCoordsX(i), fieldCoordsY(i))
                 i += 1
                 if (i == len) timer.cancel()
                 timer.purge()
@@ -192,7 +188,7 @@ class GameController extends Observable {
     }
 
     def movePlayerGui(x: Double, y: Double): Unit = {
-        val playerImage = gameController.currentStage.scene().lookup("#playerimage")
+        val playerImage = currentStage.scene().lookup("#playerimage")
         println("moveplayer x y " + x + y)
         playerImage.setTranslateX(x)
         playerImage.setTranslateY(y)
@@ -304,10 +300,11 @@ class GameController extends Observable {
 
     object GameStates {
 
-        var runState = initState
+        var runState = initGameState
 
         def handle(e: GameStateEvent): Any = {
             e match {
+                case e: InitGameEvent => runState = initGameState
                 case e: getPlayersEvent => runState = getPlayersState(e)
                 case e: rollForPositionsEvent => runState = rollForPositionsState
                 case e: createBoardAndPlayersEvent => runState = createBoardAndPlayersState(e)
@@ -414,7 +411,15 @@ class GameController extends Observable {
             players = playerController.createPlayers(e.playerNames, e.npcNames)
             board = boardController.createBoard
             //todo notifyObservers(e: GuiPutPlayersOnTheBoardEvent)
-            //todo movePlayerGui(350,350)
+            ////////////MoveplayerToStart////////////////
+            val timer: Timer = new Timer()
+            timer.schedule(new TimerTask {
+                override def run(): Unit = {
+                    movePlayerGui(350, 350)
+                    timer.cancel()
+                }
+            }, 100, 1000)
+            ////////////////////////////////
 
             //todo
             // notifyObservers(askUndoGetPlayersEvent())
@@ -443,7 +448,7 @@ class GameController extends Observable {
         }
 
         def checkGameOverState = {
-            if (round == 5) gameOver = true
+            if (round == 10) gameOver = true
             // todo try if (round == 5) runState = gameOverState
             //if (checkGameOver())
             //handle(gameOverEvent())
@@ -451,11 +456,35 @@ class GameController extends Observable {
 
         def gameOverState = {
             println("gameover")
+            // todo nach dem game sollte eig wieder initstate sein dort sollte alles wieder
+            // todo zurueck gesetzt werden aber bugt noch
+            humanPlayers = 0
+            npcPlayers = 0
+            playerCount = 0
+            board = Vector[Cell]()
+            players = Vector[Player]()
+            playerNames = Vector[String]()
+            npcNames = Vector[String]()
+            round = 1
+            answer = ""
+            gameOver = false // todo wie über states
             //notifyObservers(printEverythingEvent())
             //notifyObservers(gameFinishedEvent(players(gameOver._2)))
         }
 
-        def initState() = print("InitState")
+        def initGameState = {
+            print("InitState")
+            //            humanPlayers = 0
+            //            npcPlayers = 0
+            //            playerCount = 0
+            //            board = Vector[Cell]()
+            //            players = Vector[Player]()
+            //            playerNames = Vector[String]()
+            //            npcNames = Vector[String]()
+            //            round = 1
+            //            answer = ""
+            //            gameOver = false // todo wie über states
+        }
 
     }
 

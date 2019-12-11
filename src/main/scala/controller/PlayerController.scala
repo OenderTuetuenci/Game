@@ -1,5 +1,7 @@
 package controller
 
+import java.util.{Timer, TimerTask}
+
 import model._
 
 import scala.util.control.Breaks.{break, breakable}
@@ -81,11 +83,21 @@ class PlayerController(gameController: GameController) {
         val boardController = gameController.boardController
 
         players = players.updated(isturn, players(isturn).move(sumDiceThrow))
+        println("sumDiceThrow = " + sumDiceThrow)
         // schauen ob über los gegangen
         if (players(isturn).position >= 40) {
             gameController.printFun(playerWentOverGoEvent(players(isturn)))
             players = players.updated(isturn, players(isturn).moveBack(40))
         }
+        ////////////MoveplayerAfterRollDice////////////////
+        val timer: Timer = new Timer()
+        timer.schedule(new TimerTask {
+            override def run(): Unit = {
+                gameController.movePlayerGui(gameController.fieldCoordsX(players(isturn).position), gameController.fieldCoordsY(players(isturn).position))
+                timer.cancel()
+            }
+        }, 0, 50)
+        ////////////////////////////////
         // neue position ausgeben
         gameController.printFun(playerMoveEvent(players(isturn)))
         // aktion fuer betretetenes feld ausloesen
