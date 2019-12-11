@@ -5,6 +5,8 @@ import java.util.{Timer, TimerTask}
 import Game.Monopoly.gameController
 import model._
 import scalafx.application.JFXApp.PrimaryStage
+import scalafx.scene.control.Label
+import scalafx.scene.layout.StackPane
 import util.{Observable, UndoManager}
 
 class GameController extends Observable {
@@ -21,6 +23,7 @@ class GameController extends Observable {
     var npcNames: Vector[String] = Vector[String]()
     var round = 1
     var answer = ""
+    var gameOver = false // todo wie über states
     //todo gui
     var currentStage = new PrimaryStage()
     var isturn = 0 // aktueller spieler
@@ -125,10 +128,11 @@ class GameController extends Observable {
     }
 
     def onStartGame() = {
-        val playerMoveTest = true
+        val playerMoveTest = false
         if (playerMoveTest) {
             notifyObservers(OpenGameWindowEvent())
             movePlayerTimerGui
+
         } else {
             notifyObservers(OpenGetPlayersDialogEvent(currentStage))
             GameStates.handle(getPlayersEvent(humanPlayers, npcPlayers))
@@ -137,6 +141,13 @@ class GameController extends Observable {
             notifyObservers(printEverythingEvent())
             notifyObservers(displayRollForPositionsEvent())
             GameStates.handle(rollForPositionsEvent())
+            do {
+                GameStates.handle(runRoundEvent())
+                GameStates.handle(checkGameOverEvent())
+            } while (!gameOver)
+            GameStates.handle(gameOverEvent())
+            // todo try} while(!GameStates.runState == GameStates.gameOverState))
+
             //            todo
             //             do runround while not checkgameover
             //             gameover
@@ -146,6 +157,7 @@ class GameController extends Observable {
     }
 
     def movePlayerTimerGui(): Unit = {
+        movePlayerGui(350, 350)
         val goXY = (350, 350)
         val jailXY = (-350, 350)
         val ParkFreeXY = (-350, -350)
@@ -174,7 +186,7 @@ class GameController extends Observable {
                 if (i == len) timer.cancel()
                 timer.purge()
             }
-        }, 3000, 500)
+        }, 1000, 500)
 
 
     }
@@ -185,6 +197,110 @@ class GameController extends Observable {
         playerImage.setTranslateX(x)
         playerImage.setTranslateY(y)
     }
+
+    def tryDrawOnGui(): Unit = {
+        val playerLabel = new Label("onstack\nPlayer\nLabel")
+        val stackpane = currentStage.scene().lookup("#stackpane").asInstanceOf[StackPane]
+        stackpane.getChildren().add(playerLabel)
+        //print(childs)
+        //        val testpane = currentStage.scene().lookup("#stackpane") match {
+        //            case e: StackPane => print(e.getChildren())
+        //            case e: Image => print("image")
+        //            case _ => print("null")
+        //        }
+        //print(testpane.getChildren())
+        //.add(new Text("onstack\nPlayer\nLabel"))
+        //testpane.getChildren().add(playerLabel)
+        // todo spieler erstellen nachdem sie namen und bild gewaehlt haben
+        //  HBox parent = new HBox();
+        //  for (int i = 0; i < N_COLS, i++) {
+        //    Node childNode = createNode();
+        //    childNode.setId("child" + i);
+        //    parent.getChildren().add(childNode);
+        //} add players on board in loop
+    }
+
+    object PlayerTurnStrategy extends Observable {
+
+        //todo var executePlayerTurn: Unit = { ???????????????????????
+        def executePlayerTurn = {
+            if (players(isturn).jailCount > -1) turnInJail else normalTurn
+
+        }
+
+        def normalTurn = {
+            notifyObservers(normalTurnEvent(players(isturn)))
+
+            players(isturn).strategy.execute("normalTurn") // todo zug für spieler oder npc
+
+            //maybe  PlayerIsHumanOrNpcStrategy.selectOption(playerController.checkHypothek)
+
+            //playerController.checkHypothek() // schauen ob haeuser im besitz hypotheken haben und bezahlen wenns geht
+
+            // init pasch
+            var pasch = true
+            var paschCount = 0
+            // wuerfeln
+            while (pasch) {
+                players(isturn).strategy.execute("rollDice") match {
+                    case (roll1: Int, roll2: Int, rolledPasch: Boolean) => {
+                        notifyObservers(diceEvent(roll1, roll2, rolledPasch))
+                        if (rolledPasch) paschCount += 1
+                        else pasch = false
+                        //3x pasch gleich jail sonst move player
+                        if (paschCount == 3) {
+                            players = players.updated(isturn, players(isturn).moveToJail)
+                            notifyObservers(playerMoveToJail(players(isturn)))
+                        } else players = playerController.movePlayer(roll1 + roll2)
+                    }
+                }
+            }
+        }
+
+        def turnInJail = {
+            notifyObservers(playerInJailEvent(players(isturn)))
+            players(isturn).strategy.execute("turnInJail") match {
+                case (option: String) => {
+                    // ...frei kaufen...
+                    if (option == "buyOut") {
+                        players = players.updated(isturn, players(isturn).decMoney(200))
+                        //playerController.checkDept(-1) // owner = bank
+                        players = players.updated(isturn, players(isturn).resetJailCount)
+                        notifyObservers(playerIsFreeEvent(players(isturn)))
+                        normalTurn // frei -> normalen zug ausfuehren
+                    }
+                    // ...die freikarte benutzen....
+                    if (option == "useCard") {
+                        notifyObservers(playerIsFreeEvent(players(isturn)))
+                        normalTurn // frei -> normalen zug ausfuehren
+                    }
+                    // ...oder pasch wuerfeln.
+                    if (option == "rollDice") {
+                        players(isturn).strategy.execute("rolldice")
+                        val throwDices = playerController.wuerfeln
+                        if (throwDices._3) {
+                            // bei gewuerfelten pasch kommt man raus und moved
+                            players = players.updated(isturn, players(isturn).resetJailCount)
+                            notifyObservers(playerIsFreeEvent(players(isturn)))
+                            playerController.movePlayer(throwDices._1 + throwDices._2)
+                        } else {
+                            //sonst jailcount +1
+                            players = players.updated(isturn, players(isturn).incJailTime)
+                            // wenn man 3 runden im jail ist kommt man raus, zahlt und moved
+                            if (players(isturn).jailCount == 3) {
+                                players = players.updated(isturn, players(isturn).resetJailCount)
+                                players = players.updated(isturn, players(isturn).decMoney(200))
+                                //playerController.checkDept(-1) // owner is bank
+                                notifyObservers(playerIsFreeEvent(players(isturn)))
+                                playerController.movePlayer(throwDices._1 + throwDices._2)
+                            } else notifyObservers(playerRemainsInJailEvent(players(isturn)))
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 
     object GameStates {
 
@@ -218,12 +334,11 @@ class GameController extends Observable {
             for (i <- 0 until playerCount) {
                 // jeden einmal wuerfeln lassen
                 isturn = i
-                players(isturn).strategy.execute("rollDice") match {
+                players(isturn).strategy.execute("rollForPosition") match {
                     case (roll1: Int, roll2: Int, pasch: Boolean) => println(roll1, roll2, pasch)
                         //ergebnis speichern für jeden spieler
                         players = players.updated(i, players(i).setRollForPosition(roll1 + roll2))
                 }
-
             }
             //nach reihenfolge sortieren
             players = players.sortBy(-_.rollForPosition) // - für reversed
@@ -298,25 +413,35 @@ class GameController extends Observable {
             println("createboardandplayersState")
             players = playerController.createPlayers(e.playerNames, e.npcNames)
             board = boardController.createBoard
+            //todo notifyObservers(e: GuiPutPlayersOnTheBoardEvent)
+            //todo movePlayerGui(350,350)
+
+            //todo
+            // notifyObservers(askUndoGetPlayersEvent())
+            //      if (answer == "yes") {
+            //        undoManager.undoStep
+            //      }
         }
 
-
-        //      notifyObservers(askUndoGetPlayersEvent())
-        //      if (answer == "yes") {
-        //        undoManager.undoStep
-        //      }
-
-
         def runRoundState: Unit = {
-            println("runround")
-
-            //notifyObservers(newRoundEvent(round))
-            //runRound
-            //notifyObservers(printEverythingEvent())
-            //notifyObservers(endRoundEvent(round))
+            println("runroundstate")
+            // Todo handeln, strassen verkaufen,hypothek bezahlen etc vor dem wuerfeln
+            // Todo und nach dem wuerfeln falls er nicht pleite ist
+            // todo if player has money raus und einfach so rbüer
+            notifyObservers(newRoundEvent(round))
+            for (i <- 0 until playerCount) {
+                isturn = i
+                PlayerTurnStrategy.executePlayerTurn // zug ausfuehren
+            }
+            // Rundenende
+            round += 1
+            notifyObservers(endRoundEvent(round))
+            notifyObservers(printEverythingEvent())
         }
 
         def checkGameOverState = {
+            if (round == 5) gameOver = true
+            // todo try if (round == 5) runState = gameOverState
             //if (checkGameOver())
             //handle(gameOverEvent())
         }

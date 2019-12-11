@@ -35,8 +35,10 @@ class Tui(controller: GameController) extends Observer {
             case e: OpenGetPlayersDialogEvent => getPlayersDialog(e)
             case e: OpenGetNameDialogEvent => getPlayerNameDialog(e)
             case e: OpenRollDiceDialogEvent => rollDiceDialog(e)
+            case e: OpenRollForPosDialogEvent => rollForPosDialog(e)
             case e: OpenInformationDialogEvent => informationDialog(e)
             case e: OpenConfirmationDialogEvent => confirmationDialog(e)
+            case e: OpenInJailDialogEvent => inJailDialog(e)
 
 
             //Input
@@ -232,7 +234,10 @@ class Tui(controller: GameController) extends Observer {
         string
     }
 
-    def getEndRoundString(e: endRoundEvent): String = "\n\n\nround " + e.round + " ends"
+    def getEndRoundString(e: endRoundEvent): String = {
+        println("\n\n\nround " + e.round + " ends")
+        "\n\n\nround " + e.round + " ends"
+    }
 
     def getNewRoundString(e: newRoundEvent): String = "\n\nround " + e.round + " starts"
 
@@ -456,10 +461,19 @@ class Tui(controller: GameController) extends Observer {
         }
     }
 
-    def rollDiceDialog(e: OpenRollDiceDialogEvent): Unit = {
+    def rollForPosDialog(e: OpenRollForPosDialogEvent): Unit = {
         new Alert(AlertType.Information) {
             initOwner(e.stage)
             title = "Roll for starting positions"
+            headerText = "Player " + e.player.name
+            contentText = "Roll dices!"
+        }.showAndWait()
+    }
+
+    def rollDiceDialog(e: OpenRollDiceDialogEvent): Unit = {
+        new Alert(AlertType.Information) {
+            initOwner(e.stage)
+            title = "Roll dice"
             headerText = "Player " + e.player.name
             contentText = "Roll dices!"
         }.showAndWait()
@@ -528,6 +542,24 @@ class Tui(controller: GameController) extends Observer {
             case _ => "Cancel"
         }
     }
+
+    def inJailDialog(e: OpenInJailDialogEvent): Unit = {
+        // todo
+        val alert = new Alert(AlertType.Confirmation) {
+            initOwner(e.stage)
+            title = "Confirmation Dialog"
+            headerText = "Look, a Confirmation Dialog."
+            contentText = "Do you want to quit?"
+        }
+
+        val result = alert.showAndWait()
+
+        result match {
+            case Some(ButtonType.OK) => System.exit(0)
+            case _ => "Cancel"
+        }
+    }
+
 
 }
 

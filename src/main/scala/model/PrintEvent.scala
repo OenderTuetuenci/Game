@@ -84,8 +84,12 @@ case class OpenGetPlayersDialogEvent(stage: PrimaryStage) extends PrintEvent
 
 case class OpenGetNameDialogEvent(stage: PrimaryStage, currPlayer: Int) extends PrintEvent
 
+case class OpenRollForPosDialogEvent(stage: PrimaryStage, player: Player) extends PrintEvent
+
 case class OpenRollDiceDialogEvent(stage: PrimaryStage, player: Player) extends PrintEvent
 
 case class OpenInformationDialogEvent(stage: PrimaryStage) extends PrintEvent
 
 case class OpenConfirmationDialogEvent(stage: PrimaryStage) extends PrintEvent
+
+case class OpenInJailDialogEvent(stage: PrimaryStage) extends PrintEvent
