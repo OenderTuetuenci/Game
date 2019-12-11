@@ -96,7 +96,7 @@ class PlayerController(gameController: GameController) {
                 gameController.movePlayerGui(gameController.fieldCoordsX(players(isturn).position), gameController.fieldCoordsY(players(isturn).position))
                 timer.cancel()
             }
-        }, 0, 50)
+        }, 0, 1)
         ////////////////////////////////
         // neue position ausgeben
         gameController.printFun(playerMoveEvent(players(isturn)))
