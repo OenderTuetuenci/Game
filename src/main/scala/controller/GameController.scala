@@ -470,6 +470,15 @@ class GameController extends Observable {
             gameOver = false // todo wie über states
             //notifyObservers(printEverythingEvent())
             //notifyObservers(gameFinishedEvent(players(gameOver._2)))
+
+            ////////////Try Add label to stackpane ////////////////
+
+            val playerLabel = new Label("onstack\nPlayer\nLabel")
+            val stackpane = currentStage.scene().lookup("#stackpane").asInstanceOf[StackPane]
+            stackpane.getChildren().add(playerLabel)
+
+
+            ////////////////////////////////
         }
 
         def initGameState = {
