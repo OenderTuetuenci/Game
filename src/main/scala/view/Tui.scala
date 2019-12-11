@@ -273,7 +273,7 @@ class Tui(controller: GameController) extends Observer {
     }
 
     // windows
-
+    // todo mainwindow als menubar von gamewindow dann kann man auch spiele neustarten ohne das programm neu zu starten
     def mainWindow(e: OpenMainWindowEvent) = {
         controller.currentStage = new PrimaryStage {
             title = "Monopoly SE"
@@ -559,8 +559,6 @@ class Tui(controller: GameController) extends Observer {
             case _ => "Cancel"
         }
     }
-
-
 }
 
 

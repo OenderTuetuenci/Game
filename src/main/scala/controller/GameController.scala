@@ -430,8 +430,11 @@ class GameController extends Observable {
             // todo if player has money raus und einfach so rbüer
             notifyObservers(newRoundEvent(round))
             for (i <- 0 until playerCount) {
+                //todo before turn trade or so by pressing buttons -> players(isturn).strategy.execute(onbutton)
+
                 isturn = i
                 PlayerTurnStrategy.executePlayerTurn // zug ausfuehren
+                //todo end turn by pressing endturnbutton -> players(isturn).strategy.execute(endturn)
             }
             // Rundenende
             round += 1
