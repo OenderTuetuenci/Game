@@ -3,19 +3,43 @@ package controller
 import java.util.{Timer, TimerTask}
 
 import model._
+import scalafx.scene.image.{Image, ImageView}
 
 import scala.util.control.Breaks.{break, breakable}
 
 class PlayerController(gameController: GameController) {
+    def setPlayerImage(imgPath: String) = {
+        val imgView = new ImageView(new Image(imgPath,
+            100,
+            100,
+            true,
+            true))
+        imgView.setId("player" + gameController.isturn)
+        gameController.players(gameController.isturn).setFigure(imgView)
+
+    }
+
     def createPlayers(playerNames: Vector[String], npcNames: Vector[String]): Vector[Player] = {
         var players: Vector[Player] = Vector()
         for (name <- playerNames) {
+            val imgView = new ImageView(new Image(gameController.playerFigures(gameController.isturn),
+                100,
+                100,
+                true,
+                true))
+            imgView.setId("player" + gameController.isturn)
             gameController.playerCount += 1
-            players = players :+ Player(name, strategy = HumanStrategy(gameController))
+            players = players :+ Player(name, strategy = HumanStrategy(gameController), figure = imgView)
         }
         for (name <- npcNames) {
             gameController.playerCount += 1
-            players = players :+ Player(name, strategy = NPCStrategy(gameController), isNpc = true)
+            val imgView = new ImageView(new Image("file:images/Hat.jpg",
+                100,
+                100,
+                true,
+                true))
+            imgView.setId("player" + gameController.isturn)
+            players = players :+ Player(name, strategy = NPCStrategy(gameController), figure = imgView)
         }
         players
     }
@@ -93,7 +117,10 @@ class PlayerController(gameController: GameController) {
         val timer: Timer = new Timer()
         timer.schedule(new TimerTask {
             override def run(): Unit = {
-                gameController.movePlayerGui(gameController.fieldCoordsX(players(isturn).position), gameController.fieldCoordsY(players(isturn).position))
+                gameController.movePlayerGui(
+                    gameController.players(isturn).figure,
+                    gameController.fieldCoordsX(players(isturn).position),
+                    gameController.fieldCoordsY(players(isturn).position))
                 timer.cancel()
             }
         }, 0, 1)

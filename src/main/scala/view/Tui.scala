@@ -307,21 +307,7 @@ class Tui(controller: GameController) extends Observer {
                     padding = Insets(10)
                     val pane = new StackPane()
                     pane.setId("stackpane")
-
-
-                    val boardImage = new ImageView(new Image("file:images/board.jpg",
-                        800,
-                        800,
-                        true,
-                        true))
-                    val playerImage = new ImageView(new Image("file:images/Hat.jpg",
-                        50,
-                        50,
-                        true,
-                        true))
-                    playerImage.setId("playerimage")
-
-
+                    val boardImage = new ImageView(new Image("file:images/board.jpg", 800, 800, true, true))
                     new VBox(
                         new Text {
                             text = "Monopoly"
@@ -334,7 +320,7 @@ class Tui(controller: GameController) extends Observer {
                         button("Information", controller.onInformation),
                     )
 
-                    pane.children = List(boardImage, playerImage)
+                    pane.children = List(boardImage)
                     children = pane
                 }
             }
@@ -365,6 +351,7 @@ class Tui(controller: GameController) extends Observer {
         val tfNpcCount = new TextField() {
             promptText = "npcCount"
         }
+
         val grid = new GridPane() {
             hgap = 10
             vgap = 10
@@ -402,9 +389,9 @@ class Tui(controller: GameController) extends Observer {
     }
 
 
-    def getPlayerNameDialog(e: OpenGetNameDialogEvent): String = {
-
-        case class Result(playerName: String)
+    def getPlayerNameDialog(e: OpenGetNameDialogEvent) = {
+        //todo liste der spielfiguren die noch nicht gepickt wurden
+        case class Result(playerName: String, figure: String)
 
         // Create the custom dialog.
         val dialog = new Dialog[Result]() {
@@ -414,23 +401,36 @@ class Tui(controller: GameController) extends Observer {
             //graphic = new ImageView(this.getClass.getResource("login_icon.png").toString)
         }
 
-        // Set the button types.
         val startButtonType = new ButtonType("Start", ButtonData.OKDone)
         dialog.dialogPane().buttonTypes = Seq(startButtonType, ButtonType.Cancel)
 
-        // Create the username and password labels and fields.
         val tfPlayerName = new TextField() {
             promptText = "Enter name"
         }
-
+        val comboBox = new ComboBox[String]()
+        comboBox.getItems().addAll(
+            "Fingerhut",
+            "Schubkarre",
+            "Schuh",
+            "Hund",
+            "Auto",
+            "Bügeleisen",
+            "Hut",
+            "Schiff"
+        ) // todo list und immer 1 weg
+        val image = new ImageView(new Image("file:images/Hat.jpg",
+            200,
+            200,
+            true,
+            true))
         val grid = new GridPane() {
             hgap = 10
             vgap = 10
             padding = Insets(20, 100, 10, 10)
-
-            add(new Label("Name:"), 0, 0)
-            add(tfPlayerName, 1, 0)
-
+            add(new Label("Name:"), 1, 0)
+            add(tfPlayerName, 2, 0)
+            add(image, 3, 0)
+            add(comboBox, 4, 0)
         }
 
         // Enable/Disable login button depending on whether a username was entered.
@@ -447,15 +447,26 @@ class Tui(controller: GameController) extends Observer {
 
         // Convert the result to a username-password-pair when the login button is clicked.
         dialog.resultConverter = dialogButton =>
-            if (dialogButton == startButtonType) Result(tfPlayerName.text())
+            if (dialogButton == startButtonType) Result(tfPlayerName.text(), comboBox.getSelectionModel.getSelectedItem.toString)
             else null
 
         val result = dialog.showAndWait()
 
         result match {
-            case Some(Result(n)) => {
-                controller.playerNames = controller.playerNames :+ n
-                n
+            case Some(Result(name, figure)) => {
+                controller.playerNames = controller.playerNames :+ name
+                var imgPath = ""
+                figure match {
+                    case "Fingerhut" => imgPath = "file:images/Hat.jpg"
+                    case "Schubkarre" => imgPath = "file:images/Hat.jpg"
+                    case "Schuh" => imgPath = "file:images/Hat.jpg"
+                    case "Hund" => imgPath = "file:images/Hat.jpg"
+                    case "Auto" => imgPath = "file:images/Hat.jpg"
+                    case "Bügeleisen" => imgPath = "file:images/Hat.jpg"
+                    case "Fingerhut" => imgPath = "file:images/Hat.jpg"
+                    case "Schiff" => imgPath = "file:images/Hat.jpg"
+                }
+                controller.playerFigures = controller.playerFigures :+ imgPath
             }
             case None => "Dialog returned: None"
         }

@@ -1,9 +1,10 @@
 package model
 
 import controller.HumanOrNpcStrategy
+import scalafx.scene.image.ImageView
 
 case class Player(name: String, position: Int = 0, money: Int = 10000, jailCount: Int = -1,
-                  ownedStreet: Vector[Int] = Vector[Int](), turnPosition: Int = 0, rollForPosition: Int = 0, strategy: HumanOrNpcStrategy, isNpc: Boolean = false) {
+                  ownedStreet: Vector[Int] = Vector[Int](), turnPosition: Int = 0, rollForPosition: Int = 0, strategy: HumanOrNpcStrategy, figure: ImageView) {
     override def toString: String = {
         "name: " + this.name + " pos: " + this.position + " money: " + this.money + " roundsInJail: " + this.jailCount + " ownedStreets: " + this.ownedStreet.mkString(",") + " rollForPosition: " + this.rollForPosition + " turnPosition: " + this.turnPosition
     }
@@ -31,5 +32,7 @@ case class Player(name: String, position: Int = 0, money: Int = 10000, jailCount
     def setRollForPosition(x: Int): Player = this.copy(rollForPosition = x)
 
     def setTurnPosition(x: Int): Player = this.copy(turnPosition = x)
+
+    def setFigure(imgView: ImageView): Player = this.copy(figure = imgView)
 
 }
