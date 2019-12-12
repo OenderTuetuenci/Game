@@ -18,7 +18,7 @@ import view.Tui
 import scalafx.application.JFXApp
 
 import scala.language.implicitConversions
-
+//todo callbacks https://github.com/japgolly/scalajs-react/blob/master/doc/CALLBACK.md
 // todo menubar http://sjgpsoft.blogspot.com/2016/02/scalafx-menu-basics.html
 // todo sbt -> run ....https://github.com/scalafx/scalafx-hello-world/tree/SFX-8
 //todo dialogs: https://github.com/scalafx/scalafx/blob/master/scalafx-demos/src/main/scala/scalafx/controls/DialogsDemo.scala
