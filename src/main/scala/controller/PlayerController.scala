@@ -8,37 +8,48 @@ import scalafx.scene.image.{Image, ImageView}
 import scala.util.control.Breaks.{break, breakable}
 
 class PlayerController(gameController: GameController) {
-    def setPlayerImage(imgPath: String) = {
-        val imgView = new ImageView(new Image(imgPath,
-            100,
-            100,
-            true,
-            true))
-        imgView.setId("player" + gameController.isturn)
-        gameController.players(gameController.isturn).setFigure(imgView)
 
-    }
+     def createPlayers(playerNames: Vector[String], npcNames: Vector[String]): Vector[Player] = {
+         var players: Vector[Player] = Vector()
+         gameController.isturn = 0
+         for (name <- playerNames) {
+             val imgView = new ImageView(new Image(gameController.playerFigures(gameController.isturn),
+                 50,
+                 50,
+                 true,
+                 true))
+             imgView.setId("player" + gameController.isturn)
+             gameController.playerCount += 1
+             players = players :+ Player(name, strategy = HumanStrategy(gameController), figure = imgView)
+             gameController.isturn += 1
 
-    def createPlayers(playerNames: Vector[String], npcNames: Vector[String]): Vector[Player] = {
-        var players: Vector[Player] = Vector()
-        for (name <- playerNames) {
-            val imgView = new ImageView(new Image(gameController.playerFigures(gameController.isturn),
-                100,
-                100,
-                true,
-                true))
-            imgView.setId("player" + gameController.isturn)
-            gameController.playerCount += 1
-            players = players :+ Player(name, strategy = HumanStrategy(gameController), figure = imgView)
-        }
+         }
         for (name <- npcNames) {
             gameController.playerCount += 1
-            val imgView = new ImageView(new Image("file:images/Hat.jpg",
+            ///////////////
+            // 1. verfügbare figur nehmen
+            var figure = gameController.remainingFiguresToPick(0)
+            var imgPath = ""
+            figure match {
+                case "Hut" => imgPath = "file:images/Hut.jpg"
+                case "Fingerhut" => imgPath = "file:images/Fingerhut.jpg"
+                case "Schubkarre" => imgPath = "file:images/Schubkarre.jpg"
+                case "Schuh" => imgPath = "file:images/Schuh.jpg"
+                case "Hund" => imgPath = "file:images/Hund.jpg"
+                case "Auto" => imgPath = "file:images/Auto.jpg"
+                case "Bügeleisen" => imgPath = "file:images/Buegeleisen.jpg"
+                case "Fingerhut" => imgPath = "file:images/Fingerhut.jpg"
+                case "Schiff" => imgPath = "file:images/Schiff.jpg"
+            }
+            // ausgewählte figur aus der auswahl nehmen
+            gameController.remainingFiguresToPick = gameController.remainingFiguresToPick.filterNot(elm => elm == figure)
+            /////////////////////////////
+            val imgView = new ImageView(new Image(imgPath,
                 100,
                 100,
                 true,
                 true))
-            imgView.setId("player" + gameController.isturn)
+            imgView.setId("player" + gameController.isturn) // todo id wird noch nicht benötigt
             players = players :+ Player(name, strategy = NPCStrategy(gameController), figure = imgView)
         }
         players

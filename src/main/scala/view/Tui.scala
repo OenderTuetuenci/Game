@@ -291,14 +291,39 @@ class Tui(controller: GameController) extends Observer {
                         },
                         button("Start game", controller.onStartGame),
                         button("Information", controller.onInformation),
-                        button("Quit", controller.onQuit),
+                        button("Quit", controller.onQuit)
                     )
                 }
+                }
+
             }
         }
-    }
+
 
     def gameWindow(e: OpenGameWindowEvent) = {
+        val menubar = new MenuBar {
+            menus = List(
+                new Menu("File") {
+                    items = List(
+                        new MenuItem("New..."),
+                        new MenuItem("Save")
+                    )
+                },
+                new Menu("Edit") {
+                    items = List(
+                        new MenuItem("Cut"),
+                        new MenuItem("Copy"),
+                        new MenuItem("Paste")
+                    )
+                },
+                new Menu("Help") {
+                    items = List(
+                        new MenuItem("About")
+                    )
+                }
+            )
+        }
+        menubar.setId("menubar")
         controller.currentStage = new PrimaryStage {
             title = "Monopoly SE"
             scene = new Scene(1100, 800) {
@@ -321,10 +346,20 @@ class Tui(controller: GameController) extends Observer {
                     )
 
                     pane.children = List(boardImage)
-                    children = pane
+                    children = Seq(menubar, pane)
                 }
             }
+
         }
+        import javafx.stage.Screen
+
+        val screen: Screen = Screen.getPrimary
+        val bounds = screen.getVisualBounds
+
+        controller.currentStage.setX(bounds.getMinX)
+        controller.currentStage.setY(bounds.getMinY)
+        controller.currentStage.setWidth(bounds.getWidth)
+        controller.currentStage.setHeight(bounds.getHeight)
     }
 
 
@@ -336,7 +371,7 @@ class Tui(controller: GameController) extends Observer {
 
         // create dialog
         val dialog = new Dialog[Result]() {
-            initOwner(e.stage)
+            //initOwner(e.stage)
             title = "Start Game"
             headerText = "How many players and npc"
             //graphic = new ImageView(this.getClass.getResource("login_icon.png").toString)
@@ -364,10 +399,9 @@ class Tui(controller: GameController) extends Observer {
         }
         // Enable/Disable button depending on whether a username was entered.
         val startButton = dialog.dialogPane().lookupButton(startButtonType)
-        startButton.disable = true
-        // Do some validation (disable when username is empty).
-        tfPlayerCount.text.onChange { (_, _, newValue) => startButton.disable = newValue.trim().isEmpty }
-        tfNpcCount.text.onChange { (_, _, newValue) => startButton.disable = newValue.trim().isEmpty }
+        //startButton.disable = true
+        // todo validation players + npc <= 8
+        // tfPlayerCount.text.onChange { (_, _, newValue) => startButton.disable = tfPlayerCount.text().toInt + tfNpcCount.text().toInt <= 8 && newValue.trim().isEmpty}
         dialog.dialogPane().content = grid
         // Request focus on the username field by default.
         Platform.runLater(tfPlayerCount.requestFocus())
@@ -395,42 +429,66 @@ class Tui(controller: GameController) extends Observer {
 
         // Create the custom dialog.
         val dialog = new Dialog[Result]() {
-            initOwner(e.stage)
             title = "Enter Player names:"
             headerText = "Player " + e.currPlayer + " enter name"
             //graphic = new ImageView(this.getClass.getResource("login_icon.png").toString)
         }
-
+        dialog.getDialogPane.setPrefSize(600, 500)
         val startButtonType = new ButtonType("Start", ButtonData.OKDone)
         dialog.dialogPane().buttonTypes = Seq(startButtonType, ButtonType.Cancel)
 
         val tfPlayerName = new TextField() {
             promptText = "Enter name"
         }
+
         val comboBox = new ComboBox[String]()
-        comboBox.getItems().addAll(
-            "Fingerhut",
-            "Schubkarre",
-            "Schuh",
-            "Hund",
-            "Auto",
-            "Bügeleisen",
-            "Hut",
-            "Schiff"
-        ) // todo list und immer 1 weg
-        val image = new ImageView(new Image("file:images/Hat.jpg",
+
+        comboBox.getItems().addAll(controller.remainingFiguresToPick) // bilder hinzufuegen
+        comboBox.getSelectionModel.select(0) // das 1. element vorher schon auswählen
+        val initImg = comboBox.getSelectionModel.getSelectedItem.toString match {
+            case "Hut" => "file:images/Hat.jpg"
+            case "Fingerhut" => "file:images/Fingerhut.jpg"
+            case "Schubkarre" => "file:images/Schubkarre.jpg"
+            case "Schuh" => "file:images/Schuh.jpg"
+            case "Hund" => "file:images/Hund.jpg"
+            case "Auto" => "file:images/Auto.jpg"
+            case "Bügeleisen" => "file:images/Buegeleisen.jpg"
+            case "Fingerhut" => "file:images/Fingerhut.jpg"
+            case "Schiff" => "file:images/Schiff.jpg"
+        }
+        val image = new ImageView(new Image(initImg,
             200,
             200,
             true,
             true))
+        comboBox.value.onChange {
+            val imgPath = comboBox.getSelectionModel.getSelectedItem.toString match {
+                case "Hut" => "file:images/Hat.jpg"
+                case "Fingerhut" => "file:images/Fingerhut.jpg"
+                case "Schubkarre" => "file:images/Schubkarre.jpg"
+                case "Schuh" => "file:images/Schuh.jpg"
+                case "Hund" => "file:images/Hund.jpg"
+                case "Auto" => "file:images/Auto.jpg"
+                case "Bügeleisen" => "file:images/Buegeleisen.jpg"
+                case "Fingerhut" => "file:images/Fingerhut.jpg"
+                case "Schiff" => "file:images/Schiff.jpg"
+            }
+            image.setImage(new Image(imgPath,
+                200,
+                200,
+                true,
+                true))
+        }
+        comboBox.value.onChange()
+
         val grid = new GridPane() {
             hgap = 10
             vgap = 10
             padding = Insets(20, 100, 10, 10)
             add(new Label("Name:"), 1, 0)
-            add(tfPlayerName, 2, 0)
-            add(image, 3, 0)
-            add(comboBox, 4, 0)
+            add(tfPlayerName, 1, 1)
+            add(image, 2, 0)
+            add(comboBox, 1, 2)
         }
 
         // Enable/Disable login button depending on whether a username was entered.
@@ -457,15 +515,18 @@ class Tui(controller: GameController) extends Observer {
                 controller.playerNames = controller.playerNames :+ name
                 var imgPath = ""
                 figure match {
-                    case "Fingerhut" => imgPath = "file:images/Hat.jpg"
-                    case "Schubkarre" => imgPath = "file:images/Hat.jpg"
-                    case "Schuh" => imgPath = "file:images/Hat.jpg"
-                    case "Hund" => imgPath = "file:images/Hat.jpg"
-                    case "Auto" => imgPath = "file:images/Hat.jpg"
-                    case "Bügeleisen" => imgPath = "file:images/Hat.jpg"
-                    case "Fingerhut" => imgPath = "file:images/Hat.jpg"
-                    case "Schiff" => imgPath = "file:images/Hat.jpg"
+                    case "Hut" => imgPath = "file:images/Hat.jpg"
+                    case "Fingerhut" => imgPath = "file:images/Fingerhut.jpg"
+                    case "Schubkarre" => imgPath = "file:images/Schubkarre.jpg"
+                    case "Schuh" => imgPath = "file:images/Schuh.jpg"
+                    case "Hund" => imgPath = "file:images/Hund.jpg"
+                    case "Auto" => imgPath = "file:images/Auto.jpg"
+                    case "Bügeleisen" => imgPath = "file:images/Buegeleisen.jpg"
+                    case "Fingerhut" => imgPath = "file:images/Fingerhut.jpg"
+                    case "Schiff" => imgPath = "file:images/Schiff.jpg"
                 }
+                // ausgewählte figur aus der auswahl nehmen
+                controller.remainingFiguresToPick = controller.remainingFiguresToPick.filterNot(elm => elm == figure)
                 controller.playerFigures = controller.playerFigures :+ imgPath
             }
             case None => "Dialog returned: None"

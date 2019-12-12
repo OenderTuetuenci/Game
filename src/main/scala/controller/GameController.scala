@@ -20,6 +20,15 @@ class GameController extends Observable {
     var board: Vector[Cell] = Vector[Cell]()
     var players: Vector[Player] = Vector[Player]()
     var playerNames: Vector[String] = Vector[String]()
+    var remainingFiguresToPick = List[String]("Fingerhut",
+        "Hut",
+        "Schubkarre",
+        "Schuh",
+        "Hund",
+        "Auto",
+        "Bügeleisen",
+        "Schiff"
+    )
     var playerFigures: Vector[String] = Vector[String]()
     var npcNames: Vector[String] = Vector[String]()
     var round = 1
@@ -423,17 +432,20 @@ class GameController extends Observable {
             board = boardController.createBoard
             val stackpane = currentStage.scene().lookup("#stackpane").asInstanceOf[javafx.scene.layout.StackPane]
             val timer: Timer = new Timer()
-            while (stackpane == null) {
-                print("yo")
-            }
+            print("yo")
+            isturn = 0
             for (i <- 0 until playerCount) {
                 stackpane.getChildren().add(players(i).figure)
-                timer.schedule(new TimerTask {
-                    override def run(): Unit = {
-                        movePlayerGui(players(isturn).figure, 350, 350)
-                        timer.cancel()
-                    }
-                }, 1, 100)
+                movePlayerGui(players(isturn).figure, 350, 350)
+                isturn += 1
+
+
+                //                timer.schedule(new TimerTask {
+                //                    override def run(): Unit = {
+                //                        movePlayerGui(players(isturn).figure, 350, 350)
+                //                        timer.cancel()
+                //                    }
+                //                }, 1000, 100)
             }
             //todo notifyObservers(e: GuiPutPlayersOnTheBoardEvent)
         }
