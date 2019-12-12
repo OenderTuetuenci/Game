@@ -14,7 +14,7 @@ import view.Tui
 //}
 //
 //// todo if player.gameover -> remove player
-
+// todo currentPlayer = players(isturn)
 import scalafx.application.JFXApp
 
 import scala.language.implicitConversions

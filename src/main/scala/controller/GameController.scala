@@ -4,9 +4,7 @@ import java.util.{Timer, TimerTask}
 
 import model._
 import scalafx.application.JFXApp.PrimaryStage
-import scalafx.scene.control.Label
 import scalafx.scene.image.{Image, ImageView}
-import scalafx.scene.layout.StackPane
 import util.{Observable, UndoManager}
 
 class GameController extends Observable {
@@ -154,32 +152,24 @@ class GameController extends Observable {
     }
 
     def onStartGame() = {
-        val playerMoveTest = false
-        if (playerMoveTest) {
-            notifyObservers(OpenGameWindowEvent())
-            movePlayerTimerGui
-
-        } else {
-            notifyObservers(OpenGameWindowEvent())
-            notifyObservers(OpenGetPlayersDialogEvent(currentStage))
-            GameStates.handle(getPlayersEvent(humanPlayers, npcPlayers))
-            GameStates.handle(createBoardAndPlayersEvent(playerNames, npcNames))
-            notifyObservers(printEverythingEvent())
-            notifyObservers(displayRollForPositionsEvent())
-            GameStates.handle(rollForPositionsEvent())
-            do {
-                GameStates.handle(runRoundEvent())
-                GameStates.handle(checkGameOverEvent())
-            } while (!gameOver)
-            GameStates.handle(gameOverEvent())
-            //GameStates.handle(InitGameEvent())
-            notifyObservers(OpenMainWindowEvent())
+        notifyObservers(OpenGetPlayersDialogEvent(currentStage))
+        GameStates.handle(getPlayersEvent(humanPlayers, npcPlayers))
+        GameStates.handle(createBoardAndPlayersEvent(playerNames, npcNames))
+        notifyObservers(printEverythingEvent())
+        notifyObservers(displayRollForPositionsEvent())
+        GameStates.handle(rollForPositionsEvent())
+        do {
+            GameStates.handle(runRoundEvent())
+            GameStates.handle(checkGameOverEvent())
+        } while (!gameOver)
+        GameStates.handle(gameOverEvent())
+        //GameStates.handle(InitGameEvent())
 
             // todo try} while(!GameStates.runState == GameStates.gameOverState))
         }
 
 
-    }
+
 
     def movePlayerTimerGui(): Unit = {
         val len = fieldCoordsX.length
@@ -206,28 +196,6 @@ class GameController extends Observable {
         playerFigure.setTranslateX(x)
         playerFigure.setTranslateY(y)
 
-    }
-
-    def tryDrawOnGui(): Unit = {
-        val playerLabel = new Label("onstack\nPlayer\nLabel")
-        val stackpane = currentStage.scene().lookup("#stackpane").asInstanceOf[StackPane]
-        stackpane.children
-        //print(childs)
-        //        val testpane = currentStage.scene().lookup("#stackpane") match {
-        //            case e: StackPane => print(e.getChildren())
-        //            case e: Image => print("image")
-        //            case _ => print("null")
-        //        }
-        //print(testpane.getChildren())
-        //.add(new Text("onstack\nPlayer\nLabel"))
-        //testpane.getChildren().add(playerLabel)
-        // todo spieler erstellen nachdem sie namen und bild gewaehlt haben
-        //  HBox parent = new HBox();
-        //  for (int i = 0; i < N_COLS, i++) {
-        //    Node childNode = createNode();
-        //    childNode.setId("child" + i);
-        //    parent.getChildren().add(childNode);
-        //} add players on board in loop
     }
 
     object PlayerTurnStrategy extends Observable {
@@ -477,32 +445,45 @@ class GameController extends Observable {
         }
 
         def gameOverState = {
+            notifyObservers(openGameOverDialogEvent())
+
             humanPlayers = 0
             npcPlayers = 0
             playerCount = 0
             board = Vector[Cell]()
             players = Vector[Player]()
             playerNames = Vector[String]()
+            remainingFiguresToPick = List[String]("Fingerhut",
+                "Hut",
+                "Schubkarre",
+                "Schuh",
+                "Hund",
+                "Auto",
+                "Bügeleisen",
+                "Schiff"
+            )
+            playerFigures = Vector[String]()
             npcNames = Vector[String]()
             round = 1
             answer = ""
             gameOver = false // todo wie über states
+            // delete everything on the board and board
+            val stackpane = currentStage.scene().lookup("#stackpane").asInstanceOf[javafx.scene.layout.StackPane]
+            stackpane.getChildren().removeAll()
+            // readd board
+            stackpane.getChildren().add(new ImageView(new Image("file:images/board.jpg", 800, 800, true, true))
+            )
             println("gameover")
+
+
+
+
             // todo nach dem game sollte eig wieder initstate sein dort sollte alles wieder
             // todo zurueck gesetzt werden aber bugt noch
 
             //notifyObservers(printEverythingEvent())
             //notifyObservers(gameFinishedEvent(players(gameOver._2)))
 
-            ////////////Try Add label to stackpane ////////////////
-
-            val hatFigureImage = new ImageView(new Image("file:images/Hat.jpg", 800, 800,
-                true,
-                true))
-            val stackpane = currentStage.scene().lookup("#stackpane").asInstanceOf[javafx.scene.layout.StackPane]
-            stackpane.getChildren().add(hatFigureImage)
-
-            ////////////////////////////////
         }
 
         def initGameState = {

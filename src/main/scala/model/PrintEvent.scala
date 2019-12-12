@@ -78,6 +78,8 @@ case class falseTestEvent() extends PrintEvent
 
 case class OpenMainWindowEvent() extends PrintEvent
 
+case class openGameOverDialogEvent() extends PrintEvent
+
 case class OpenGameWindowEvent() extends PrintEvent
 
 case class OpenGetPlayersDialogEvent(stage: PrimaryStage) extends PrintEvent

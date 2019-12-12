@@ -30,8 +30,9 @@ class Tui(controller: GameController) extends Observer {
         var string = ""
         e match {
             //GUI
+
+            case e: openGameOverDialogEvent => gameOverDialog(e)
             case e: OpenMainWindowEvent => mainWindow(e)
-            case e: OpenGameWindowEvent => gameWindow(e)
             case e: OpenGetPlayersDialogEvent => getPlayersDialog(e)
             case e: OpenGetNameDialogEvent => getPlayerNameDialog(e)
             case e: OpenRollDiceDialogEvent => rollDiceDialog(e)
@@ -272,53 +273,43 @@ class Tui(controller: GameController) extends Observer {
         padding = Insets(7)
     }
 
-    // windows
-    // todo mainwindow als menubar von gamewindow dann kann man auch spiele neustarten ohne das programm neu zu starten
     def mainWindow(e: OpenMainWindowEvent) = {
-        controller.currentStage = new PrimaryStage {
-            title = "Monopoly SE"
-            scene = new Scene {
-                fill = Black
-                content = new VBox {
-                    padding = Insets(20)
-                    children = Seq(
-                        new Text {
-                            text = "Monopoly"
-                            style = "-fx-font-size: 48pt"
-                            fill = new LinearGradient(
-                                endX = 0,
-                                stops = Stops(PaleGreen, SeaGreen))
-                        },
-                        button("Start game", controller.onStartGame),
-                        button("Information", controller.onInformation),
-                        button("Quit", controller.onQuit)
-                    )
-                }
-                }
-
-            }
-        }
-
-
-    def gameWindow(e: OpenGameWindowEvent) = {
         val menubar = new MenuBar {
             menus = List(
-                new Menu("File") {
+                new Menu("Game") {
                     items = List(
-                        new MenuItem("New..."),
-                        new MenuItem("Save")
+                        new MenuItem {
+                            text = "Start new game"
+                            onAction = handle {
+                                controller.onStartGame()
+                            }
+                        }
                     )
                 },
-                new Menu("Edit") {
+                new Menu("Settings") {
                     items = List(
-                        new MenuItem("Cut"),
-                        new MenuItem("Copy"),
-                        new MenuItem("Paste")
+                        new MenuItem("Resolution"),
+                        new MenuItem("Etc"),
                     )
                 },
                 new Menu("Help") {
                     items = List(
-                        new MenuItem("About")
+                        new MenuItem {
+                            text = "About"
+                            onAction = handle {
+                                controller.onInformation()
+                            }
+                        }
+                    )
+                },
+                new Menu("Quit") {
+                    items = List(
+                        new MenuItem {
+                            text = "Quit"
+                            onAction = handle {
+                                controller.onQuit()
+                            }
+                        }
                     )
                 }
             )
@@ -328,7 +319,7 @@ class Tui(controller: GameController) extends Observer {
             title = "Monopoly SE"
             scene = new Scene(1100, 800) {
                 fill = Black
-                content = new HBox {
+                content = new HBox(menubar) {
                     padding = Insets(10)
                     val pane = new StackPane()
                     pane.setId("stackpane")
@@ -613,6 +604,16 @@ class Tui(controller: GameController) extends Observer {
             case Some(ButtonType.OK) => System.exit(0)
             case _ => "Cancel"
         }
+    }
+
+    def gameOverDialog(e: openGameOverDialogEvent): Unit = {
+        val alert = new Alert(AlertType.Confirmation) {
+            title = "Game Over"
+            headerText = "Winner is"
+            contentText = "todo winner"
+        }
+
+        alert.showAndWait()
     }
 
     def inJailDialog(e: OpenInJailDialogEvent): Unit = {
