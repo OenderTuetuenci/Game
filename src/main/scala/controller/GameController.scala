@@ -77,43 +77,6 @@ class GameController extends Observable {
         playerwithmoney == 1
     }
 
-    def runRound: Unit = {
-        for (i <- players.indices) {
-            isturn = i
-            if (players(isturn).money > 0) {
-                val roll = rollDice
-                if (roll._2)
-                    players = players.updated(i, players(i).moveToJail)
-                else {
-                    players = playerController.movePlayer(roll._1)
-                    val option = board(players(i).position).onPlayerEntered(i)
-                    players(isturn).strategy.execute(option)
-                }
-            }
-        }
-        round += 1
-    }
-
-    def rollDice: (Int, Boolean) = {
-        var jailtime = false
-        var paschcount = 0
-        var sum = 0
-        var rolls = 1
-        while (rolls != 0) {
-            val roll1 = dice.roll
-            val roll2 = dice.roll
-            sum += roll1 + roll2
-            if (dice.checkPash(roll1, roll2)) {
-                paschcount += 1
-                rolls += 1
-            }
-            rolls -= 1
-        }
-        if (paschcount >= 3)
-            jailtime = true
-        (sum, jailtime)
-    }
-
     def payRent: Unit = {
         val updated = playerController.payRent(board(players(isturn).position).asInstanceOf[Buyable])
         players = updated._2
