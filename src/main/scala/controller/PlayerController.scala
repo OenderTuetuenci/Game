@@ -1,7 +1,5 @@
 package controller
 
-import java.util.{Timer, TimerTask}
-
 import model._
 import scalafx.scene.image.{Image, ImageView}
 
@@ -127,16 +125,10 @@ class PlayerController(gameController: GameController) {
             players = players.updated(isturn, players(isturn).moveBack(40))
         }
         ////////////MoveplayerAfterRollDice////////////////
-        val timer: Timer = new Timer()
-        timer.schedule(new TimerTask {
-            override def run(): Unit = {
                 gameController.movePlayerGui(
                     gameController.players(isturn).figure,
                     gameController.fieldCoordsX(players(isturn).position),
                     gameController.fieldCoordsY(players(isturn).position))
-                timer.cancel()
-            }
-        }, 0, 1)
         ////////////////////////////////
         // neue position ausgeben
         gameController.printFun(playerMoveEvent(players(isturn)))

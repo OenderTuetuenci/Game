@@ -274,48 +274,48 @@ class Tui(controller: GameController) extends Observer {
     }
 
     def mainWindow(e: OpenMainWindowEvent) = {
-        val menubar = new MenuBar {
-            menus = List(
-                new Menu("Game") {
-                    items = List(
-                        new MenuItem {
-                            text = "Start new game"
-                            onAction = handle {
-                                controller.onStartGame()
-                            }
-                        }
-                    )
-                },
-                new Menu("Settings") {
-                    items = List(
-                        new MenuItem("Resolution"),
-                        new MenuItem("Etc"),
-                    )
-                },
-                new Menu("Help") {
-                    items = List(
-                        new MenuItem {
-                            text = "About"
-                            onAction = handle {
-                                controller.onInformation()
-                            }
-                        }
-                    )
-                },
-                new Menu("Quit") {
-                    items = List(
-                        new MenuItem {
-                            text = "Quit"
-                            onAction = handle {
-                                controller.onQuit()
-                            }
-                        }
-                    )
-                }
-            )
-        }
-        menubar.setId("menubar")
         controller.currentStage = new PrimaryStage {
+            val menubar = new MenuBar {
+                menus = List(
+                    new Menu("Game") {
+                        items = List(
+                            new MenuItem {
+                                text = "Start new game"
+                                onAction = handle {
+                                    controller.onStartGame()
+                                }
+                            }
+                        )
+                    },
+                    new Menu("Settings") {
+                        items = List(
+                            new MenuItem("Resolution"),
+                            new MenuItem("Etc"),
+                        )
+                    },
+                    new Menu("Help") {
+                        items = List(
+                            new MenuItem {
+                                text = "About"
+                                onAction = handle {
+                                    controller.onInformation()
+                                }
+                            }
+                        )
+                    },
+                    new Menu("Quit") {
+                        items = List(
+                            new MenuItem {
+                                text = "Quit"
+                                onAction = handle {
+                                    controller.onQuit()
+                                }
+                            }
+                        )
+                    }
+                )
+            }
+            menubar.setId("menubar")
             title = "Monopoly SE"
             scene = new Scene(1100, 800) {
                 fill = Black
@@ -356,7 +356,7 @@ class Tui(controller: GameController) extends Observer {
 
     // Dialogs
 
-    def getPlayersDialog(e: OpenGetPlayersDialogEvent): (String, String) = {
+    def getPlayersDialog(e: OpenGetPlayersDialogEvent) = {
 
         case class Result(playerCount: String, npcCount: String)
 
@@ -407,7 +407,6 @@ class Tui(controller: GameController) extends Observer {
             case Some(Result(p, npc)) => {
                 controller.humanPlayers = p.toInt
                 controller.npcPlayers = npc.toInt
-                (p, npc)
             }
             case None => ("Dialog returned", "None")
         }

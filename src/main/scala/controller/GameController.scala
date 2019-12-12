@@ -165,8 +165,8 @@ class GameController extends Observable {
         GameStates.handle(gameOverEvent())
         //GameStates.handle(InitGameEvent())
 
-            // todo try} while(!GameStates.runState == GameStates.gameOverState))
-        }
+        // todo try} while(!GameStates.runState == GameStates.gameOverState))
+    }
 
 
 
@@ -299,12 +299,12 @@ class GameController extends Observable {
 
         def getPlayersState(e: getPlayersEvent) = {
             // spieler mit namen einlesensr
-            for (i <- 0 until e.playerCount.toInt) {
+            for (i <- 0 until e.playerCount) {
                 isturn = i
                 println("Enter name player" + (isturn + 1) + ":")
                 notifyObservers(OpenGetNameDialogEvent(currentStage, (isturn + 1))) // adds player in tui/gui... dialog
             }
-            for (i <- 0 until e.npcCount.toInt) {
+            for (i <- 0 until e.npcCount) {
                 npcNames = npcNames :+ "NPC " + (i + 1)
             }
             //todo
