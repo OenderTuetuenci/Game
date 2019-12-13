@@ -39,6 +39,7 @@ class Gui(controller: GameController) extends Observer {
             case e: OpenConfirmationDialogEvent => confirmationDialog(e)
             case e: OpenInJailDialogEvent => inJailDialog(e)
             case e: MovePlayerFigureEvent => movePlayerFigure(e)
+            case e: ClearGuiElementsEvent => clearGuiElements
             case _ =>
 
 
@@ -56,8 +57,13 @@ class Gui(controller: GameController) extends Observer {
     def updateListViewEventLog(str: String) = {
         val listviewEventLog = controller.currentStage.scene().lookup("#lvEventLog").asInstanceOf[javafx.scene.control.ListView[String]]
         listviewEventLog.getItems.add(str)
+    }
 
-
+    def clearGuiElements() = {
+        val listviewPlayers = controller.currentStage.scene().lookup("#lvPlayers").asInstanceOf[javafx.scene.control.ListView[String]]
+        listviewPlayers.getItems.clear
+        val listviewEventLog = controller.currentStage.scene().lookup("#lvEventLog").asInstanceOf[javafx.scene.control.ListView[String]]
+        listviewEventLog.getItems.clear
     }
 
     def movePlayerFigure(e: MovePlayerFigureEvent) = {
@@ -127,6 +133,13 @@ class Gui(controller: GameController) extends Observer {
                     pane.setId("stackpane")
                     val boardImage = new ImageView(new Image("file:images/board.jpg", 800, 800, true, true))
                     val box = new VBox(
+                        new Text {
+                            text = "Player x turn starts"
+                            style = "-fx-font-size: 20pt"
+                            fill = new LinearGradient(
+                                endX = 0,
+                                stops = Stops(PaleGreen, SeaGreen))
+                        },
                         button("Roll Dice", controller.onRollDice, id = "rollDice"),
                         new Text {
                             text = "Result roll dice"
@@ -135,10 +148,17 @@ class Gui(controller: GameController) extends Observer {
                                 endX = 0,
                                 stops = Stops(PaleGreen, SeaGreen))
                         },
+                        new Text {
+                            text = "Players"
+                            style = "-fx-font-size: 20pt"
+                            fill = new LinearGradient(
+                                endX = 0,
+                                stops = Stops(PaleGreen, SeaGreen))
+                        },
                         // todo listview[player]
                         //  onclick expand view to see streets of 1 player......
                         new ListView[String] {
-                            this.setId("lvPlayerStats")
+                            this.setId("lvPlayers")
                             orientation = Orientation.Vertical
 
                             cellFactory = {
@@ -163,6 +183,13 @@ class Gui(controller: GameController) extends Observer {
 
                             items = ObservableBuffer(SomeStrings)
 
+                        },
+                        new Text {
+                            text = "Event Log"
+                            style = "-fx-font-size: 20pt"
+                            fill = new LinearGradient(
+                                endX = 0,
+                                stops = Stops(PaleGreen, SeaGreen))
                         },
                         // Event Log über tui
                         new ListView[String] {

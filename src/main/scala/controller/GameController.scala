@@ -117,7 +117,7 @@ class GameController extends Observable {
         //        val rollDiceButton = currentStage.scene().lookup("#rollDice")
         //        print(rollDiceButton)
         //rollDiceButton.setDisable(true)
-        val listviewSpieler = currentStage.scene().lookup("#lvPlayerStats").asInstanceOf[javafx.scene.control.ListView[String]]
+        val listviewSpieler = currentStage.scene().lookup("#lvPlayers").asInstanceOf[javafx.scene.control.ListView[String]]
         listviewSpieler.getItems.clear()
         for (player <- players)
             listviewSpieler.getItems.add(player.toString)

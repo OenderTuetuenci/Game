@@ -77,6 +77,8 @@ case class falseTestEvent() extends PrintEvent
 
 // GUI
 
+case class ClearGuiElementsEvent() extends PrintEvent
+
 case class MovePlayerFigureEvent(playerFigure: ImageView, x: Double, y: Double) extends PrintEvent
 case class OpenMainWindowEvent() extends PrintEvent
 
