@@ -104,7 +104,8 @@ object LoginDialogDemo extends JFXApp {
         val result = dialog.showAndWait()
 
         result match {
-            case Some(Result(p, npc)) => println("playercount=" + p + ", npccount=" + npc)
+            case Some(Result(p, npc)) =>
+                println("playercount=" + p + ", npccount=" + npc)
             case None => println("Dialog returned: None")
         }
     }

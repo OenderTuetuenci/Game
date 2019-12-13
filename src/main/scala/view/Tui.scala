@@ -2,19 +2,6 @@ package view
 
 import controller._
 import model._
-import scalafx.Includes.{handle, _}
-import scalafx.application.JFXApp.PrimaryStage
-import scalafx.application.Platform
-import scalafx.geometry.{Insets, Pos}
-import scalafx.scene.Scene
-import scalafx.scene.control.Alert.AlertType
-import scalafx.scene.control.ButtonBar.ButtonData
-import scalafx.scene.control._
-import scalafx.scene.image.{Image, ImageView}
-import scalafx.scene.layout._
-import scalafx.scene.paint.Color.{Black, PaleGreen, SeaGreen}
-import scalafx.scene.paint.{LinearGradient, Stops}
-import scalafx.scene.text.Text
 import util.Observer
 
 import scala.io.StdIn._
@@ -26,8 +13,6 @@ class Tui(controller: GameController) extends Observer {
     def getController: GameController = controller
 
     override def update(e: PrintEvent): Any = {
-        var worked = true
-        var string = ""
         e match {
             //Input
             case e: askUndoGetPlayersEvent => {
@@ -39,34 +24,34 @@ class Tui(controller: GameController) extends Observer {
             case e: newGameEvent => getPlayerCount
             case e: askBuyEvent => askBuyString
             //Output
-            case e: gameIsGoingToStartEvent => string = getGameIsGoingToStartString(e)
-            case e: displayRollForPositionsEvent => string = getRollForPositionsString(e)
-            case e: brokeEvent => string = getBrokeEventString(e)
-            case e: gameFinishedEvent => string = getFinishedString(e)
-            case e: payRentEvent => string = getPayRentString(e)
-            case e: buyStreetEvent => string = getBuyStreetEventString(e)
-            case e: buyTrainstationEvent => string = getBuyTrainstationEventString(e)
-            case e: playerInJailEvent => string = getPlayerInJailString(e)
-            case e: normalTurnEvent => string = getNormalTurnString(e)
-            case e: diceEvent => string = getRollString(e)
-            case e: playerSellsStreetEvent => string = getPlayerSellsStreetString(e)
-            case e: playerUsesHyptohekOnStreetEvent => string = getPlayerUsesHypothekOnStreetString(e)
-            case e: playerPaysHyptohekOnStreetEvent => string = getPlayerPaysHypothekOnStreetString(e)
-            case e: playerUsesHyptohekOnTrainstationEvent => string = getPlayerUsesHypothekOnTrainstationString(e)
-            case e: playerPaysHyptohekOnTrainstationEvent => string = getPlayerPaysHypothekOnTrainstationString(e)
-            case e: playerSellsTrainstationEvent => string = getPlayerSellsTrainstationString(e)
-            case e: newRoundEvent => string = getNewRoundString(e)
-            case e: endRoundEvent => string = getEndRoundString(e)
-            case e: playerMoveToJail => string = getPlayerMoveToJailString(e)
-            case e: optionEvent => string = getOptionString(e)
+            case e: gameIsGoingToStartEvent => getGameIsGoingToStartString(e)
+            case e: displayRollForPositionsEvent => getRollForPositionsString(e)
+            case e: brokeEvent => getBrokeEventString(e)
+            case e: gameFinishedEvent => getFinishedString(e)
+            case e: payRentEvent => getPayRentString(e)
+            case e: buyStreetEvent => getBuyStreetEventString(e)
+            case e: buyTrainstationEvent => getBuyTrainstationEventString(e)
+            case e: playerInJailEvent => getPlayerInJailString(e)
+            case e: normalTurnEvent => getNormalTurnString(e)
+            case e: diceEvent => getRollString(e)
+            case e: playerSellsStreetEvent => getPlayerSellsStreetString(e)
+            case e: playerUsesHyptohekOnStreetEvent => getPlayerUsesHypothekOnStreetString(e)
+            case e: playerPaysHyptohekOnStreetEvent => getPlayerPaysHypothekOnStreetString(e)
+            case e: playerUsesHyptohekOnTrainstationEvent => getPlayerUsesHypothekOnTrainstationString(e)
+            case e: playerPaysHyptohekOnTrainstationEvent => getPlayerPaysHypothekOnTrainstationString(e)
+            case e: playerSellsTrainstationEvent => getPlayerSellsTrainstationString(e)
+            case e: newRoundEvent => getNewRoundString(e)
+            case e: endRoundEvent => getEndRoundString(e)
+            case e: playerMoveToJail => getPlayerMoveToJailString(e)
+            case e: optionEvent => getOptionString(e)
             case e: printEverythingEvent => getPlayerAndBoardToString
-            case e: playerMoveEvent => string = getPlayerMovedString(e)
-            case e: playerIsFreeEvent => string = getPlayerIsFreeString(e)
-            case e: playerRemainsInJailEvent => string = getPlayerRemainsInJailString(e)
-            case e: playerWentOverGoEvent => string = getPlayerWentOverGoString(e)
-            case e: playerWentOnGoEvent => string = getPlayerWentOnGoString(e)
-            case e: streetOnHypothekEvent => string = getStreetOnHypothekString(e)
-            case e: playerHasDeptEvent => string = getPlayerHasDeptEventString(e)
+            case e: playerMoveEvent => getPlayerMovedString(e)
+            case e: playerIsFreeEvent => getPlayerIsFreeString(e)
+            case e: playerRemainsInJailEvent => getPlayerRemainsInJailString(e)
+            case e: playerWentOverGoEvent => getPlayerWentOverGoString(e)
+            case e: playerWentOnGoEvent => getPlayerWentOnGoString(e)
+            case e: streetOnHypothekEvent => getStreetOnHypothekString(e)
+            case e: playerHasDeptEvent => getPlayerHasDeptEventString(e)
             case _ =>
         }
     }

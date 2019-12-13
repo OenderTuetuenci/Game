@@ -35,7 +35,7 @@ class GameController extends Observable {
     //todo gui
     var currentStage = new PrimaryStage()
     var isturn = 0 // aktueller spieler
-    // feldcoords todo in liste mit tupel
+    // feldcoords todo resizeable mainwindow offset xy stackpane
     val goXY = (350, 350)
     val jailXY = (-350, 350)
     val ParkFreeXY = (-350, -350)
@@ -58,7 +58,6 @@ class GameController extends Observable {
         board = boardController.createBoard
         humanPlayers = playerNames.length
         npcPlayers = npcNames.length
-        notifyObservers(askUndoGetPlayersEvent())
         if (answer == "yes") {
             undoManager.undoStep
         }
@@ -114,8 +113,22 @@ class GameController extends Observable {
         notifyObservers(OpenInformationDialogEvent(currentStage))
     }
 
+    def updateListViewPlayerStats() = {
+        //        val rollDiceButton = currentStage.scene().lookup("#rollDice")
+        //        print(rollDiceButton)
+        //rollDiceButton.setDisable(true)
+        val listviewSpieler = currentStage.scene().lookup("#lvPlayerStats").asInstanceOf[javafx.scene.control.ListView[String]]
+        listviewSpieler.getItems.clear()
+        for (player <- players)
+            listviewSpieler.getItems.add(player.toString)
+
+
+    }
+
+
     def onStartGame() = {
         notifyObservers(OpenGetPlayersDialogEvent(currentStage))
+        updateListViewPlayerStats()
         GameStates.handle(getPlayersEvent(humanPlayers, npcPlayers))
         GameStates.handle(createBoardAndPlayersEvent(playerNames, npcNames))
         notifyObservers(printEverythingEvent())
@@ -132,9 +145,12 @@ class GameController extends Observable {
     }
 
 
+    def onRollDice() = {
+        //if game running //todo if not runstate == initstate
+        notifyObservers(OpenInformationDialogEvent(currentStage))
+    }
 
-
-    def movePlayerTimerGui(): Unit = {
+    def movePlayerSmooveTimerGui(): Unit = {
         val len = fieldCoordsX.length
         var i = 0
         val timer: Timer = new Timer()
@@ -355,7 +371,7 @@ class GameController extends Observable {
             val timer: Timer = new Timer()
             print("yo")
             isturn = 0
-            for (i <- 0 until playerCount) {
+            for (i <- 0 until humanPlayers + npcPlayers) {
                 stackpane.getChildren().add(players(i).figure)
                 notifyObservers(MovePlayerFigureEvent(players(isturn).figure, 350, 350))
                 isturn += 1
@@ -382,6 +398,7 @@ class GameController extends Observable {
 
                 isturn = i
                 PlayerTurnStrategy.executePlayerTurn // zug ausfuehren
+                updateListViewPlayerStats()
                 //todo end turn by pressing endturnbutton -> players(isturn).strategy.execute(endturn)
             }
             // Rundenende

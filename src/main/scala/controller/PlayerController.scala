@@ -7,28 +7,37 @@ import scala.util.control.Breaks.{break, breakable}
 
 class PlayerController(gameController: GameController) {
 
-     def createPlayers(playerNames: Vector[String], npcNames: Vector[String]): Vector[Player] = {
-         var players: Vector[Player] = Vector()
-         gameController.isturn = 0
-         for (name <- playerNames) {
-             val imgView = new ImageView(new Image(gameController.playerFigures(gameController.isturn),
-                 50,
-                 50,
-                 true,
-                 true))
-             imgView.setId("player" + gameController.isturn)
-             players = players :+ Player(name, strategy = HumanStrategy(gameController), figure = imgView)
-             gameController.playerCount += 1
-             gameController.isturn += 1
+    def createPlayers(playerNames: Vector[String], npcNames: Vector[String]): Vector[Player] = {
+        var players: Vector[Player] = Vector()
+        gameController.isturn = 0
+        for (name <- playerNames) {
+            val imgView = new ImageView(new Image(gameController.playerFigures(gameController.isturn),
+                50,
+                50,
+                true,
+                true))
+            imgView.setId("player" + gameController.isturn)
+            players = players :+ Player(name, strategy = HumanStrategy(gameController), figure = imgView)
+            gameController.playerCount += 1
+            gameController.isturn += 1
 
-         }
-         gameController.isturn = 0
+        }
+        gameController.isturn = 0
         for (name <- npcNames) {
             gameController.playerCount += 1
             ///////////////
             // 1. verfügbare figur nehmen
-            var figure = gameController.remainingFiguresToPick(0)
+            // todo try figure if is empty take picture for more npc than playerfigures nein
+            var f1 = ""
+            try {
+                f1 = Some(gameController.remainingFiguresToPick.head).toString()
+            }
+            catch {
+                case e: Exception => f1 = "Hut"
+            }
+            print("fi" + f1)
             var imgPath = ""
+            val figure = gameController.remainingFiguresToPick.head.toString
             imgPath = figure match {
                 case "Hut" => "file:images/Hut.jpg"
                 case "Fingerhut" => "file:images/Fingerhut.jpg"
@@ -48,7 +57,6 @@ class PlayerController(gameController: GameController) {
                 50,
                 true,
                 true))
-            imgView.setId("player" + gameController.isturn) // todo id wird noch nicht benötigt
             players = players :+ Player(name, strategy = NPCStrategy(gameController), figure = imgView)
             gameController.isturn += 1
         }

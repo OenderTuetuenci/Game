@@ -5,16 +5,18 @@ import model._
 import scalafx.Includes.{handle, _}
 import scalafx.application.JFXApp.PrimaryStage
 import scalafx.application.Platform
-import scalafx.geometry.{Insets, Pos}
-import scalafx.scene.Scene
+import scalafx.collections.ObservableBuffer
+import scalafx.geometry.{Insets, Orientation, Pos}
 import scalafx.scene.control.Alert.AlertType
 import scalafx.scene.control.ButtonBar.ButtonData
 import scalafx.scene.control._
 import scalafx.scene.image.{Image, ImageView}
+import scalafx.scene.input.MouseEvent
 import scalafx.scene.layout._
 import scalafx.scene.paint.Color.{Black, PaleGreen, SeaGreen}
-import scalafx.scene.paint.{LinearGradient, Stops}
+import scalafx.scene.paint.{Color, LinearGradient, Stops}
 import scalafx.scene.text.Text
+import scalafx.scene.{Cursor, Scene}
 import util.Observer
 
 import scala.io.StdIn._
@@ -40,12 +42,22 @@ class Gui(controller: GameController) extends Observer {
             case _ =>
 
 
+
             //Input
             case e: askUndoGetPlayersEvent => {
                 println("Undo?")
                 controller.answer = readLine()
             }
+
         }
+        updateListViewEventLog(e.toString)
+    }
+
+    def updateListViewEventLog(str: String) = {
+        val listviewEventLog = controller.currentStage.scene().lookup("#lvEventLog").asInstanceOf[javafx.scene.control.ListView[String]]
+        listviewEventLog.getItems.add(str)
+
+
     }
 
     def movePlayerFigure(e: MovePlayerFigureEvent) = {
@@ -59,17 +71,9 @@ class Gui(controller: GameController) extends Observer {
 
     // widgets
 
-    def button[R](text: String, action: () => R) = new Button(text) {
-        onAction = handle {
-            action()
-        }
-        alignmentInParent = Pos.Center
-        hgrow = Priority.Always
-        maxWidth = Double.MaxValue
-        padding = Insets(7)
-    }
-
     def mainWindow(e: OpenMainWindowEvent) = {
+        val SomeStrings: Seq[String] = Seq("Stats Player 1", "Stats Player 2", "Stats Player 3")
+        val SomeStrings2: Seq[String] = Seq("TuiEventlog 1", "TuiEventlog 2", "TuiEventlog 3")
         controller.currentStage = new PrimaryStage {
             val menubar = new MenuBar {
                 menus = List(
@@ -112,6 +116,8 @@ class Gui(controller: GameController) extends Observer {
                 )
             }
             menubar.setId("menubar")
+            val lbl1 = new Text("Hallo")
+            lbl1.setId("hi")
             title = "Monopoly SE"
             scene = new Scene(1100, 800) {
                 fill = Black
@@ -120,20 +126,76 @@ class Gui(controller: GameController) extends Observer {
                     val pane = new StackPane()
                     pane.setId("stackpane")
                     val boardImage = new ImageView(new Image("file:images/board.jpg", 800, 800, true, true))
-                    new VBox(
+                    val box = new VBox(
+                        button("Roll Dice", controller.onRollDice, id = "rollDice"),
                         new Text {
-                            text = "Monopoly"
-                            style = "-fx-font-size: 48pt"
+                            text = "Result roll dice"
+                            style = "-fx-font-size: 20pt"
                             fill = new LinearGradient(
                                 endX = 0,
                                 stops = Stops(PaleGreen, SeaGreen))
                         },
-                        button("Start game", controller.onStartGame),
-                        button("Information", controller.onInformation),
-                    )
+                        // todo listview[player]
+                        //  onclick expand view to see streets of 1 player......
+                        new ListView[String] {
+                            this.setId("lvPlayerStats")
+                            orientation = Orientation.Vertical
 
+                            cellFactory = {
+
+                                p => {
+
+                                    val cell = new ListCell[String]
+
+                                    cell.textFill = Color.Blue
+
+                                    cell.cursor = Cursor.Hand
+
+                                    cell.item.onChange { (_, _, str) => cell.text = str }
+
+                                    cell.onMouseClicked = { me: MouseEvent => println("Do something with " + cell.text.value) }
+
+                                    cell
+
+                                }
+
+                            }
+
+                            items = ObservableBuffer(SomeStrings)
+
+                        },
+                        // Event Log über tui
+                        new ListView[String] {
+                            this.setId("lvEventLog")
+
+                            orientation = Orientation.Vertical
+
+                            cellFactory = {
+
+                                p => {
+
+                                    val cell = new ListCell[String]
+
+                                    cell.textFill = Color.Blue
+
+                                    cell.cursor = Cursor.Hand
+
+                                    cell.item.onChange { (_, _, str) => cell.text = str }
+
+                                    cell.onMouseClicked = { me: MouseEvent => println("Do something with " + cell.text.value) }
+
+                                    cell
+
+                                }
+
+                            }
+
+                            items = ObservableBuffer(SomeStrings2)
+
+                        }
+                    )
                     pane.children = List(boardImage)
-                    children = Seq(menubar, pane)
+                    children = Seq(menubar, pane, box)
                 }
             }
 
@@ -147,6 +209,17 @@ class Gui(controller: GameController) extends Observer {
         controller.currentStage.setY(bounds.getMinY)
         controller.currentStage.setWidth(bounds.getWidth)
         controller.currentStage.setHeight(bounds.getHeight)
+    }
+
+    def button[R](text: String, action: () => R, id: String = "") = new Button(text) {
+        onAction = handle {
+            action()
+        }
+        alignmentInParent = Pos.Center
+        hgrow = Priority.Always
+        maxWidth = Double.MaxValue
+        padding = Insets(7)
+        this.setId(id.toString)
     }
 
 
@@ -213,7 +286,6 @@ class Gui(controller: GameController) extends Observer {
         }
     }
 
-
     def getPlayerNameDialog(e: OpenGetNameDialogEvent) = {
         //todo liste der spielfiguren die noch nicht gepickt wurden
         case class Result(playerName: String, figure: String)
@@ -242,7 +314,7 @@ class Gui(controller: GameController) extends Observer {
             case "Schubkarre" => "file:images/Schubkarre.jpg"
             case "Schuh" => "file:images/Schuh.jpg"
             case "Hund" => "file:images/Hund.jpg"
-            case "Auto" => "file:images/Auto.jpg"
+            case "Auto" => "file:images/Auto.png"
             case "Bügeleisen" => "file:images/Buegeleisen.jpg"
             case "Fingerhut" => "file:images/Fingerhut.jpg"
             case "Schiff" => "file:images/Schiff.jpg"
@@ -259,7 +331,7 @@ class Gui(controller: GameController) extends Observer {
                 case "Schubkarre" => "file:images/Schubkarre.jpg"
                 case "Schuh" => "file:images/Schuh.jpg"
                 case "Hund" => "file:images/Hund.jpg"
-                case "Auto" => "file:images/Auto.jpg"
+                case "Auto" => "file:images/Auto.png"
                 case "Bügeleisen" => "file:images/Buegeleisen.jpg"
                 case "Fingerhut" => "file:images/Fingerhut.jpg"
                 case "Schiff" => "file:images/Schiff.jpg"
@@ -311,7 +383,7 @@ class Gui(controller: GameController) extends Observer {
                     case "Schubkarre" => imgPath = "file:images/Schubkarre.jpg"
                     case "Schuh" => imgPath = "file:images/Schuh.jpg"
                     case "Hund" => imgPath = "file:images/Hund.jpg"
-                    case "Auto" => imgPath = "file:images/Auto.jpg"
+                    case "Auto" => imgPath = "file:images/Auto.png"
                     case "Bügeleisen" => imgPath = "file:images/Buegeleisen.jpg"
                     case "Fingerhut" => imgPath = "file:images/Fingerhut.jpg"
                     case "Schiff" => imgPath = "file:images/Schiff.jpg"
