@@ -151,16 +151,6 @@ class GameController extends Observable {
 
     }
 
-    def movePlayerGui(playerFigure: ImageView, x: Double, y: Double): Unit = {
-        //val playerImage = currentStage.scene().lookup("#playerimage")
-        println("moveplayer x y " + x + y)
-        //playerImage.setTranslateX(x)
-        //playerImage.setTranslateY(y)
-        playerFigure.setTranslateX(x)
-        playerFigure.setTranslateY(y)
-
-    }
-
     object PlayerTurnStrategy extends Observable {
 
         //todo var executePlayerTurn: Unit = { ???????????????????????
@@ -367,7 +357,7 @@ class GameController extends Observable {
             isturn = 0
             for (i <- 0 until playerCount) {
                 stackpane.getChildren().add(players(i).figure)
-                movePlayerGui(players(isturn).figure, 350, 350)
+                notifyObservers(MovePlayerFigureEvent(players(isturn).figure, 350, 350))
                 isturn += 1
 
 

@@ -1,5 +1,6 @@
 package model
 
+import javafx.scene.image.ImageView
 import scalafx.application.JFXApp.PrimaryStage
 
 trait PrintEvent
@@ -76,6 +77,7 @@ case class falseTestEvent() extends PrintEvent
 
 // GUI
 
+case class MovePlayerFigureEvent(playerFigure: ImageView, x: Double, y: Double) extends PrintEvent
 case class OpenMainWindowEvent() extends PrintEvent
 
 case class openGameOverDialogEvent() extends PrintEvent

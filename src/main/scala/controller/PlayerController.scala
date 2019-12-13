@@ -125,11 +125,10 @@ class PlayerController(gameController: GameController) {
             players = players.updated(isturn, players(isturn).moveBack(40))
         }
         ////////////MoveplayerAfterRollDice////////////////
-                gameController.movePlayerGui(
-                    gameController.players(isturn).figure,
-                    gameController.fieldCoordsX(players(isturn).position),
-                    gameController.fieldCoordsY(players(isturn).position))
-        ////////////////////////////////
+        gameController.notifyObservers(MovePlayerFigureEvent(gameController.players(isturn).figure,
+            gameController.fieldCoordsX(players(isturn).position),
+            gameController.fieldCoordsY(players(isturn).position)))
+
         // neue position ausgeben
         gameController.printFun(playerMoveEvent(players(isturn)))
         // aktion fuer betretetenes feld ausloesen
