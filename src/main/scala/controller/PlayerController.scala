@@ -9,33 +9,34 @@ class PlayerController(gameController: GameController) {
 
     def createPlayers(playerNames: Vector[String], npcNames: Vector[String]): Vector[Player] = {
         var players: Vector[Player] = Vector()
-        gameController.isturn = 0
+        var i = 0
         for (name <- playerNames) {
-            val imgView = new ImageView(new Image(gameController.playerFigures(gameController.isturn),
+            val imgView = new ImageView(new Image(gameController.playerFigures(i),
                 50,
                 50,
                 true,
                 true))
-            imgView.setId("player" + gameController.isturn)
+            imgView.setId("player" + i)
             players = players :+ Player(name, strategy = HumanStrategy(gameController), figure = imgView)
-            gameController.isturn += 1
+            i += 1
 
         }
-        gameController.isturn = 0
+        i = 0
         for (name <- npcNames) {
             ///////////////
             // 1. verfügbare figur nehmen
             // todo try figure if is empty take picture for more npc than playerfigures nein
-            var f1 = ""
-            try {
-                f1 = Some(gameController.remainingFiguresToPick.head).toString()
-            }
-            catch {
-                case e: Exception => f1 = "Hut"
-            }
-            print("fi" + f1)
+            //            var f1 = ""
+            //            try {
+            //                f1 = Some(gameController.remainingFiguresToPick.head).toString()
+            //            }
+            //            catch {
+            //                case e: Exception => f1 = "Hut"
+            //            }
+            //            print("fi" + f1)
+            //////////////////////
             var imgPath = ""
-            val figure = gameController.remainingFiguresToPick.head.toString
+            val figure = gameController.remainingFiguresToPick(0)
             imgPath = figure match {
                 case "Hut" => "file:images/Hut.jpg"
                 case "Fingerhut" => "file:images/Fingerhut.jpg"

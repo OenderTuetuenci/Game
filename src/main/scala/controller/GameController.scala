@@ -119,8 +119,8 @@ class GameController extends Observable {
         notifyObservers(OpenGetPlayersDialogEvent())
         notifyObservers(ClearGuiElementsEvent())
         notifyObservers(UpdateListViewPlayersEvent())
-        GameStates.handle(getPlayersEvent(humanPlayers, npcPlayers))
-        GameStates.handle(createBoardAndPlayersEvent(playerNames, npcNames))
+        GameStates.handle(getPlayersEvent())
+        GameStates.handle(createBoardAndPlayersEvent())
         notifyObservers(printEverythingEvent())
         notifyObservers(displayRollForPositionsEvent())
         GameStates.handle(rollForPositionsEvent())
@@ -248,7 +248,7 @@ class GameController extends Observable {
                 case e: InitGameEvent => runState = initGameState
                 case e: getPlayersEvent => runState = getPlayersState(e)
                 case e: rollForPositionsEvent => runState = rollForPositionsState
-                case e: createBoardAndPlayersEvent => runState = createBoardAndPlayersState(e)
+                case e: createBoardAndPlayersEvent => runState = createBoardAndPlayersState
                 case e: runRoundEvent => runState = runRoundState
                 case e: checkGameOverEvent => runState = checkGameOverState
                 case e: gameOverEvent => runState = gameOverState
@@ -258,13 +258,13 @@ class GameController extends Observable {
 
         def getPlayersState(e: getPlayersEvent) = {
             // spieler mit namen einlesensr
-            for (i <- 0 until e.playerCount) {
-                isturn = i
+            for (i <- 0 until humanPlayers) {
                 println("Enter name player" + (isturn + 1) + ":")
-                notifyObservers(OpenGetNameDialogEvent((isturn))) // adds player in tui/gui... dialog
+                notifyObservers(OpenGetNameDialogEvent(i)) // adds player in tui/gui... dialog
             }
-            for (i <- 0 until e.npcCount) {
+            for (i <- 0 until npcPlayers) {
                 npcNames = npcNames :+ "NPC " + (i + 1)
+                //todo
             }
             //todo
             // notifyObservers(askUndoGetPlayersEvent())
@@ -353,18 +353,14 @@ class GameController extends Observable {
             //            // entgueltige reihenfolge festlegen
         }
 
-        def createBoardAndPlayersState(e: createBoardAndPlayersEvent) = {
+        def createBoardAndPlayersState = {
             println("createboardandplayersState")
-            players = playerController.createPlayers(e.playerNames, e.npcNames)
+            players = playerController.createPlayers(playerNames, npcNames)
             board = boardController.createBoard
-            val stackpane = currentStage.scene().lookup("#stackpane").asInstanceOf[javafx.scene.layout.StackPane]
-            val timer: Timer = new Timer()
-            print("yo")
-            isturn = 0
             for (i <- 0 until humanPlayers + npcPlayers) {
+                val stackpane = currentStage.scene().lookup("#stackpane").asInstanceOf[javafx.scene.layout.StackPane]
                 stackpane.getChildren().add(players(i).figure)
-                notifyObservers(MovePlayerFigureEvent(players(isturn).figure, 350, 350))
-                isturn += 1
+                notifyObservers(MovePlayerFigureEvent(players(i).figure, 350, 350))
 
 
                 //                timer.schedule(new TimerTask {

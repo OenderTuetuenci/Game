@@ -41,6 +41,7 @@ class Gui(controller: GameController) extends Observer {
             case e: MovePlayerFigureEvent => movePlayerFigure(e)
             case e: ClearGuiElementsEvent => clearGuiElements
             case e: UpdateListViewPlayersEvent => updateListViewPlayers()
+            case e: PlacePlayersOnBoardEvent => placePlayersOnBoard()
             case _ =>
 
 
@@ -53,6 +54,10 @@ class Gui(controller: GameController) extends Observer {
 
         }
         updateListViewEventLog(e.toString)
+    }
+
+    def placePlayersOnBoard() = {
+
     }
 
     def updateListViewPlayers() = {
@@ -318,7 +323,7 @@ class Gui(controller: GameController) extends Observer {
                 controller.humanPlayers = p.toInt
                 controller.npcPlayers = npc.toInt
             }
-            case None => ("Dialog returned", "None")
+            case None => ("Dialog returned", "None") //todo initstate
         }
     }
 
@@ -411,17 +416,16 @@ class Gui(controller: GameController) extends Observer {
         result match {
             case Some(Result(name, figure)) => {
                 controller.playerNames = controller.playerNames :+ name
-                var imgPath = ""
-                figure match {
-                    case "Hut" => imgPath = "file:images/Hat.jpg"
-                    case "Fingerhut" => imgPath = "file:images/Fingerhut.jpg"
-                    case "Schubkarre" => imgPath = "file:images/Schubkarre.jpg"
-                    case "Schuh" => imgPath = "file:images/Schuh.jpg"
-                    case "Hund" => imgPath = "file:images/Hund.jpg"
-                    case "Auto" => imgPath = "file:images/Auto.png"
-                    case "Bügeleisen" => imgPath = "file:images/Buegeleisen.jpg"
-                    case "Fingerhut" => imgPath = "file:images/Fingerhut.jpg"
-                    case "Schiff" => imgPath = "file:images/Schiff.jpg"
+                val imgPath = figure match {
+                    case "Hut" => "file:images/Hat.jpg"
+                    case "Fingerhut" => "file:images/Fingerhut.jpg"
+                    case "Schubkarre" => "file:images/Schubkarre.jpg"
+                    case "Schuh" => "file:images/Schuh.jpg"
+                    case "Hund" => "file:images/Hund.jpg"
+                    case "Auto" => "file:images/Auto.png"
+                    case "Bügeleisen" => "file:images/Buegeleisen.jpg"
+                    case "Fingerhut" => "file:images/Fingerhut.jpg"
+                    case "Schiff" => "file:images/Schiff.jpg"
                 }
                 // ausgewählte figur aus der auswahl nehmen
                 controller.remainingFiguresToPick = controller.remainingFiguresToPick.filterNot(elm => elm == figure)
