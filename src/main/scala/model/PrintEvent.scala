@@ -1,7 +1,6 @@
 package model
 
 import javafx.scene.image.ImageView
-import scalafx.application.JFXApp.PrimaryStage
 
 trait PrintEvent
 
@@ -86,16 +85,18 @@ case class openGameOverDialogEvent() extends PrintEvent
 
 case class OpenGameWindowEvent() extends PrintEvent
 
-case class OpenGetPlayersDialogEvent(stage: PrimaryStage) extends PrintEvent
+case class OpenGetPlayersDialogEvent() extends PrintEvent
 
-case class OpenGetNameDialogEvent(stage: PrimaryStage, currPlayer: Int) extends PrintEvent
+case class OpenGetNameDialogEvent(currPlayer: Int) extends PrintEvent
 
-case class OpenRollForPosDialogEvent(stage: PrimaryStage, player: Player) extends PrintEvent
+case class OpenRollForPosDialogEvent(player: Player) extends PrintEvent
 
-case class OpenRollDiceDialogEvent(stage: PrimaryStage, player: Player) extends PrintEvent
+case class OpenRollDiceDialogEvent(player: Player) extends PrintEvent
 
-case class OpenInformationDialogEvent(stage: PrimaryStage) extends PrintEvent
+case class OpenInformationDialogEvent() extends PrintEvent
 
-case class OpenConfirmationDialogEvent(stage: PrimaryStage) extends PrintEvent
+case class OpenConfirmationDialogEvent() extends PrintEvent
 
-case class OpenInJailDialogEvent(stage: PrimaryStage) extends PrintEvent
+case class OpenInJailDialogEvent() extends PrintEvent
+
+case class UpdateListViewPlayersEvent() extends PrintEvent

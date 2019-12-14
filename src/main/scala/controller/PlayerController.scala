@@ -18,13 +18,11 @@ class PlayerController(gameController: GameController) {
                 true))
             imgView.setId("player" + gameController.isturn)
             players = players :+ Player(name, strategy = HumanStrategy(gameController), figure = imgView)
-            gameController.playerCount += 1
             gameController.isturn += 1
 
         }
         gameController.isturn = 0
         for (name <- npcNames) {
-            gameController.playerCount += 1
             ///////////////
             // 1. verfügbare figur nehmen
             // todo try figure if is empty take picture for more npc than playerfigures nein

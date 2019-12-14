@@ -47,10 +47,10 @@ case class HumanStrategy(controller: GameController) extends HumanOrNpcStrategy 
       case "buy home" => buyHome
       case "turnInJail" => turnInJail
       case "rollForPosition" =>
-        controller.notifyObservers(OpenRollForPosDialogEvent(controller.currentStage, controller.players(controller.isturn)))
+        controller.notifyObservers(OpenRollForPosDialogEvent(controller.players(controller.isturn)))
         controller.playerController.wuerfeln
       case "rollDice" =>
-        controller.notifyObservers(OpenRollDiceDialogEvent(controller.currentStage, controller.players(controller.isturn)))
+          controller.notifyObservers(OpenRollDiceDialogEvent(controller.players(controller.isturn)))
         controller.playerController.wuerfeln
       case _ =>
     }

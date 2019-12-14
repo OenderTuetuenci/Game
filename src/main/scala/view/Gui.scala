@@ -40,6 +40,7 @@ class Gui(controller: GameController) extends Observer {
             case e: OpenInJailDialogEvent => inJailDialog(e)
             case e: MovePlayerFigureEvent => movePlayerFigure(e)
             case e: ClearGuiElementsEvent => clearGuiElements
+            case e: UpdateListViewPlayersEvent => updateListViewPlayers()
             case _ =>
 
 
@@ -52,6 +53,16 @@ class Gui(controller: GameController) extends Observer {
 
         }
         updateListViewEventLog(e.toString)
+    }
+
+    def updateListViewPlayers() = {
+        //        val rollDiceButton = currentStage.scene().lookup("#rollDice")
+        //        print(rollDiceButton)
+        //rollDiceButton.setDisable(true)
+        val listviewSpieler = controller.currentStage.scene().lookup("#lvPlayers").asInstanceOf[javafx.scene.control.ListView[String]]
+        listviewSpieler.getItems.clear()
+        for (player <- controller.players)
+            listviewSpieler.getItems.add(player.toString)
     }
 
     def updateListViewEventLog(str: String) = {
@@ -314,7 +325,6 @@ class Gui(controller: GameController) extends Observer {
     }
 
     def getPlayerNameDialog(e: OpenGetNameDialogEvent) = {
-        //todo liste der spielfiguren die noch nicht gepickt wurden
         case class Result(playerName: String, figure: String)
 
         // Create the custom dialog.
@@ -425,7 +435,6 @@ class Gui(controller: GameController) extends Observer {
 
     def rollForPosDialog(e: OpenRollForPosDialogEvent): Unit = {
         new Alert(AlertType.Information) {
-            initOwner(e.stage)
             title = "Roll for starting positions"
             headerText = "Player " + e.player.name
             contentText = "Roll dices!"
@@ -434,7 +443,6 @@ class Gui(controller: GameController) extends Observer {
 
     def rollDiceDialog(e: OpenRollDiceDialogEvent): Unit = {
         new Alert(AlertType.Information) {
-            initOwner(e.stage)
             title = "Roll dice"
             headerText = "Player " + e.player.name
             contentText = "Roll dices!"
@@ -445,7 +453,6 @@ class Gui(controller: GameController) extends Observer {
         case class Result(roll1: Int, roll2: Int, pasch: Boolean)
         // Create the custom dialog.
         val dialog = new Dialog[Result]() {
-            initOwner(e.stage)
             title = "Roll Dice:"
             headerText = "Player " + e.player.name + " roll dice"
             //graphic = new ImageView(this.getClass.getResource("login_icon.png").toString)
@@ -482,7 +489,6 @@ class Gui(controller: GameController) extends Observer {
 
     def informationDialog(e: OpenInformationDialogEvent): Unit = {
         new Alert(AlertType.Information) {
-            initOwner(e.stage)
             title = "Information Dialog"
             headerText = "Look, an Information Dialog."
             contentText = "I have a great message for you!"
@@ -491,7 +497,6 @@ class Gui(controller: GameController) extends Observer {
 
     def confirmationDialog(e: OpenConfirmationDialogEvent): Unit = {
         val alert = new Alert(AlertType.Confirmation) {
-            initOwner(e.stage)
             title = "Confirmation Dialog"
             headerText = "Look, a Confirmation Dialog."
             contentText = "Do you want to quit?"
@@ -518,7 +523,6 @@ class Gui(controller: GameController) extends Observer {
     def inJailDialog(e: OpenInJailDialogEvent): Unit = {
         // todo
         val alert = new Alert(AlertType.Confirmation) {
-            initOwner(e.stage)
             title = "Confirmation Dialog"
             headerText = "Look, a Confirmation Dialog."
             contentText = "Do you want to quit?"

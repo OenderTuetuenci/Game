@@ -14,7 +14,6 @@ class GameController extends Observable {
     val boardController = new BoardController(this)
     var humanPlayers = 0
     var npcPlayers = 0
-    var playerCount = 0
     var board: Vector[Cell] = Vector[Cell]()
     var players: Vector[Player] = Vector[Player]()
     var playerNames: Vector[String] = Vector[String]()
@@ -106,29 +105,19 @@ class GameController extends Observable {
     // todo currentstage kann raus tui hat ehe controller
 
     def onQuit() = {
-        notifyObservers(OpenConfirmationDialogEvent(currentStage))
+        notifyObservers(OpenConfirmationDialogEvent())
     }
 
     def onInformation() = {
-        notifyObservers(OpenInformationDialogEvent(currentStage))
+        notifyObservers(OpenInformationDialogEvent())
     }
 
-    def updateListViewPlayerStats() = {
-        //        val rollDiceButton = currentStage.scene().lookup("#rollDice")
-        //        print(rollDiceButton)
-        //rollDiceButton.setDisable(true)
-        val listviewSpieler = currentStage.scene().lookup("#lvPlayers").asInstanceOf[javafx.scene.control.ListView[String]]
-        listviewSpieler.getItems.clear()
-        for (player <- players)
-            listviewSpieler.getItems.add(player.toString)
 
-
-    }
 
 
     def onStartGame() = {
-        notifyObservers(OpenGetPlayersDialogEvent(currentStage))
-        updateListViewPlayerStats()
+        notifyObservers(OpenGetPlayersDialogEvent())
+        notifyObservers(UpdateListViewPlayersEvent())
         GameStates.handle(getPlayersEvent(humanPlayers, npcPlayers))
         GameStates.handle(createBoardAndPlayersEvent(playerNames, npcNames))
         notifyObservers(printEverythingEvent())
@@ -147,7 +136,7 @@ class GameController extends Observable {
 
     def onRollDice() = {
         //if game running //todo if not runstate == initstate
-        notifyObservers(OpenInformationDialogEvent(currentStage))
+        notifyObservers(OpenInformationDialogEvent())
     }
 
     def movePlayerSmooveTimerGui(): Unit = {
@@ -271,7 +260,7 @@ class GameController extends Observable {
             for (i <- 0 until e.playerCount) {
                 isturn = i
                 println("Enter name player" + (isturn + 1) + ":")
-                notifyObservers(OpenGetNameDialogEvent(currentStage, (isturn + 1))) // adds player in tui/gui... dialog
+                notifyObservers(OpenGetNameDialogEvent((isturn))) // adds player in tui/gui... dialog
             }
             for (i <- 0 until e.npcCount) {
                 npcNames = npcNames :+ "NPC " + (i + 1)
@@ -285,7 +274,7 @@ class GameController extends Observable {
 
         def rollForPositionsState = {
             println("rollforposstate")
-            for (i <- 0 until playerCount) {
+            for (i <- 0 until humanPlayers + npcPlayers) {
                 // jeden einmal wuerfeln lassen
                 isturn = i
                 players(isturn).strategy.execute("rollForPosition") match {
@@ -298,14 +287,14 @@ class GameController extends Observable {
             players = players.sortBy(-_.rollForPosition) // - für reversed
             //reihenfolge erstmalig festlegen
             println("spieler mit reihenfolge:")
-            for (i <- 0 until playerCount) {
+            for (i <- 0 until humanPlayers + npcPlayers) {
                 players = players.updated(i, players(i).setTurnPosition(i))
                 println(players(i))
             }
             // Spieler suchen die das gleiche gewuerfelt haben
             var rolledSame: Vector[Player] = Vector[Player]()
-            for (i <- 0 until playerCount) {
-                for (j <- (i + 1) until playerCount) {
+            for (i <- 0 until humanPlayers + npcPlayers) {
+                for (j <- (i + 1) until humanPlayers + npcPlayers) {
                     if (players(i).rollForPosition == players(j).rollForPosition) {
                         // nur die die noch nicht drinnen sind hinzufuegen
                         if (!rolledSame.exists(_.name == players(i).name)) {
@@ -393,12 +382,12 @@ class GameController extends Observable {
             // Todo und nach dem wuerfeln falls er nicht pleite ist
             // todo if player has money raus und einfach so rbüer
             notifyObservers(newRoundEvent(round))
-            for (i <- 0 until playerCount) {
+            for (i <- 0 until humanPlayers + npcPlayers) {
                 //todo before turn trade or so by pressing buttons -> players(isturn).strategy.execute(onbutton)
 
                 isturn = i
                 PlayerTurnStrategy.executePlayerTurn // zug ausfuehren
-                updateListViewPlayerStats()
+                notifyObservers(UpdateListViewPlayersEvent())
                 //todo end turn by pressing endturnbutton -> players(isturn).strategy.execute(endturn)
             }
             // Rundenende
@@ -419,7 +408,6 @@ class GameController extends Observable {
 
             humanPlayers = 0
             npcPlayers = 0
-            playerCount = 0
             board = Vector[Cell]()
             players = Vector[Player]()
             playerNames = Vector[String]()
