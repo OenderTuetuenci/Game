@@ -89,8 +89,6 @@ class Gui(controller: GameController) extends Observer {
     // widgets
 
     def mainWindow(e: OpenMainWindowEvent) = {
-        val SomeStrings: Seq[String] = Seq("Stats Player 1", "Stats Player 2", "Stats Player 3")
-        val SomeStrings2: Seq[String] = Seq("TuiEventlog 1", "TuiEventlog 2", "TuiEventlog 3")
         controller.currentStage = new PrimaryStage {
             val menubar = new MenuBar {
                 menus = List(
@@ -192,7 +190,7 @@ class Gui(controller: GameController) extends Observer {
 
                             }
 
-                            items = ObservableBuffer(SomeStrings)
+                            items = ObservableBuffer()
 
                         },
                         new Text {
@@ -228,7 +226,7 @@ class Gui(controller: GameController) extends Observer {
 
                             }
 
-                            items = ObservableBuffer(SomeStrings2)
+                            items = ObservableBuffer()
 
                         }
                     )

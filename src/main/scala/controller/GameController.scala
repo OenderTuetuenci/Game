@@ -117,6 +117,7 @@ class GameController extends Observable {
 
     def onStartGame() = {
         notifyObservers(OpenGetPlayersDialogEvent())
+        notifyObservers(ClearGuiElementsEvent())
         notifyObservers(UpdateListViewPlayersEvent())
         GameStates.handle(getPlayersEvent(humanPlayers, npcPlayers))
         GameStates.handle(createBoardAndPlayersEvent(playerNames, npcNames))
