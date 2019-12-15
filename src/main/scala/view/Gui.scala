@@ -89,10 +89,7 @@ class Gui(controller: GameController) extends Observer {
     }
 
     def movePlayerFigure(e: MovePlayerFigureEvent) = {
-        //val playerImage = currentStage.scene().lookup("#playerimage")
         println("moveplayer x y " + e.x + e.y)
-        //playerImage.setTranslateX(x)
-        //playerImage.setTranslateY(y)
         e.playerFigure.setTranslateX(e.x)
         e.playerFigure.setTranslateY(e.y)
     }
@@ -159,7 +156,18 @@ class Gui(controller: GameController) extends Observer {
                                 endX = 0,
                                 stops = Stops(PaleGreen, SeaGreen))
                         },
-                        button("Roll Dice", controller.onRollDice, idString = "rollDice"),
+                        new Button {
+                            text = "Roll Dice"
+                            id = "rollDice"
+                            onAction = handle {
+                                controller.onRollDice
+                            }
+                            alignmentInParent = Pos.Center
+                            hgrow = Priority.Always
+                            maxWidth = Double.MaxValue
+                            padding = Insets(7)
+                            this.setDisable(true)
+                        },
                         new Text {
                             id = "lblDiceResult"
                             text = "Result roll dice"
@@ -168,7 +176,18 @@ class Gui(controller: GameController) extends Observer {
                                 endX = 0,
                                 stops = Stops(PaleGreen, SeaGreen))
                         },
-                        button("End turn", controller.onEndTurn, idString = "endTurn"),
+                        new Button {
+                            text = "End turn"
+                            id = "endTurn"
+                            onAction = handle {
+                                controller.onEndTurn
+                            }
+                            alignmentInParent = Pos.Center
+                            hgrow = Priority.Always
+                            maxWidth = Double.MaxValue
+                            padding = Insets(7)
+                            this.setDisable(true)
+                        },
                         new Text {
                             text = "Players                                                                          "
                             style = "-fx-font-size: 20pt"

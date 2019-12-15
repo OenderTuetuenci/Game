@@ -1,6 +1,6 @@
 package controller
 
-import model.{OpenRollDiceDialogEvent, OpenRollForPosDialogEvent, askBuyEvent, askBuyHomeEvent}
+import model.{OpenRollForPosDialogEvent, askBuyEvent, askBuyHomeEvent}
 
 trait HumanOrNpcStrategy {
   val controller: GameController
@@ -50,7 +50,7 @@ case class HumanStrategy(controller: GameController) extends HumanOrNpcStrategy 
         controller.notifyObservers(OpenRollForPosDialogEvent(controller.players(controller.isturn)))
         controller.playerController.wuerfeln
       case "rollDice" =>
-          controller.notifyObservers(OpenRollDiceDialogEvent(controller.players(controller.isturn)))
+        //controller.notifyObservers(OpenRollDiceDialogEvent(controller.players(controller.isturn)))
         controller.playerController.wuerfeln
       case _ =>
     }

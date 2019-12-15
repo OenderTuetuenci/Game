@@ -124,6 +124,11 @@ class GameController extends Observable {
         notifyObservers(printEverythingEvent())
         notifyObservers(displayRollForPositionsEvent())
         GameStates.handle(rollForPositionsEvent())
+        // Enable roll and disable endturn button
+        val rollDiceBUtton = currentStage.scene().lookup("#rollDice") //.asInstanceOf[javafx.scene.control.Button]
+        rollDiceBUtton.setDisable(false)
+        val endTurnButton = currentStage.scene().lookup("#endTurn") //.asInstanceOf[javafx.scene.control.Button]
+        endTurnButton.setDisable(true)
         //GameStates.handle(runRoundEvent())
         //        do {
 
@@ -138,12 +143,23 @@ class GameController extends Observable {
 
     def onRollDice() = {
         //if game running //todo if not runstate == initstate
-        players(isturn).strategy.execute("rollForPosition") match {
+        players(isturn).strategy.execute("rollDice") match {
             case (roll1: Int, roll2: Int, pasch: Boolean) => println(roll1, roll2, pasch)
                 players = playerController.movePlayer(roll1 + roll2)
+                if (pasch) {
+                    ; //todo paschcount +1 (reset paschcount at end turn)
+                } else {
+                    // Disable rollbutton if no pasch and enable endturn button
+                    val rollDiceBUtton = currentStage.scene().lookup("#rollDice") //.asInstanceOf[javafx.scene.control.Button]
+                    rollDiceBUtton.setDisable(true)
+                    val endTurnButton = currentStage.scene().lookup("#endTurn") //.asInstanceOf[javafx.scene.control.Button]
+                    endTurnButton.setDisable(false)
+                }
+
         }
         // todo button endturn enable
         notifyObservers(UpdateListViewPlayersEvent())
+
     }
 
     def onEndTurn() = {
@@ -153,8 +169,15 @@ class GameController extends Observable {
             round += 1
             notifyObservers(newRoundEvent(round))
         }
+        // update round label
         val lblPlayerTurn = currentStage.scene().lookup("#lblPlayerTurn").asInstanceOf[javafx.scene.text.Text]
         lblPlayerTurn.setText("It is " + players(isturn).name + "´s turn")
+        // Enable rollbutton and disable endturn button
+        val rollDiceBUtton = currentStage.scene().lookup("#rollDice") //.asInstanceOf[javafx.scene.control.Button]
+        rollDiceBUtton.setDisable(false)
+        val endTurnButton = currentStage.scene().lookup("#endTurn") //.asInstanceOf[javafx.scene.control.Button]
+        endTurnButton.setDisable(true)
+        // todo hier iwo if botplayer run bot round -> roll ->  move -> end turn
     }
 
     def movePlayerSmooveTimerGui(): Unit = {
