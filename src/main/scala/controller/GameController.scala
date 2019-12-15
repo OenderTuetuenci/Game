@@ -124,11 +124,12 @@ class GameController extends Observable {
         notifyObservers(printEverythingEvent())
         notifyObservers(displayRollForPositionsEvent())
         GameStates.handle(rollForPositionsEvent())
-        do {
-            GameStates.handle(runRoundEvent())
-            GameStates.handle(checkGameOverEvent())
-        } while (!gameOver)
-        GameStates.handle(gameOverEvent())
+        //GameStates.handle(runRoundEvent())
+        //        do {
+
+        //            GameStates.handle(checkGameOverEvent())
+        //        } while (!gameOver)
+        //        GameStates.handle(gameOverEvent())
         //GameStates.handle(InitGameEvent())
 
         // todo try} while(!GameStates.runState == GameStates.gameOverState))
@@ -137,7 +138,23 @@ class GameController extends Observable {
 
     def onRollDice() = {
         //if game running //todo if not runstate == initstate
-        notifyObservers(OpenInformationDialogEvent())
+        players(isturn).strategy.execute("rollForPosition") match {
+            case (roll1: Int, roll2: Int, pasch: Boolean) => println(roll1, roll2, pasch)
+                players = playerController.movePlayer(roll1 + roll2)
+        }
+        // todo button endturn enable
+        notifyObservers(UpdateListViewPlayersEvent())
+    }
+
+    def onEndTurn() = {
+        isturn += 1
+        if (isturn == humanPlayers + npcPlayers) {
+            isturn = 0 // erster spieler ist wieder dran
+            round += 1
+            notifyObservers(newRoundEvent(round))
+        }
+        val lblPlayerTurn = currentStage.scene().lookup("#lblPlayerTurn").asInstanceOf[javafx.scene.text.Text]
+        lblPlayerTurn.setText("It is " + players(isturn).name + "´s turn")
     }
 
     def movePlayerSmooveTimerGui(): Unit = {
@@ -181,13 +198,15 @@ class GameController extends Observable {
             while (pasch) {
                 players(isturn).strategy.execute("rollDice") match {
                     case (roll1: Int, roll2: Int, rolledPasch: Boolean) => {
-                        notifyObservers(diceEvent(roll1, roll2, rolledPasch))
+                        //notifyObservers(diceEvent(roll1, roll2, rolledPasch))
+                        notifyObservers(UpdateGuiDiceLabelEvent(roll1, roll2, rolledPasch))
                         if (rolledPasch) paschCount += 1
                         else pasch = false
-                        //3x pasch gleich jail sonst move player
-                        if (paschCount == 3) {
+                        //3x pasch oder auf jail kommen gleich jail sonst move player
+                        if (paschCount == 3 || players(isturn).position == 30) {
                             players = players.updated(isturn, players(isturn).moveToJail)
                             notifyObservers(playerMoveToJail(players(isturn)))
+                            pasch = false
                         } else players = playerController.movePlayer(roll1 + roll2)
                     }
                 }
@@ -351,6 +370,12 @@ class GameController extends Observable {
             //
             //
             //            // entgueltige reihenfolge festlegen
+            // todo hier ist spielinit ab jetzt eventbasiert
+            notifyObservers(UpdateListViewPlayersEvent())
+            val lblPlayerTurn = currentStage.scene().lookup("#lblPlayerTurn").asInstanceOf[javafx.scene.text.Text]
+            lblPlayerTurn.setText("It is " + players(isturn).name + "´s turn")
+            val lblDiceResult = currentStage.scene().lookup("#lblDiceResult").asInstanceOf[javafx.scene.text.Text]
+            lblDiceResult.setText("Result dice roll: ")
         }
 
         def createBoardAndPlayersState = {
@@ -371,6 +396,11 @@ class GameController extends Observable {
                 //                }, 1000, 100)
             }
             //todo notifyObservers(e: GuiPutPlayersOnTheBoardEvent)
+            // todo game starts here
+            val lblPlayerTurn = currentStage.scene().lookup("#lblPlayerTurn").asInstanceOf[javafx.scene.text.Text]
+            lblPlayerTurn.setText("Roll for positions")
+            val lblDiceResult = currentStage.scene().lookup("#lblDiceResult").asInstanceOf[javafx.scene.text.Text]
+            lblDiceResult.setText("Result dice roll: ")
         }
 
         def runRoundState: Unit = {
@@ -381,8 +411,30 @@ class GameController extends Observable {
             notifyObservers(newRoundEvent(round))
             for (i <- 0 until humanPlayers + npcPlayers) {
                 //todo before turn trade or so by pressing buttons -> players(isturn).strategy.execute(onbutton)
-
                 isturn = i
+                val lblPlayerTurn = currentStage.scene().lookup("#lblPlayerTurn").asInstanceOf[javafx.scene.text.Text]
+                lblPlayerTurn.setText("It is " + players(isturn).name + "´s turn")
+                PlayerTurnStrategy.executePlayerTurn // zug ausfuehren
+                notifyObservers(UpdateListViewPlayersEvent())
+                //todo end turn by pressing endturnbutton -> players(isturn).strategy.execute(endturn)
+            }
+            // Rundenende
+            round += 1
+            notifyObservers(endRoundEvent(round))
+            notifyObservers(printEverythingEvent())
+        }
+
+        def runRoundStateOld: Unit = {
+            println("runroundstate")
+            // Todo handeln, strassen verkaufen,hypothek bezahlen etc vor dem wuerfeln
+            // Todo und nach dem wuerfeln falls er nicht pleite ist
+            // todo if player has money raus und einfach so rbüer
+            notifyObservers(newRoundEvent(round))
+            for (i <- 0 until humanPlayers + npcPlayers) {
+                //todo before turn trade or so by pressing buttons -> players(isturn).strategy.execute(onbutton)
+                isturn = i
+                val lblPlayerTurn = currentStage.scene().lookup("#lblPlayerTurn").asInstanceOf[javafx.scene.text.Text]
+                lblPlayerTurn.setText("It is " + players(isturn).name + "´s turn")
                 PlayerTurnStrategy.executePlayerTurn // zug ausfuehren
                 notifyObservers(UpdateListViewPlayersEvent())
                 //todo end turn by pressing endturnbutton -> players(isturn).strategy.execute(endturn)
@@ -426,10 +478,11 @@ class GameController extends Observable {
             val stackpane = currentStage.scene().lookup("#stackpane").asInstanceOf[javafx.scene.layout.StackPane]
             stackpane.getChildren().removeAll()
             // readd board
-            stackpane.getChildren().add(new ImageView(new Image("file:images/board.jpg", 800, 800, true, true))
+            stackpane.getChildren().add(new ImageView(new Image("file:images/BoardMonopolyDeluxe1992.png", 800, 800, false, true))
             )
             println("gameover")
-
+            val lblPlayerTurn = currentStage.scene().lookup("#lblPlayerTurn").asInstanceOf[javafx.scene.text.Text]
+            lblPlayerTurn.setText("Game Over")
 
 
 

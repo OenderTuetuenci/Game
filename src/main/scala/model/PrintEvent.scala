@@ -78,6 +78,8 @@ case class falseTestEvent() extends PrintEvent
 
 // GUI
 
+case class UpdateGuiDiceLabelEvent(roll1: Int, roll2: Int, pasch: Boolean) extends PrintEvent
+
 case class ClearGuiElementsEvent() extends PrintEvent
 
 case class MovePlayerFigureEvent(playerFigure: ImageView, x: Double, y: Double) extends PrintEvent

@@ -35,9 +35,8 @@ class PlayerController(gameController: GameController) {
             //            }
             //            print("fi" + f1)
             //////////////////////
-            var imgPath = ""
-            val figure = gameController.remainingFiguresToPick(0)
-            imgPath = figure match {
+            val figure = gameController.remainingFiguresToPick.head
+            val imgPath = figure match {
                 case "Hut" => "file:images/Hut.jpg"
                 case "Fingerhut" => "file:images/Fingerhut.jpg"
                 case "Schubkarre" => "file:images/Schubkarre.jpg"
@@ -57,7 +56,6 @@ class PlayerController(gameController: GameController) {
                 true,
                 true))
             players = players :+ Player(name, strategy = NPCStrategy(gameController), figure = imgView)
-            gameController.isturn += 1
         }
         players
     }
@@ -114,6 +112,8 @@ class PlayerController(gameController: GameController) {
         if (gameController.dice.checkPash(roll1, roll2)) {
             pasch = true
         }
+        gameController.notifyObservers(UpdateGuiDiceLabelEvent(roll1, roll2, pasch))
+
         (roll1, roll2, pasch)
     }
 

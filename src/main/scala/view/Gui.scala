@@ -42,6 +42,7 @@ class Gui(controller: GameController) extends Observer {
             case e: ClearGuiElementsEvent => clearGuiElements
             case e: UpdateListViewPlayersEvent => updateListViewPlayers()
             case e: PlacePlayersOnBoardEvent => placePlayersOnBoard()
+            case e: UpdateGuiDiceLabelEvent => updateGuiDiceLabel(e)
             case _ =>
 
 
@@ -54,6 +55,11 @@ class Gui(controller: GameController) extends Observer {
 
         }
         updateListViewEventLog(e.toString)
+    }
+
+    def updateGuiDiceLabel(e: UpdateGuiDiceLabelEvent) = {
+        val lblDiceResult = controller.currentStage.scene().lookup("#lblDiceResult").asInstanceOf[javafx.scene.text.Text]
+        lblDiceResult.setText("Rolled: " + e.roll1.toString + " " + e.roll2.toString + " pasch: " + e.pasch)
     }
 
     def placePlayersOnBoard() = {
@@ -136,8 +142,6 @@ class Gui(controller: GameController) extends Observer {
                 )
             }
             menubar.setId("menubar")
-            val lbl1 = new Text("Hallo")
-            lbl1.setId("hi")
             title = "Monopoly SE"
             scene = new Scene(1100, 800) {
                 fill = Black
@@ -145,25 +149,28 @@ class Gui(controller: GameController) extends Observer {
                     padding = Insets(10)
                     val pane = new StackPane()
                     pane.setId("stackpane")
-                    val boardImage = new ImageView(new Image("file:images/board.jpg", 800, 800, true, true))
+                    val boardImage = new ImageView(new Image("file:images/BoardMonopolyDeluxe1992.png", 800, 800, false, true))
                     val box = new VBox(
                         new Text {
-                            text = "Player x turn starts"
+                            id = "lblPlayerTurn"
+                            text = "Game Over"
                             style = "-fx-font-size: 20pt"
                             fill = new LinearGradient(
                                 endX = 0,
                                 stops = Stops(PaleGreen, SeaGreen))
                         },
-                        button("Roll Dice", controller.onRollDice, id = "rollDice"),
+                        button("Roll Dice", controller.onRollDice, idString = "rollDice"),
                         new Text {
+                            id = "lblDiceResult"
                             text = "Result roll dice"
                             style = "-fx-font-size: 20pt"
                             fill = new LinearGradient(
                                 endX = 0,
                                 stops = Stops(PaleGreen, SeaGreen))
                         },
+                        button("End turn", controller.onEndTurn, idString = "endTurn"),
                         new Text {
-                            text = "Players"
+                            text = "Players                                                                          "
                             style = "-fx-font-size: 20pt"
                             fill = new LinearGradient(
                                 endX = 0,
@@ -252,7 +259,7 @@ class Gui(controller: GameController) extends Observer {
         controller.currentStage.setHeight(bounds.getHeight)
     }
 
-    def button[R](text: String, action: () => R, id: String = "") = new Button(text) {
+    def button[R](text: String, action: () => R, idString: String = "") = new Button(text) {
         onAction = handle {
             action()
         }
@@ -260,7 +267,7 @@ class Gui(controller: GameController) extends Observer {
         hgrow = Priority.Always
         maxWidth = Double.MaxValue
         padding = Insets(7)
-        this.setId(id.toString)
+        this.setId("idString")
     }
 
 
