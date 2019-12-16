@@ -101,6 +101,6 @@ case class OpenInJailDialogEvent() extends PrintEvent
 
 case class OpenPlayerFreeDialog() extends PrintEvent
 
-case class OpenBuyableFieldDialog() extends PrintEvent
+case class OpenBuyableFieldDialog(field: Buyable) extends PrintEvent
 
 case class UpdateListViewPlayersEvent() extends PrintEvent

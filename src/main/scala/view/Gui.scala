@@ -82,6 +82,7 @@ class Gui(controller: GameController) extends Observer {
     def updateListViewEventLog(str: String) = {
         val listviewEventLog = controller.currentStage.scene().lookup("#lvEventLog").asInstanceOf[javafx.scene.control.ListView[String]]
         listviewEventLog.getItems.add(str)
+        listviewEventLog.scrollTo(listviewEventLog.getItems.length)
     }
 
     def clearGuiElements() = {
@@ -360,6 +361,52 @@ class Gui(controller: GameController) extends Observer {
         }
     }
 
+    def buyableFieldDialog(e: OpenBuyableFieldDialog): Unit = {
+        case class Result(option: String)
+
+        // Create the custom dialog.
+        val dialog = new Dialog[Result]() {
+            title = "Entered buyable"
+            headerText = controller.players(controller.isturn).name + " entered " + e.field.name
+            //graphic = new ImageView(this.getClass.getResource("login_icon.png").toString)
+        }
+        //dialog.getDialogPane.setPrefSize(600, 500)
+        val buyButton = new ButtonType("Buy", ButtonData.OKDone)
+        dialog.dialogPane().buttonTypes = Seq(buyButton, ButtonType.Cancel)
+
+        val image = new ImageView(new Image("file:images/broadwalk.png"))
+        //            ,
+        //            400,
+        //            400,
+        //            true,
+        //            true))
+
+
+        val grid = new GridPane() {
+            hgap = 10
+            vgap = 10
+            padding = Insets(20, 100, 10, 10)
+            add(image, 2, 0)
+        }
+        dialog.dialogPane().content = grid
+
+
+        // Convert the result to a username-password-pair when the login button is clicked.
+        dialog.resultConverter = dialogButton =>
+            if (dialogButton == buyButton) Result("buy")
+            else null
+
+        val result = dialog.showAndWait()
+
+        result match {
+            case Some(Result(option)) => {
+                // todo controller.buystreet
+            }
+            case None => "Dialog returned: None"
+        }
+    }
+
+
     def getPlayerNameDialog(e: OpenGetNameDialogEvent) = {
         case class Result(playerName: String, figure: String)
 
@@ -595,21 +642,7 @@ class Gui(controller: GameController) extends Observer {
         }
     }
 
-    def buyableFieldDialog(e: OpenBuyableFieldDialog): Unit = {
-        // todo
-        val alert = new Alert(AlertType.Confirmation) {
-            title = "Buyable field entered"
-            headerText = "Look, a Confirmation Dialog."
-            contentText = "Ok"
-        }
 
-        val result = alert.showAndWait()
-
-        result match {
-            case Some(ButtonType.OK) => println("ok in jail dialog")
-            case _ => "Cancel"
-        }
-    }
 
     def goToJailDialog(e: openGoToJailDialog): Unit = {
         // todo
