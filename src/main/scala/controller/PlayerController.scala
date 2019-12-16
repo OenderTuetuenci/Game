@@ -77,15 +77,6 @@ class PlayerController(gameController: GameController) {
                             gameController.printFun(playerPaysHyptohekOnStreetEvent(players(isturn), board(i).asInstanceOf[Street]))
                         }
                     }
-                case s: Trainstation =>
-                    if (board(i).asInstanceOf[Trainstation].owner == isturn) {
-                        // wenn er die hypothek zahlen kann tut er dies
-                        if (s.mortgage && players(isturn).money > s.price) {
-                            board = board.updated(i, board(i).asInstanceOf[Trainstation].payHypothek())
-                            players = players.updated(isturn, players(isturn).decMoney(s.price))
-                            gameController.printFun(playerPaysHyptohekOnTrainstationEvent(players(isturn), board(i).asInstanceOf[Trainstation]))
-                        }
-                    }
                 case _ =>
             }
         }
@@ -139,22 +130,18 @@ class PlayerController(gameController: GameController) {
         // neue position ausgeben
         gameController.printFun(playerMoveEvent(players(isturn)))
         // aktion fuer betretetenes feld ausloesen
-        /*val field = board(players(isturn).position)
+        val field = board(players(isturn).position)
         field match {
+            case e: Buyable => boardController.activateStreet(e.asInstanceOf[Buyable])
             case e: Los => boardController.activateStart(e.asInstanceOf[Los])
-            case e: Street => boardController.activateStreet(e.asInstanceOf[Street])
-            case e: Trainstation => boardController.activateTrainstation(e.asInstanceOf[Trainstation])
-            case e: Eventcell => boardController.activateEvent(e.asInstanceOf[Eventcell])
-            case e: CommunityChest => boardController.activateCommunityChest(e.asInstanceOf[CommunityChest])
-            case e: IncomeTax => boardController.activateIncomeTax(e.asInstanceOf[IncomeTax])
-            case e: Elektrizitaetswerk => boardController.activateElektrizitaetswerk(e.asInstanceOf[Elektrizitaetswerk])
-            case e: Wasserwerk => boardController.activateWasserwerk(e.asInstanceOf[Wasserwerk])
-            case e: Zusatzsteuer => boardController.activateZusatzsteuer(e.asInstanceOf[Zusatzsteuer])
-            case e: FreiParken => boardController.activateFreiParken(e.asInstanceOf[FreiParken])
-            case e: GoToJail => boardController.activateGoToJail(e.asInstanceOf[GoToJail])
-            case e: Jail => boardController.activateJail(e.asInstanceOf[Jail])
+            //            case e: Eventcell => boardController.activateEvent(e.asInstanceOf[Eventcell])
+            //            case e: CommunityChest => boardController.activateCommunityChest(e.asInstanceOf[CommunityChest])
+            //            case e: IncomeTax => boardController.activateIncomeTax(e.asInstanceOf[IncomeTax])
+            //            case e: FreiParken => boardController.activateFreiParken(e.asInstanceOf[FreiParken])
+            //            case e: GoToJail => boardController.activateGoToJail(e.asInstanceOf[GoToJail])
+            //            case e: Jail => boardController.activateJail(e.asInstanceOf[Jail])
             case _ =>
-        }*/
+        }
         players
     }
 

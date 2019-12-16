@@ -38,6 +38,9 @@ class Gui(controller: GameController) extends Observer {
             case e: OpenInformationDialogEvent => informationDialog(e)
             case e: OpenConfirmationDialogEvent => confirmationDialog(e)
             case e: OpenInJailDialogEvent => inJailDialog(e)
+            case e: OpenPlayerFreeDialog => playerFreeDialog(e)
+            case e: OpenBuyableFieldDialog => buyableFieldDialog(e)
+            case e: openGoToJailDialog => goToJailDialog(e)
             case e: MovePlayerFigureEvent => movePlayerFigure(e)
             case e: ClearGuiElementsEvent => clearGuiElements
             case e: UpdateListViewPlayersEvent => updateListViewPlayers()
@@ -59,7 +62,7 @@ class Gui(controller: GameController) extends Observer {
 
     def updateGuiDiceLabel(e: UpdateGuiDiceLabelEvent) = {
         val lblDiceResult = controller.currentStage.scene().lookup("#lblDiceResult").asInstanceOf[javafx.scene.text.Text]
-        lblDiceResult.setText("Rolled: " + e.roll1.toString + " " + e.roll2.toString + " pasch: " + e.pasch)
+        lblDiceResult.setText(controller.players(controller.isturn).name + " Rolled: " + e.roll1.toString + " " + e.roll2.toString + " pasch: " + e.pasch)
     }
 
     def placePlayersOnBoard() = {
@@ -213,7 +216,11 @@ class Gui(controller: GameController) extends Observer {
 
                                     cell.item.onChange { (_, _, str) => cell.text = str }
 
-                                    cell.onMouseClicked = { me: MouseEvent => println("Do something with " + cell.text.value) }
+                                    cell.onMouseClicked = { me: MouseEvent => {
+                                        playerStatsDialog(controller.players(controller.isturn)) // todo später die liste manipulieren anstatt dialog
+                                        println("Do something with " + cell.text.value)
+                                    }
+                                    }
 
                                     cell
 
@@ -515,6 +522,14 @@ class Gui(controller: GameController) extends Observer {
         }
     }
 
+    def playerStatsDialog(currentPlayer: Player): Unit = {
+        new Alert(AlertType.Information) {
+            title = "Player " + currentPlayer.name + " Stats"
+            headerText = currentPlayer.toString
+            contentText = "I have a great message for you!"
+        }.showAndWait()
+    }
+
     def informationDialog(e: OpenInformationDialogEvent): Unit = {
         new Alert(AlertType.Information) {
             title = "Information Dialog"
@@ -551,15 +566,63 @@ class Gui(controller: GameController) extends Observer {
     def inJailDialog(e: OpenInJailDialogEvent): Unit = {
         // todo
         val alert = new Alert(AlertType.Confirmation) {
-            title = "Confirmation Dialog"
+            title = "Player is in jail"
             headerText = "Look, a Confirmation Dialog."
-            contentText = "Do you want to quit?"
+            contentText = "Ok"
         }
 
         val result = alert.showAndWait()
 
         result match {
-            case Some(ButtonType.OK) => System.exit(0)
+            case Some(ButtonType.OK) => println("ok in jail dialog")
+            case _ => "Cancel"
+        }
+    }
+
+    def playerFreeDialog(e: OpenPlayerFreeDialog): Unit = {
+        // todo
+        val alert = new Alert(AlertType.Confirmation) {
+            title = "Player is free"
+            headerText = "Look, a Confirmation Dialog."
+            contentText = "Ok"
+        }
+
+        val result = alert.showAndWait()
+
+        result match {
+            case Some(ButtonType.OK) => println("ok in jail dialog")
+            case _ => "Cancel"
+        }
+    }
+
+    def buyableFieldDialog(e: OpenBuyableFieldDialog): Unit = {
+        // todo
+        val alert = new Alert(AlertType.Confirmation) {
+            title = "Buyable field entered"
+            headerText = "Look, a Confirmation Dialog."
+            contentText = "Ok"
+        }
+
+        val result = alert.showAndWait()
+
+        result match {
+            case Some(ButtonType.OK) => println("ok in jail dialog")
+            case _ => "Cancel"
+        }
+    }
+
+    def goToJailDialog(e: openGoToJailDialog): Unit = {
+        // todo
+        val alert = new Alert(AlertType.Confirmation) {
+            title = "Go to jail"
+            headerText = "Look, a Confirmation Dialog."
+            contentText = "Ok"
+        }
+
+        val result = alert.showAndWait()
+
+        result match {
+            case Some(ButtonType.OK) => println("ok in jail dialog")
             case _ => "Cancel"
         }
     }

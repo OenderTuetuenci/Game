@@ -37,9 +37,6 @@ class Tui(controller: GameController) extends Observer {
             case e: playerSellsStreetEvent => getPlayerSellsStreetString(e)
             case e: playerUsesHyptohekOnStreetEvent => getPlayerUsesHypothekOnStreetString(e)
             case e: playerPaysHyptohekOnStreetEvent => getPlayerPaysHypothekOnStreetString(e)
-            case e: playerUsesHyptohekOnTrainstationEvent => getPlayerUsesHypothekOnTrainstationString(e)
-            case e: playerPaysHyptohekOnTrainstationEvent => getPlayerPaysHypothekOnTrainstationString(e)
-            case e: playerSellsTrainstationEvent => getPlayerSellsTrainstationString(e)
             case e: newRoundEvent => getNewRoundString(e)
             case e: endRoundEvent => getEndRoundString(e)
             case e: playerMoveToJail => getPlayerMoveToJailString(e)
@@ -87,36 +84,15 @@ class Tui(controller: GameController) extends Observer {
             }
             // felder anzeigen
             board(i) match {
+                case s: Buyable => s.toString
                 case s: Los => string += s.toString
                 case s: Eventcell => string += s.toString
                 case s: CommunityChest => string += s.toString
                 case s: IncomeTax => string += s.toString
                 case s: Jail => string += s.toString
-                case s: Elektrizitaetswerk => string += s.toString
-                case s: Wasserwerk => string += s.toString
                 case s: Zusatzsteuer => string += s.toString
                 case s: FreiParken => string += s.toString
                 case s: GoToJail => string += s.toString
-                case s: Street =>
-                    // besitzer des feldes suchen
-                    var owner = s.owner.toString
-                    if (s.owner != -1) owner = players(s.owner).name
-                    string += s.toString + " | Owner: " + owner
-                case s: Trainstation =>
-                    // besitzer des feldes suchen
-                    var owner = s.owner.toString
-                    if (s.owner != -1) owner = players(s.owner).name
-                    string += s.toString + " | Owner: " + owner
-                case s: Elektrizitaetswerk =>
-                    // besitzer des feldes suchen
-                    var owner = s.owner.toString
-                    if (s.owner != -1) owner = players(s.owner).name
-                    string += s.toString + " | Owner: " + owner
-                case s: Wasserwerk =>
-                    // besitzer des feldes suchen
-                    var owner = s.owner.toString
-                    if (s.owner != -1) owner = players(s.owner).name
-                    string += s.toString + " | Owner: " + owner
             }
             // spieler die sich auf dem aktuellen feld befinden werden angezeigt
             if (playersOnThisField != "") string += " | players on this field: " + playersOnThisField
@@ -189,20 +165,6 @@ class Tui(controller: GameController) extends Observer {
     }
 
     def getPlayerSellsStreetString(e: playerSellsStreetEvent): String = {
-        var string = e.from.name + " sells " + e.street.name + "\n"
-        string += "new creditbalance: " + e.from.money
-        string
-    }
-
-    def getPlayerUsesHypothekOnTrainstationString(e: playerUsesHyptohekOnTrainstationEvent): String = {
-        e.player.name + " pays Hypothek for " + e.street.name + " new creditbalance: " + e.player.money
-    }
-
-    def getPlayerPaysHypothekOnTrainstationString(e: playerPaysHyptohekOnTrainstationEvent): String = {
-        e.player.name + " pays Hypothek for " + e.street.name + " new creditbalance: " + e.player.money
-    }
-
-    def getPlayerSellsTrainstationString(e: playerSellsTrainstationEvent): String = {
         var string = e.from.name + " sells " + e.street.name + "\n"
         string += "new creditbalance: " + e.from.money
         string

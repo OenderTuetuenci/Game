@@ -34,6 +34,7 @@ class GameController extends Observable {
     //todo gui
     var currentStage = new PrimaryStage()
     var isturn = 0 // aktueller spieler
+    var paschCount = 0
     // feldcoords todo resizeable mainwindow offset xy stackpane
     val goXY = (350, 350)
     val jailXY = (-350, 350)
@@ -112,9 +113,6 @@ class GameController extends Observable {
         notifyObservers(OpenInformationDialogEvent())
     }
 
-
-
-
     def onStartGame() = {
         notifyObservers(OpenGetPlayersDialogEvent())
         notifyObservers(ClearGuiElementsEvent())
@@ -136,18 +134,21 @@ class GameController extends Observable {
         //        } while (!gameOver)
         //        GameStates.handle(gameOverEvent())
         //GameStates.handle(InitGameEvent())
-
-        // todo try} while(!GameStates.runState == GameStates.gameOverState))
     }
 
+    def initFirstRound() = {
+        ;
+    }
 
     def onRollDice() = {
-        //if game running //todo if not runstate == initstate
         players(isturn).strategy.execute("rollDice") match {
             case (roll1: Int, roll2: Int, pasch: Boolean) => println(roll1, roll2, pasch)
-                players = playerController.movePlayer(roll1 + roll2)
                 if (pasch) {
-                    ; //todo paschcount +1 (reset paschcount at end turn)
+                    paschCount += 1
+                    if (players(isturn).jailCount > 0) {
+                        players = players.updated(isturn, players(isturn).resetJailCount)
+                        notifyObservers(OpenPlayerFreeDialog())
+                    }
                 } else {
                     // Disable rollbutton if no pasch and enable endturn button
                     val rollDiceBUtton = currentStage.scene().lookup("#rollDice") //.asInstanceOf[javafx.scene.control.Button]
@@ -155,18 +156,33 @@ class GameController extends Observable {
                     val endTurnButton = currentStage.scene().lookup("#endTurn") //.asInstanceOf[javafx.scene.control.Button]
                     endTurnButton.setDisable(false)
                 }
-
+                //move to jail
+                if (paschCount == 2) {
+                    players = players.updated(isturn, players(isturn).moveToJail)
+                    players = players.updated(isturn, players(isturn).incJailTime)
+                    notifyObservers(MovePlayerFigureEvent(players(isturn).figure, -350, 350)) // jailxy
+                    notifyObservers(openGoToJailDialog())
+                    val rollDiceBUtton = currentStage.scene().lookup("#rollDice") //.asInstanceOf[javafx.scene.control.Button]
+                    rollDiceBUtton.setDisable(true)
+                    val endTurnButton = currentStage.scene().lookup("#endTurn") //.asInstanceOf[javafx.scene.control.Button]
+                    endTurnButton.setDisable(false)
+                } else {
+                    // nur wenn player nicht im jail
+                    if (players(isturn).jailCount == 0) players = playerController.movePlayer(roll1 + roll2)
+                }
         }
-        // todo button endturn enable
         notifyObservers(UpdateListViewPlayersEvent())
 
     }
 
     def onEndTurn() = {
+        // init next round
+        paschCount = 0
         isturn += 1
         if (isturn == humanPlayers + npcPlayers) {
             isturn = 0 // erster spieler ist wieder dran
             round += 1
+            //start next round
             notifyObservers(newRoundEvent(round))
         }
         // update round label
@@ -178,6 +194,20 @@ class GameController extends Observable {
         val endTurnButton = currentStage.scene().lookup("#endTurn") //.asInstanceOf[javafx.scene.control.Button]
         endTurnButton.setDisable(true)
         // todo hier iwo if botplayer run bot round -> roll ->  move -> end turn
+        //start next turn
+        //jailtime++
+        if (players(isturn).jailCount > 0) players = players.updated(isturn, players(isturn).incJailTime)
+        // frei nach 3 runden
+        if (players(isturn).jailCount >= 4) {
+            // player is free again notifyObservers(OpenInJailDialogEvent())
+            players = players.updated(isturn, players(isturn).resetJailCount)
+            notifyObservers(OpenPlayerFreeDialog())
+        }
+        // wenn spieler im jail jaildialog oeffnen
+        if (players(isturn).jailCount > 0) notifyObservers(OpenInJailDialogEvent())
+
+        notifyObservers(UpdateListViewPlayersEvent())
+
     }
 
     def movePlayerSmooveTimerGui(): Unit = {

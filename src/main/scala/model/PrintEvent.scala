@@ -42,12 +42,6 @@ case class playerUsesHyptohekOnStreetEvent(player: Player, street: Street) exten
 
 case class playerPaysHyptohekOnStreetEvent(player: Player, street: Street) extends PrintEvent
 
-case class playerSellsTrainstationEvent(from: Player, street: Trainstation) extends PrintEvent
-
-case class playerUsesHyptohekOnTrainstationEvent(player: Player, street: Trainstation) extends PrintEvent
-
-case class playerPaysHyptohekOnTrainstationEvent(player: Player, street: Trainstation) extends PrintEvent
-
 case class playerHasDeptEvent(player: Player) extends PrintEvent
 
 case class streetOnHypothekEvent(street: Street) extends PrintEvent
@@ -85,6 +79,8 @@ case class ClearGuiElementsEvent() extends PrintEvent
 case class MovePlayerFigureEvent(playerFigure: ImageView, x: Double, y: Double) extends PrintEvent
 case class OpenMainWindowEvent() extends PrintEvent
 
+case class openGoToJailDialog() extends PrintEvent
+
 case class openGameOverDialogEvent() extends PrintEvent
 
 case class OpenGameWindowEvent() extends PrintEvent
@@ -102,5 +98,9 @@ case class OpenInformationDialogEvent() extends PrintEvent
 case class OpenConfirmationDialogEvent() extends PrintEvent
 
 case class OpenInJailDialogEvent() extends PrintEvent
+
+case class OpenPlayerFreeDialog() extends PrintEvent
+
+case class OpenBuyableFieldDialog() extends PrintEvent
 
 case class UpdateListViewPlayersEvent() extends PrintEvent
