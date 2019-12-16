@@ -139,7 +139,7 @@ class PlayerController(gameController: GameController) {
             //            case e: IncomeTax => boardController.activateIncomeTax(e.asInstanceOf[IncomeTax])
             //            case e: FreiParken => boardController.activateFreiParken(e.asInstanceOf[FreiParken])
             //            case e: GoToJail => boardController.activateGoToJail(e.asInstanceOf[GoToJail])
-            //            case e: Jail => boardController.activateJail(e.asInstanceOf[Jail])
+            case e: GoToJail => boardController.activateJail(e.asInstanceOf[GoToJail])
             case _ =>
         }
         players

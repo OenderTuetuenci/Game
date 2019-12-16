@@ -110,15 +110,24 @@ class BoardController(gameController: GameController) {
         gameController.players = gameController.players.updated(gameController.isturn, gameController.players(gameController.isturn).incMoney(1000))
     }
 
+    def activateJail(field: GoToJail): Unit = {
+        field.onPlayerEntered(gameController.isturn)
+        gameController.notifyObservers(openGoToJailDialog())
+        gameController.players = gameController.players.updated(gameController.isturn, gameController.players(gameController.isturn).moveToJail)
+        gameController.players = gameController.players.updated(gameController.isturn, gameController.players(gameController.isturn).incJailTime)
+        gameController.notifyObservers(MovePlayerFigureEvent(gameController.players(gameController.isturn).figure, -350, 350)) // jailxy
+        val rollDiceBUtton = gameController.currentStage.scene().lookup("#rollDice") //.asInstanceOf[javafx.scene.control.Button]
+        rollDiceBUtton.setDisable(true)
+        val endTurnButton = gameController.currentStage.scene().lookup("#endTurn") //.asInstanceOf[javafx.scene.control.Button]
+        endTurnButton.setDisable(false)
+    }
+
     /*
     def activateEvent(field: Eventcell): Unit = {
         field.onPlayerEntered(isturn)
     }
 
-    def activateJail(field: Jail): Unit = {
-        field.onPlayerEntered(isturn)
-        players = players.updated(isturn, players(isturn).moveToJail)
-    }
+
 
     def activateGoToJail(field: GoToJail): Unit = {
         field.onPlayerEntered(isturn)
@@ -133,18 +142,6 @@ class BoardController(gameController: GameController) {
     }
 
     def activateIncomeTax(field: IncomeTax): Unit = {
-        field.onPlayerEntered(isturn)
-    }
-
-    def activateElektrizitaetswerk(field: Elektrizitaetswerk): Unit = {
-        field.onPlayerEntered(isturn)
-    }
-
-    def activateTrainstation(field: Trainstation): Unit = {
-        field.onPlayerEntered(isturn)
-    }
-
-    def activateWasserwerk(field: Wasserwerk): Unit = {
         field.onPlayerEntered(isturn)
     }
 
