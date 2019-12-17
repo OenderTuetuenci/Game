@@ -218,7 +218,7 @@ class Gui(controller: GameController) extends Observer {
                                     cell.item.onChange { (_, _, str) => cell.text = str }
 
                                     cell.onMouseClicked = { me: MouseEvent => {
-                                        playerStatsDialog(controller.players(controller.isturn)) // todo später die liste manipulieren anstatt dialog
+                                        playerStatsDialog(cell.index.toInt)
                                         println("Do something with " + cell.text.value)
                                     }
                                     }
@@ -564,12 +564,12 @@ class Gui(controller: GameController) extends Observer {
         }
     }
 
-    def playerStatsDialog(currentPlayer: Player): Unit = {
+    def playerStatsDialog(playerIdx: Int): Unit = {
         case class Result(option: String)
 
         // Create the custom dialog.
         val dialog = new Dialog[Result]() {
-            title = "Player x"
+            title = controller.players(playerIdx).name
             headerText = "Stats"
             //graphic = new ImageView(this.getClass.getResource("login_icon.png").toString)
         }
@@ -584,6 +584,12 @@ class Gui(controller: GameController) extends Observer {
         }
         dialog.dialogPane().content = grid
 
+        val btn = dialog.dialogPane().lookupButton(tradeButton)
+
+        if (controller.players(controller.isturn).name == controller.players(playerIdx).name) btn.setVisible(false)
+
+        btn.disable
+
         // Convert the result to a username-password-pair when the login button is clicked.
         dialog.resultConverter = dialogButton =>
             if (dialogButton == tradeButton) Result("trade")
@@ -593,19 +599,19 @@ class Gui(controller: GameController) extends Observer {
 
         result match {
             case Some(Result("trade")) => {
-                openTradeDialog() // todo player currentturn and player to trade
+                openTradeDialog(playerIdx) // todo player currentturn and player to trade
             }
             case None => "Dialog returned: None"
         }
     }
 
-    def openTradeDialog(): Unit = {
+    def openTradeDialog(playerIdx: Int): Unit = {
         case class Result(option: String)
 
         // Create the custom dialog.
         val dialog = new Dialog[Result]() {
             title = "Tradewindow"
-            headerText = "Player x and Player y"
+            headerText = controller.players(controller.isturn).name + " and " + controller.players(playerIdx).name
             //graphic = new ImageView(this.getClass.getResource("login_icon.png").toString)
         }
         //dialog.getDialogPane.setPrefSize(600, 500)
@@ -652,6 +658,10 @@ class Gui(controller: GameController) extends Observer {
             }
             items = ObservableBuffer()
         }
+        for (item <- controller.players(controller.isturn).ownedStreets)
+            lvPlayer1.getItems.add(controller.board(item).name)
+        for (item <- controller.players(playerIdx).ownedStreets)
+            lvPlayer2.getItems.add(controller.board(item).name)
 
         val grid = new GridPane() {
             hgap = 10
@@ -674,6 +684,7 @@ class Gui(controller: GameController) extends Observer {
 
         result match {
             case Some(Result("accept")) => {
+                //controller.trade(player1idx,player2idx,listplayer1,listplayer2,moneyplayer1,moneyplayer2
                 print("trade items") // todo trade selected items and money
             }
             case None => "Dialog returned: None"

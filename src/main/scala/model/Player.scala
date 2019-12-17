@@ -4,16 +4,16 @@ import controller.HumanOrNpcStrategy
 import scalafx.scene.image.ImageView
 
 case class Player(name: String, position: Int = 0, money: Int = 10000, jailCount: Int = 0,
-                  ownedStreet: Vector[Int] = Vector[Int](), turnPosition: Int = 0, rollForPosition: Int = 0, strategy: HumanOrNpcStrategy, figure: ImageView) {
+                  ownedStreets: Vector[Int] = Vector[Int](), turnPosition: Int = 0, rollForPosition: Int = 0, strategy: HumanOrNpcStrategy, figure: ImageView) {
     override def toString: String = {
-        "name: " + this.name + " pos: " + this.position + " money: " + this.money + " roundsInJail: " + this.jailCount + " ownedStreets: " + this.ownedStreet.mkString(",") + " rollForPosition: " + this.rollForPosition + " turnPosition: " + this.turnPosition
+        "name: " + this.name + " pos: " + this.position + " money: " + this.money + " roundsInJail: " + this.jailCount + " ownedStreets: " + this.ownedStreets.mkString(",") + " rollForPosition: " + this.rollForPosition + " turnPosition: " + this.turnPosition
     }
 
     def move(x: Int): Player = this.copy(position = this.position + x)
 
-    def buyStreet(streetNr: Int): Player = this.copy(ownedStreet = this.ownedStreet :+ streetNr)
+    def buyStreet(streetNr: Int): Player = this.copy(ownedStreets = this.ownedStreets :+ streetNr)
 
-    def sellStreet(streetNr: Int): Player = this.copy(ownedStreet = this.ownedStreet.filterNot(o => o == streetNr))
+    def sellStreet(streetNr: Int): Player = this.copy(ownedStreets = this.ownedStreets.filterNot(o => o == streetNr))
 
     def moveBack(x: Int): Player = this.copy(position = this.position - x)
 
