@@ -157,7 +157,7 @@ class GameController extends Observable {
                     endTurnButton.setDisable(false)
                 }
                 //move to jail
-                if (paschCount == 2) {
+                if (paschCount == 2) { //todo 3
                     players = players.updated(isturn, players(isturn).moveToJail)
                     players = players.updated(isturn, players(isturn).incJailTime)
                     notifyObservers(MovePlayerFigureEvent(players(isturn).figure, -350, 350)) // jailxy

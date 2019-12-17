@@ -219,7 +219,7 @@ class Gui(controller: GameController) extends Observer {
 
                                     cell.onMouseClicked = { me: MouseEvent => {
                                         playerStatsDialog(cell.index.toInt)
-                                        println("Do something with " + cell.text.value)
+                                        updateListViewPlayers()
                                     }
                                     }
 
@@ -290,6 +290,10 @@ class Gui(controller: GameController) extends Observer {
         controller.currentStage.setHeight(bounds.getHeight)
     }
 
+    //    def playerListItem(imgPath: String="",name: String="",money: String="") = new VBox() { // todo in die playerlist später
+    //        ;
+    //    }
+
     def button[R](text: String, action: () => R, idString: String = "") = new Button(text) {
         onAction = handle {
             action()
@@ -300,6 +304,7 @@ class Gui(controller: GameController) extends Observer {
         padding = Insets(7)
         this.setId("idString")
     }
+
 
 
     // Dialogs
@@ -565,6 +570,7 @@ class Gui(controller: GameController) extends Observer {
     }
 
     def playerStatsDialog(playerIdx: Int): Unit = {
+        //todo buy house sell street vlt hier rein erstmal
         case class Result(option: String)
 
         // Create the custom dialog.
@@ -575,12 +581,45 @@ class Gui(controller: GameController) extends Observer {
         }
         //dialog.getDialogPane.setPrefSize(600, 500)
         val tradeButton = new ButtonType("Trade", ButtonData.OKDone)
-        dialog.dialogPane().buttonTypes = Seq(tradeButton, ButtonType.Cancel)
+        val sellButton = new ButtonType("Sell to bank", ButtonData.OKDone)
+        val buyHomeButton = new ButtonType("Buy house / hotel", ButtonData.OKDone)
+        val sellHomeButton = new ButtonType("Buy house / hotel", ButtonData.OKDone)
+        val getOrPayMortgage = new ButtonType("get / pay mortgage", ButtonData.OKDone)
+        dialog.dialogPane().buttonTypes = Seq(tradeButton, sellButton, buyHomeButton, sellHomeButton, getOrPayMortgage, ButtonType.Cancel)
 
+        //todo init buttons and streets and show mortgage , houses
+        // if group = wasserwerk/ewerk/bahnhoefe hide houses and buttons
+
+        // image of street
+        var image = new ImageView(new Image("file:images/broadwalk.png"))
+        // Properties of selected player
+        val lvSelectedPlayer = new ListView[String] {
+            this.setId("lvSelectedPlayer")
+            orientation = Orientation.Vertical
+            cellFactory = {
+                p => {
+                    val cell = new ListCell[String]
+                    cell.textFill = Color.Blue
+                    cell.cursor = Cursor.Hand
+                    cell.item.onChange { (_, _, str) => cell.text = str }
+                    cell.onMouseClicked = { me: MouseEvent =>
+                        // todo image = street.image
+                        println("Do something with " + cell.text.value)
+
+                    }
+                    cell
+                }
+            }
+            items = ObservableBuffer()
+        }
+        for (item <- controller.players(playerIdx).ownedStreets)
+            lvSelectedPlayer.getItems.add(controller.board(item).name)
         val grid = new GridPane() {
             hgap = 10
             vgap = 10
             padding = Insets(20, 100, 10, 10)
+            add(lvSelectedPlayer, 0, 0)
+            add(image, 1, 0)
         }
         dialog.dialogPane().content = grid
 
@@ -684,7 +723,13 @@ class Gui(controller: GameController) extends Observer {
 
         result match {
             case Some(Result("accept")) => {
-                //controller.trade(player1idx,player2idx,listplayer1,listplayer2,moneyplayer1,moneyplayer2
+                //todo trade properties get list of selected properties for both players and set new owner for each lists
+                //geld abziehen
+                controller.players = controller.players.updated(controller.isturn, controller.players(controller.isturn).decMoney(tfPlayerXMoney.getText.toInt))
+                controller.players = controller.players.updated(playerIdx, controller.players(playerIdx).decMoney(tfPlayerYMoney.getText.toInt))
+                //geld draufzahlen
+                controller.players = controller.players.updated(controller.isturn, controller.players(controller.isturn).incMoney(tfPlayerYMoney.getText.toInt))
+                controller.players = controller.players.updated(playerIdx, controller.players(playerIdx).incMoney(tfPlayerXMoney.getText.toInt))
                 print("trade items") // todo trade selected items and money
             }
             case None => "Dialog returned: None"
