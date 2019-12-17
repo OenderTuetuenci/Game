@@ -110,11 +110,7 @@ class PlayerController(gameController: GameController) {
 
     def movePlayer(sumDiceThrow: Int): Vector[Player] = {
         // spieler bewegen
-        val board = gameController.board
-        var players = gameController.players
-        val isturn = gameController.isturn
-        val boardController = gameController.boardController
-
+        import gameController._
         players = players.updated(isturn, players(isturn).move(sumDiceThrow))
         println("sumDiceThrow = " + sumDiceThrow)
         // schauen ob über los gegangen todo wenn spieler auf jail kommt und pasch gewuerfelt hat
@@ -157,7 +153,8 @@ class PlayerController(gameController: GameController) {
         players = players.updated(field.owner, players(field.owner).incMoney(rent))
         gameController.printFun(payRentEvent(players(isturn), players(field.owner)))
         // schauen ob player ins minus gekommen ist
-        checkDept(players)
+        //todo checkDept(players)
+        (gameController.board, players)
     }
 
     def checkDept(playerState: Vector[Player]): (Vector[Cell], Vector[Player]) = {

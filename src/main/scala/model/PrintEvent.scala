@@ -103,4 +103,6 @@ case class OpenPlayerFreeDialog() extends PrintEvent
 
 case class OpenBuyableFieldDialog(field: Buyable) extends PrintEvent
 
+case class OpenPayRentDialog(field: Buyable) extends PrintEvent
+
 case class UpdateListViewPlayersEvent() extends PrintEvent

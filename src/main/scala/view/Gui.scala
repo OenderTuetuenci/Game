@@ -29,6 +29,7 @@ class Gui(controller: GameController) extends Observer {
 
     override def update(e: PrintEvent): Any = {
         e match {
+            //windows, dialogs
             case e: openGameOverDialogEvent => gameOverDialog(e)
             case e: OpenMainWindowEvent => mainWindow(e)
             case e: OpenGetPlayersDialogEvent => getPlayersDialog(e)
@@ -40,7 +41,9 @@ class Gui(controller: GameController) extends Observer {
             case e: OpenInJailDialogEvent => inJailDialog(e)
             case e: OpenPlayerFreeDialog => playerFreeDialog(e)
             case e: OpenBuyableFieldDialog => buyableFieldDialog(e)
+            case e: OpenPayRentDialog => payRentDialog(e)
             case e: openGoToJailDialog => goToJailDialog(e)
+            // others
             case e: MovePlayerFigureEvent => movePlayerFigure(e)
             case e: ClearGuiElementsEvent => clearGuiElements
             case e: UpdateListViewPlayersEvent => updateListViewPlayers()
@@ -62,7 +65,7 @@ class Gui(controller: GameController) extends Observer {
 
     def updateGuiDiceLabel(e: UpdateGuiDiceLabelEvent) = {
         val lblDiceResult = controller.currentStage.scene().lookup("#lblDiceResult").asInstanceOf[javafx.scene.text.Text]
-        lblDiceResult.setText(controller.players(controller.isturn).name + " Rolled: " + e.roll1.toString + " " + e.roll2.toString + " pasch: " + e.pasch)
+        lblDiceResult.setText(controller.players(controller.isturn).name + " Rolled: " + e.roll1.toString + " " + e.roll2.toString + " paschCount: " + controller.paschCount)
     }
 
     def placePlayersOnBoard() = {
@@ -70,9 +73,6 @@ class Gui(controller: GameController) extends Observer {
     }
 
     def updateListViewPlayers() = {
-        //        val rollDiceButton = currentStage.scene().lookup("#rollDice")
-        //        print(rollDiceButton)
-        //rollDiceButton.setDisable(true)
         val listviewSpieler = controller.currentStage.scene().lookup("#lvPlayers").asInstanceOf[javafx.scene.control.ListView[String]]
         listviewSpieler.getItems.clear()
         for (player <- controller.players)
@@ -390,6 +390,7 @@ class Gui(controller: GameController) extends Observer {
         }
         dialog.dialogPane().content = grid
 
+        //todo if (players(isturn).money >= field.price) {
 
         // Convert the result to a username-password-pair when the login button is clicked.
         dialog.resultConverter = dialogButton =>
@@ -399,13 +400,57 @@ class Gui(controller: GameController) extends Observer {
         val result = dialog.showAndWait()
 
         result match {
-            case Some(Result(option)) => {
-                // todo controller.buystreet
+            case Some(Result("buy")) => {
+                controller.buy
             }
             case None => "Dialog returned: None"
         }
     }
 
+    def payRentDialog(e: OpenPayRentDialog): Unit = {
+        case class Result(option: String)
+
+        // Create the custom dialog.
+        val dialog = new Dialog[Result]() {
+            title = "Entered owned Field"
+            headerText = controller.players(controller.isturn).name + " entered " + e.field.name
+            //graphic = new ImageView(this.getClass.getResource("login_icon.png").toString)
+        }
+        //dialog.getDialogPane.setPrefSize(600, 500)
+        val payButton = new ButtonType("Pay", ButtonData.OKDone)
+        dialog.dialogPane().buttonTypes = Seq(payButton, ButtonType.Cancel)
+
+        val image = new ImageView(new Image("file:images/broadwalk.png"))
+        //            ,
+        //            400,
+        //            400,
+        //            true,
+        //            true))
+
+
+        val grid = new GridPane() {
+            hgap = 10
+            vgap = 10
+            padding = Insets(20, 100, 10, 10)
+            add(image, 2, 0)
+        }
+        dialog.dialogPane().content = grid
+
+
+        // Convert the result to a username-password-pair when the login button is clicked.
+        dialog.resultConverter = dialogButton =>
+            if (dialogButton == payButton) Result("pay")
+            else null
+
+        val result = dialog.showAndWait()
+
+        result match {
+            case Some(Result("pay")) => {
+                controller.payRent
+            }
+            case None => "Dialog returned: None"
+        }
+    }
 
     def getPlayerNameDialog(e: OpenGetNameDialogEvent) = {
         case class Result(playerName: String, figure: String)

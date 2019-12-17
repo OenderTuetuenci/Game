@@ -74,7 +74,8 @@ class BoardController(gameController: GameController) {
 
 
     def activateStreet(field: Buyable): Unit = {
-        gameController.notifyObservers(OpenBuyableFieldDialog(field))
+        if (field.owner == -1 && field.owner != gameController.isturn) gameController.notifyObservers(OpenBuyableFieldDialog(field))
+        else gameController.notifyObservers(OpenPayRentDialog(field))
         //        val isturn = gameController.isturn
         //        val option = field.onPlayerEntered(isturn)
         //        val playerController = gameController.playerController
