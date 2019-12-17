@@ -242,7 +242,7 @@ class Gui(controller: GameController) extends Observer {
                         // Event Log über tui
                         new ListView[String] {
                             this.setId("lvEventLog")
-
+                            this.getSelectionModel.setSelectionMode(SelectionMode.Multiple)
                             orientation = Orientation.Vertical
 
                             cellFactory = {
@@ -257,7 +257,11 @@ class Gui(controller: GameController) extends Observer {
 
                                     cell.item.onChange { (_, _, str) => cell.text = str }
 
-                                    cell.onMouseClicked = { me: MouseEvent => println("Do something with " + cell.text.value) }
+                                    cell.onMouseClicked = { me: MouseEvent =>
+                                        println("Do something with " + cell.text.value)
+                                        //cell.updateSelected(false)
+                                        //if (cell.isSelected) this.getSelectionModel.clearSelection
+                                    }
 
                                     cell
 
@@ -560,6 +564,123 @@ class Gui(controller: GameController) extends Observer {
         }
     }
 
+    def playerStatsDialog(currentPlayer: Player): Unit = {
+        case class Result(option: String)
+
+        // Create the custom dialog.
+        val dialog = new Dialog[Result]() {
+            title = "Player x"
+            headerText = "Stats"
+            //graphic = new ImageView(this.getClass.getResource("login_icon.png").toString)
+        }
+        //dialog.getDialogPane.setPrefSize(600, 500)
+        val tradeButton = new ButtonType("Trade", ButtonData.OKDone)
+        dialog.dialogPane().buttonTypes = Seq(tradeButton, ButtonType.Cancel)
+
+        val grid = new GridPane() {
+            hgap = 10
+            vgap = 10
+            padding = Insets(20, 100, 10, 10)
+        }
+        dialog.dialogPane().content = grid
+
+        // Convert the result to a username-password-pair when the login button is clicked.
+        dialog.resultConverter = dialogButton =>
+            if (dialogButton == tradeButton) Result("trade")
+            else null
+
+        val result = dialog.showAndWait()
+
+        result match {
+            case Some(Result("trade")) => {
+                openTradeDialog() // todo player currentturn and player to trade
+            }
+            case None => "Dialog returned: None"
+        }
+    }
+
+    def openTradeDialog(): Unit = {
+        case class Result(option: String)
+
+        // Create the custom dialog.
+        val dialog = new Dialog[Result]() {
+            title = "Tradewindow"
+            headerText = "Player x and Player y"
+            //graphic = new ImageView(this.getClass.getResource("login_icon.png").toString)
+        }
+        //dialog.getDialogPane.setPrefSize(600, 500)
+        val tradeButton = new ButtonType("accept", ButtonData.OKDone)
+        dialog.dialogPane().buttonTypes = Seq(tradeButton, ButtonType.Cancel)
+        val tfPlayerXMoney = new TextField() {
+            promptText = "MoneyPlayerX"
+        }
+        val tfPlayerYMoney = new TextField() {
+            promptText = "MoneyPlayerY"
+        }
+        // Properties of Player x
+        val lvPlayer1 = new ListView[String] {
+            this.setId("lvPlayerX")
+            orientation = Orientation.Vertical
+            cellFactory = {
+                p => {
+                    val cell = new ListCell[String]
+                    cell.textFill = Color.Blue
+                    cell.cursor = Cursor.Hand
+                    cell.item.onChange { (_, _, str) => cell.text = str }
+                    cell.onMouseClicked = { me: MouseEvent => println("Do something with " + cell.text.value) }
+                    cell
+                }
+            }
+            items = ObservableBuffer()
+        }
+        // Properties of Player y
+        val lvPlayer2 = new ListView[String] {
+            this.setId("lvPlayerY")
+            orientation = Orientation.Vertical
+            cellFactory = {
+                p => {
+                    val cell = new ListCell[String]
+                    cell.textFill = Color.Blue
+                    cell.cursor = Cursor.Hand
+                    cell.item.onChange { (_, _, str) => cell.text = str }
+                    cell.onMouseClicked = { me: MouseEvent =>
+                        println("Do something with " + cell.text.value)
+                        cell.selected = false
+                    }
+                    cell
+                }
+            }
+            items = ObservableBuffer()
+        }
+
+        val grid = new GridPane() {
+            hgap = 10
+            vgap = 10
+            padding = Insets(20, 100, 10, 10)
+            add(lvPlayer1, 0, 0)
+            add(lvPlayer2, 1, 0)
+            add(tfPlayerXMoney, 0, 1)
+            add(tfPlayerYMoney, 1, 1)
+
+        }
+        dialog.dialogPane().content = grid
+
+        // Convert the result to a username-password-pair when the login button is clicked.
+        dialog.resultConverter = dialogButton =>
+            if (dialogButton == tradeButton) Result("accept")
+            else null
+
+        val result = dialog.showAndWait()
+
+        result match {
+            case Some(Result("accept")) => {
+                print("trade items") // todo trade selected items and money
+            }
+            case None => "Dialog returned: None"
+        }
+    }
+
+
     def rollForPosDialog(e: OpenRollForPosDialogEvent): Unit = {
         new Alert(AlertType.Information) {
             title = "Roll for starting positions"
@@ -573,52 +694,6 @@ class Gui(controller: GameController) extends Observer {
             title = "Roll dice"
             headerText = "Player " + e.player.name
             contentText = "Roll dices!"
-        }.showAndWait()
-    }
-
-    def rollDiceDialogNoMoreWorking(e: OpenRollDiceDialogEvent): (Int, Int, Boolean) = {
-        case class Result(roll1: Int, roll2: Int, pasch: Boolean)
-        // Create the custom dialog.
-        val dialog = new Dialog[Result]() {
-            title = "Roll Dice:"
-            headerText = "Player " + e.player.name + " roll dice"
-            //graphic = new ImageView(this.getClass.getResource("login_icon.png").toString)
-        }
-
-        // Set the button types.
-        val startButtonType = new ButtonType("Roll Dice")
-        dialog.dialogPane().buttonTypes = Seq(startButtonType)
-        val grid = new GridPane() {
-            hgap = 10
-            vgap = 10
-            padding = Insets(20, 100, 10, 10)
-
-            add(new Label("Roll"), 0, 0)
-        }
-
-        dialog.dialogPane().content = grid
-
-        // Convert the result to a username-password-pair when the login button is clicked.
-        dialog.resultConverter = dialogButton =>
-            if (dialogButton == startButtonType) {
-                val (a, b, c) = controller.playerController.wuerfeln
-                Result(a, b, c)
-            } else Result(0, 0, false)
-        val result = dialog.showAndWait()
-
-        result match {
-            case Some(Result(roll1, roll2, pasch)) => {
-                (roll1, roll2, pasch)
-            }
-            case None => (0, 0, false)
-        }
-    }
-
-    def playerStatsDialog(currentPlayer: Player): Unit = {
-        new Alert(AlertType.Information) {
-            title = "Player " + currentPlayer.name + " Stats"
-            headerText = currentPlayer.toString
-            contentText = "I have a great message for you!"
         }.showAndWait()
     }
 
@@ -686,7 +761,6 @@ class Gui(controller: GameController) extends Observer {
             case _ => "Cancel"
         }
     }
-
 
 
     def goToJailDialog(e: openGoToJailDialog): Unit = {
