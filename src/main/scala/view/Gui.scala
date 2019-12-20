@@ -323,9 +323,11 @@ class Gui(controller: GameController) extends Observer {
         // Create labels and fields.
         val tfPlayerCount = new TextField() {
             promptText = "playerCount"
+            text = "0"
         }
         val tfNpcCount = new TextField() {
             promptText = "npcCount"
+            text = "0"
         }
 
         val grid = new GridPane() {
