@@ -615,8 +615,14 @@ class Gui(controller: GameController) extends Observer {
                         if (street.mortgage) image.setImage(new Image("file:images/Mortgaged.png"))
                         else image.setImage(street.image)
                         // mortgage button
-                        if (street.mortgage && controller.players(controller.isturn).name == controller.players(playerIdx).name) btnPayMortage.setVisible(true)
-                        else if (!(street.mortgage) && controller.players(controller.isturn).name == controller.players(playerIdx).name) btnGetMortage.setVisible(true)
+                        btnPayMortage.setVisible(false)
+                        btnGetMortage.setVisible(false)
+                        if (controller.players(controller.isturn).name == controller.players(playerIdx).name) {
+                            if (street.mortgage) btnPayMortage.setVisible(true)
+                            else if (!street.mortgage) btnGetMortage.setVisible(true)
+                        }
+
+
                         // sell street button
                         // wenn spieler aktueller spieler ist darf er verkaufen
                         if (controller.players(controller.isturn).name == controller.players(playerIdx).name) {

@@ -207,6 +207,8 @@ class GameController extends Observable {
         if (players(isturn).jailCount > 0) notifyObservers(OpenInJailDialogEvent())
 
         notifyObservers(UpdateListViewPlayersEvent())
+        rollDiceBUtton.requestFocus() // zum durchentern
+
 
     }
 
