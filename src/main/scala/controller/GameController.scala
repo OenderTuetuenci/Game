@@ -1,7 +1,5 @@
 package controller
 
-import java.util.{Timer, TimerTask}
-
 import model._
 import scalafx.application.JFXApp.PrimaryStage
 import scalafx.scene.image.{Image, ImageView}
@@ -113,7 +111,16 @@ class GameController extends Observable {
         notifyObservers(OpenInformationDialogEvent())
     }
 
+    def onSaveGame() = {
+        ;
+    }
+
+    def onLoadGame() = {
+        ;
+    }
+
     def onStartGame() = {
+        GameStates.handle(InitGameEvent())
         notifyObservers(OpenGetPlayersDialogEvent())
         notifyObservers(ClearGuiElementsEvent())
         notifyObservers(UpdateListViewPlayersEvent())
@@ -127,7 +134,7 @@ class GameController extends Observable {
         rollDiceBUtton.setDisable(false)
         val endTurnButton = currentStage.scene().lookup("#endTurn") //.asInstanceOf[javafx.scene.control.Button]
         endTurnButton.setDisable(true)
-        //GameStates.handle(runRoundEvent())
+
         //        do {
 
         //            GameStates.handle(checkGameOverEvent())
@@ -212,107 +219,6 @@ class GameController extends Observable {
 
     }
 
-    def movePlayerSmooveTimerGui(): Unit = {
-        val len = fieldCoordsX.length
-        var i = 0
-        val timer: Timer = new Timer()
-        timer.schedule(new TimerTask {
-            override def run(): Unit = {
-                println(i + 1)
-                //movePlayerGui(fieldCoordsX(i), fieldCoordsY(i))
-                i += 1
-                if (i == len) timer.cancel()
-                timer.purge()
-            }
-        }, 1000, 500)
-
-
-    }
-
-    object PlayerTurnStrategy extends Observable {
-
-        //todo var executePlayerTurn: Unit = { ???????????????????????
-        def executePlayerTurn = {
-            if (players(isturn).jailCount > -1) turnInJail else normalTurn
-
-        }
-
-        def normalTurn = {
-            notifyObservers(normalTurnEvent(players(isturn)))
-
-            players(isturn).strategy.execute("normalTurn") // todo zug für spieler oder npc
-
-            //maybe  PlayerIsHumanOrNpcStrategy.selectOption(playerController.checkHypothek)
-
-            //playerController.checkHypothek() // schauen ob haeuser im besitz hypotheken haben und bezahlen wenns geht
-
-            // init pasch
-            var pasch = true
-            var paschCount = 0
-            // wuerfeln
-            while (pasch) {
-                players(isturn).strategy.execute("rollDice") match {
-                    case (roll1: Int, roll2: Int, rolledPasch: Boolean) => {
-                        //notifyObservers(diceEvent(roll1, roll2, rolledPasch))
-                        notifyObservers(UpdateGuiDiceLabelEvent(roll1, roll2, rolledPasch))
-                        if (rolledPasch) paschCount += 1
-                        else pasch = false
-                        //3x pasch oder auf jail kommen gleich jail sonst move player
-                        if (paschCount == 3 || players(isturn).position == 30) {
-                            players = players.updated(isturn, players(isturn).moveToJail)
-                            notifyObservers(playerMoveToJail(players(isturn)))
-                            pasch = false
-                        } else players = playerController.movePlayer(roll1 + roll2)
-                    }
-                }
-            }
-        }
-
-        def turnInJail = {
-            notifyObservers(playerInJailEvent(players(isturn)))
-            players(isturn).strategy.execute("turnInJail") match {
-                case (option: String) => {
-                    // ...frei kaufen...
-                    if (option == "buyOut") {
-                        players = players.updated(isturn, players(isturn).decMoney(200))
-                        //playerController.checkDept(-1) // owner = bank
-                        players = players.updated(isturn, players(isturn).resetJailCount)
-                        notifyObservers(playerIsFreeEvent(players(isturn)))
-                        normalTurn // frei -> normalen zug ausfuehren
-                    }
-                    // ...die freikarte benutzen....
-                    if (option == "useCard") {
-                        notifyObservers(playerIsFreeEvent(players(isturn)))
-                        normalTurn // frei -> normalen zug ausfuehren
-                    }
-                    // ...oder pasch wuerfeln.
-                    if (option == "rollDice") {
-                        players(isturn).strategy.execute("rolldice")
-                        val throwDices = playerController.wuerfeln
-                        if (throwDices._3) {
-                            // bei gewuerfelten pasch kommt man raus und moved
-                            players = players.updated(isturn, players(isturn).resetJailCount)
-                            notifyObservers(playerIsFreeEvent(players(isturn)))
-                            playerController.movePlayer(throwDices._1 + throwDices._2)
-                        } else {
-                            //sonst jailcount +1
-                            players = players.updated(isturn, players(isturn).incJailTime)
-                            // wenn man 3 runden im jail ist kommt man raus, zahlt und moved
-                            if (players(isturn).jailCount == 3) {
-                                players = players.updated(isturn, players(isturn).resetJailCount)
-                                players = players.updated(isturn, players(isturn).decMoney(200))
-                                //playerController.checkDept(-1) // owner is bank
-                                notifyObservers(playerIsFreeEvent(players(isturn)))
-                                playerController.movePlayer(throwDices._1 + throwDices._2)
-                            } else notifyObservers(playerRemainsInJailEvent(players(isturn)))
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-
     object GameStates {
 
         var runState = initGameState
@@ -323,7 +229,6 @@ class GameController extends Observable {
                 case e: getPlayersEvent => runState = getPlayersState(e)
                 case e: rollForPositionsEvent => runState = rollForPositionsState
                 case e: createBoardAndPlayersEvent => runState = createBoardAndPlayersState
-                case e: runRoundEvent => runState = runRoundState
                 case e: checkGameOverEvent => runState = checkGameOverState
                 case e: gameOverEvent => runState = gameOverState
             }
@@ -458,48 +363,6 @@ class GameController extends Observable {
             lblDiceResult.setText("Result dice roll: ")
         }
 
-        def runRoundState: Unit = {
-            println("runroundstate")
-            // Todo handeln, strassen verkaufen,hypothek bezahlen etc vor dem wuerfeln
-            // Todo und nach dem wuerfeln falls er nicht pleite ist
-            // todo if player has money raus und einfach so rbüer
-            notifyObservers(newRoundEvent(round))
-            for (i <- 0 until humanPlayers + npcPlayers) {
-                //todo before turn trade or so by pressing buttons -> players(isturn).strategy.execute(onbutton)
-                isturn = i
-                val lblPlayerTurn = currentStage.scene().lookup("#lblPlayerTurn").asInstanceOf[javafx.scene.text.Text]
-                lblPlayerTurn.setText("It is " + players(isturn).name + "´s turn")
-                PlayerTurnStrategy.executePlayerTurn // zug ausfuehren
-                notifyObservers(UpdateListViewPlayersEvent())
-                //todo end turn by pressing endturnbutton -> players(isturn).strategy.execute(endturn)
-            }
-            // Rundenende
-            round += 1
-            notifyObservers(endRoundEvent(round))
-            notifyObservers(printEverythingEvent())
-        }
-
-        def runRoundStateOld: Unit = {
-            println("runroundstate")
-            // Todo handeln, strassen verkaufen,hypothek bezahlen etc vor dem wuerfeln
-            // Todo und nach dem wuerfeln falls er nicht pleite ist
-            // todo if player has money raus und einfach so rbüer
-            notifyObservers(newRoundEvent(round))
-            for (i <- 0 until humanPlayers + npcPlayers) {
-                //todo before turn trade or so by pressing buttons -> players(isturn).strategy.execute(onbutton)
-                isturn = i
-                val lblPlayerTurn = currentStage.scene().lookup("#lblPlayerTurn").asInstanceOf[javafx.scene.text.Text]
-                lblPlayerTurn.setText("It is " + players(isturn).name + "´s turn")
-                PlayerTurnStrategy.executePlayerTurn // zug ausfuehren
-                notifyObservers(UpdateListViewPlayersEvent())
-                //todo end turn by pressing endturnbutton -> players(isturn).strategy.execute(endturn)
-            }
-            // Rundenende
-            round += 1
-            notifyObservers(endRoundEvent(round))
-            notifyObservers(printEverythingEvent())
-        }
-
         def checkGameOverState = {
             if (round == 10) gameOver = true
             // todo try if (round == 5) runState = gameOverState
@@ -510,6 +373,22 @@ class GameController extends Observable {
         def gameOverState = {
             notifyObservers(openGameOverDialogEvent())
 
+
+            println("gameover")
+            val lblPlayerTurn = currentStage.scene().lookup("#lblPlayerTurn").asInstanceOf[javafx.scene.text.Text]
+            lblPlayerTurn.setText("Game Over")
+
+
+
+            // todo nach dem game sollte eig wieder initstate sein dort sollte alles wieder
+            // todo zurueck gesetzt werden aber bugt noch
+
+            //notifyObservers(printEverythingEvent())
+            //notifyObservers(gameFinishedEvent(players(gameOver._2)))
+
+        }
+
+        def initGameState: Unit = {
             humanPlayers = 0
             npcPlayers = 0
             board = Vector[Cell]()
@@ -535,22 +414,6 @@ class GameController extends Observable {
             // readd board
             stackpane.getChildren().add(new ImageView(new Image("file:images/BoardMonopolyDeluxe1992.png", 800, 800, false, true))
             )
-            println("gameover")
-            val lblPlayerTurn = currentStage.scene().lookup("#lblPlayerTurn").asInstanceOf[javafx.scene.text.Text]
-            lblPlayerTurn.setText("Game Over")
-
-
-
-            // todo nach dem game sollte eig wieder initstate sein dort sollte alles wieder
-            // todo zurueck gesetzt werden aber bugt noch
-
-            //notifyObservers(printEverythingEvent())
-            //notifyObservers(gameFinishedEvent(players(gameOver._2)))
-
-        }
-
-        def initGameState = {
-            print("InitState")
             //            humanPlayers = 0
             //            npcPlayers = 0
             //            playerCount = 0

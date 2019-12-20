@@ -98,6 +98,24 @@ class Gui(controller: GameController) extends Observer {
         e.playerFigure.setTranslateY(e.y)
     }
 
+    // todo moveplayerfiguer
+    //    def movePlayerSmooveTimerGui(): Unit = {
+    //        val len = fieldCoordsX.length
+    //        var i = 0
+    //        val timer: Timer = new Timer()
+    //        timer.schedule(new TimerTask {
+    //            override def run(): Unit = {
+    //                println(i + 1)
+    //                //movePlayerGui(fieldCoordsX(i), fieldCoordsY(i))
+    //                i += 1
+    //                if (i == len) timer.cancel()
+    //                timer.purge()
+    //            }
+    //        }, 1000, 500)
+    //
+    //
+    //    }
+
     // widgets
 
     def mainWindow(e: OpenMainWindowEvent) = {
@@ -110,6 +128,18 @@ class Gui(controller: GameController) extends Observer {
                                 text = "Start new game"
                                 onAction = handle {
                                     controller.onStartGame()
+                                }
+                            },
+                            new MenuItem {
+                                text = "Save game"
+                                onAction = handle {
+                                    controller.onSaveGame()
+                                }
+                            },
+                            new MenuItem {
+                                text = "Load game"
+                                onAction = handle {
+                                    controller.onLoadGame()
                                 }
                             }
                         )
@@ -595,8 +625,10 @@ class Gui(controller: GameController) extends Observer {
         btnSellHome.setVisible(false)
         btnGetMortage.setVisible(false)
         btnPayMortage.setVisible(false)
-
-        if (controller.players(controller.isturn).name != controller.players(playerIdx).name) btnTrade.setVisible(true)
+        // trade button nur wenn spieler besitz haben und wenn spieller nicht aktueller spieler ist
+        if (controller.players(controller.isturn).name != controller.players(playerIdx).name) {
+            if (controller.players(playerIdx).ownedStreets.nonEmpty) btnTrade.setVisible(true)
+        }
 
         // Properties of selected player
         val lvSelectedPlayer = new ListView[String] {
@@ -658,32 +690,36 @@ class Gui(controller: GameController) extends Observer {
             else null
 
         val result = dialog.showAndWait()
+
         val street = controller.board.filter(_.name == lvSelectedPlayer.getSelectionModel.getSelectedItem)(0).asInstanceOf[Buyable]
 
-        result match {
-            case Some(Result("trade")) => {
-                openTradeDialog(playerIdx)
-            }
-            case Some(Result("getMortgage")) => {
-                controller.board = controller.board.updated(controller.board.indexOf(street), street.getMortgage())
-                controller.players = controller.players.updated(playerIdx, controller.players(playerIdx).incMoney(100)) // todo .incMoney(street.mortgageValue))
-            }
-            case Some(Result("payMortgage")) => {
-                controller.board = controller.board.updated(controller.board.indexOf(street), street.payMortgage())
-                controller.players = controller.players.updated(playerIdx, controller.players(playerIdx).decMoney(100)) // todo .dec(street.mortgageValue))
+        if (lvSelectedPlayer.getSelectionModel.getSelectedItem.nonEmpty) {
+            result match {
+                case Some(Result("trade")) => {
+                    openTradeDialog(playerIdx)
+                }
+                case Some(Result("getMortgage")) => {
+                    controller.board = controller.board.updated(controller.board.indexOf(street), street.getMortgage())
+                    controller.players = controller.players.updated(playerIdx, controller.players(playerIdx).incMoney(100)) // todo .incMoney(street.mortgageValue))
+                }
+                case Some(Result("payMortgage")) => {
+                    controller.board = controller.board.updated(controller.board.indexOf(street), street.payMortgage())
+                    controller.players = controller.players.updated(playerIdx, controller.players(playerIdx).decMoney(100)) // todo .dec(street.mortgageValue))
 
-                // todo player.decmoney
-            }
-            case Some(Result("sell")) => {
-                controller.players = controller.players.updated(playerIdx, controller.players(playerIdx).sellStreet(controller.board.indexOf(street)))
-                controller.players = controller.players.updated(playerIdx, controller.players(playerIdx).incMoney(street.price))
-                controller.board = controller.board.updated(controller.board.indexOf(street), street.setOwner(-1))
+                    // todo player.decmoney
+                }
+                case Some(Result("sell")) => {
+                    controller.players = controller.players.updated(playerIdx, controller.players(playerIdx).sellStreet(controller.board.indexOf(street)))
+                    controller.players = controller.players.updated(playerIdx, controller.players(playerIdx).incMoney(street.price))
+                    controller.board = controller.board.updated(controller.board.indexOf(street), street.setOwner(-1))
 
-                // todo player.decmoney
+                    // todo player.decmoney
 
+                }
+                case None => "Dialog returned: None"
             }
-            case None => "Dialog returned: None"
         }
+
     }
 
 
