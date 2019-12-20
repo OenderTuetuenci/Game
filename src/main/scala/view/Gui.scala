@@ -559,6 +559,7 @@ class Gui(controller: GameController) extends Observer {
         }
     }
 
+
     def playerStatsDialog(playerIdx: Int): Unit = {
         //todo buy house sell street vlt hier rein erstmal
         case class Result(option: String)
@@ -570,18 +571,33 @@ class Gui(controller: GameController) extends Observer {
             //graphic = new ImageView(this.getClass.getResource("login_icon.png").toString)
         }
         //dialog.getDialogPane.setPrefSize(600, 500)
+
+        // image of selected street
+        var image = new ImageView(new Image("file:images/emptryImage.png"))
         val tradeButton = new ButtonType("Trade", ButtonData.OKDone)
         val sellButton = new ButtonType("Sell to bank", ButtonData.OKDone)
-        val buyHomeButton = new ButtonType("Buy house / hotel", ButtonData.OKDone)
-        val sellHomeButton = new ButtonType("Buy house / hotel", ButtonData.OKDone)
-        val getOrPayMortgage = new ButtonType("get / pay mortgage", ButtonData.OKDone)
-        dialog.dialogPane().buttonTypes = Seq(tradeButton, sellButton, buyHomeButton, sellHomeButton, getOrPayMortgage, ButtonType.Cancel)
-
+        val buyHomeButton = new ButtonType("Buy house", ButtonData.OKDone)
+        val sellHomeButton = new ButtonType("Sell house", ButtonData.OKDone)
+        val getMortgageButton = new ButtonType("get mortgage", ButtonData.OKDone)
+        val payMortgageButton = new ButtonType("pay mortgage", ButtonData.OKDone)
+        dialog.dialogPane().buttonTypes = Seq(tradeButton, sellButton, buyHomeButton, sellHomeButton, getMortgageButton, payMortgageButton, ButtonType.Cancel)
+        // init buttons
+        val btnTrade = dialog.dialogPane().lookupButton(tradeButton)
+        val btnSell = dialog.dialogPane().lookupButton(sellButton)
+        val btnBuyHome = dialog.dialogPane().lookupButton(buyHomeButton)
+        val btnSellHome = dialog.dialogPane().lookupButton(sellHomeButton)
+        val btnGetMortage = dialog.dialogPane().lookupButton(getMortgageButton)
+        val btnPayMortage = dialog.dialogPane().lookupButton(payMortgageButton)
         //todo init buttons and streets and show mortgage , houses
-        // if group = wasserwerk/ewerk/bahnhoefe hide houses and buttons
+        btnTrade.setVisible(false)
+        btnSell.setVisible(false)
+        btnBuyHome.setVisible(false)
+        btnSellHome.setVisible(false)
+        btnGetMortage.setVisible(false)
+        btnPayMortage.setVisible(false)
 
-        // image of street
-        var image = new ImageView(new Image("file:images/emptryImage.png"))
+        if (controller.players(controller.isturn).name != controller.players(playerIdx).name) btnTrade.setVisible(true)
+
         // Properties of selected player
         val lvSelectedPlayer = new ListView[String] {
             this.setId("lvSelectedPlayer")
@@ -593,8 +609,23 @@ class Gui(controller: GameController) extends Observer {
                     cell.cursor = Cursor.Hand
                     cell.item.onChange { (_, _, str) => cell.text = str }
                     cell.onMouseClicked = { me: MouseEvent =>
-                        val street = controller.board.filter(_.name == cell.text.value)
-                        image.setImage(street(0).asInstanceOf[Buyable].image)
+                        //strasse holen
+                        val street = controller.board.filter(_.name == cell.text.value)(0).asInstanceOf[Buyable]
+                        // bild setzen je nachdem ob hypothek
+                        if (street.mortgage) image.setImage(new Image("file:images/Mortgaged.png"))
+                        else image.setImage(street.image)
+                        // mortgage button
+                        if (street.mortgage && controller.players(controller.isturn).name == controller.players(playerIdx).name) btnPayMortage.setVisible(true)
+                        else if (!(street.mortgage) && controller.players(controller.isturn).name == controller.players(playerIdx).name) btnGetMortage.setVisible(true)
+                        // sell street button
+                        // wenn spieler aktueller spieler ist darf er verkaufen
+                        if (controller.players(controller.isturn).name == controller.players(playerIdx).name) {
+                            btnSell.setVisible(true)
+                            //todo btnBuyHome.setVisible(true) // nur wenn gruppe im besitz
+                            //todo btnSellHome.setVisible(true) // nur wenn haus drauf
+                            // if group = wasserwerk/ewerk/bahnhoefe hide houses and buttons
+
+                        }
                     }
                     cell
                 }
@@ -612,26 +643,40 @@ class Gui(controller: GameController) extends Observer {
         }
         dialog.dialogPane().content = grid
 
-        val btn = dialog.dialogPane().lookupButton(tradeButton)
-
-        if (controller.players(controller.isturn).name == controller.players(playerIdx).name) btn.setVisible(false)
-
-        btn.disable
-
         // Convert the result to a username-password-pair when the login button is clicked.
         dialog.resultConverter = dialogButton =>
             if (dialogButton == tradeButton) Result("trade")
+            else if (dialogButton == getMortgageButton) Result("getMortgage")
+            else if (dialogButton == payMortgageButton) Result("payMortgage")
+            else if (dialogButton == sellButton) Result("sell")
             else null
 
         val result = dialog.showAndWait()
+        val street = controller.board.filter(_.name == lvSelectedPlayer.getSelectionModel.getSelectedItem)(0).asInstanceOf[Buyable]
 
         result match {
             case Some(Result("trade")) => {
-                openTradeDialog(playerIdx) // todo player currentturn and player to trade
+                openTradeDialog(playerIdx)
+            }
+            case Some(Result("getMortgage")) => {
+                controller.board = controller.board.updated(controller.board.indexOf(street), street.getMortgage())
+                // todo player.addmoney
+            }
+            case Some(Result("payMortgage")) => {
+                controller.board = controller.board.updated(controller.board.indexOf(street), street.payMortgage())
+                // todo player.decmoney
+            }
+            case Some(Result("sell")) => {
+                controller.players = controller.players.updated(playerIdx, controller.players(playerIdx).sellStreet(controller.board.indexOf(street)))
+                controller.board = controller.board.updated(controller.board.indexOf(street), street.setOwner(-1))
+
+                // todo player.decmoney
+
             }
             case None => "Dialog returned: None"
         }
     }
+
 
     def openTradeDialog(playerIdx: Int): Unit = {
         case class Result(option: String)
