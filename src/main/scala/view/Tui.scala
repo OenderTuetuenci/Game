@@ -14,7 +14,7 @@ class Tui(controller: GameController) extends Observer {
 
     override def update(e: PrintEvent): Any = {
         e match {
-            //Input
+            //Input vlt keyboardinput mit callback für cheats für aktuellen spieler (immer die letzten 10 zeichen speichern und vergleichen bei jeder tastatureingabe)
             case e: askUndoGetPlayersEvent => {
                 println("Undo?")
                 controller.answer = readLine()

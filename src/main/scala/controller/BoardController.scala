@@ -2,6 +2,7 @@ package controller
 
 
 import model._
+import scalafx.scene.image.Image
 
 class BoardController(gameController: GameController) {
 
@@ -11,58 +12,62 @@ class BoardController(gameController: GameController) {
     }
 
     def createBoard : Vector[Cell] = {
-        var board:Vector[Cell] = Vector()
-        board = board :+ CellFactory("Los","Los",0,0,0,0,0,mortgage = false)
-        board = board :+ CellFactory("Street","Street1",1,60,-1,200,0,mortgage = false)
-        board = board :+ CellFactory("CommunityChest","CommunityChest1",0,0,0,0,0,mortgage = false)
-        board = board :+ CellFactory("Street","Street2",1,60,-1,200,0,mortgage = false)
-        board = board :+ CellFactory("IncomeTax", "IncomeTax", 0, 0, 0, 0, 0, mortgage = false)
-        board = board :+ CellFactory("Street", "South Trainstation", 9, 200, -1, 200, 0, mortgage = false)
-        board = board :+ CellFactory("Street", "Street3", 2, 100, -1, 200, 0, mortgage = false)
-        board = board :+ CellFactory("Eventcell","Eventcell1",0,0,0,0,0,mortgage = false)
-        board = board :+ CellFactory("Street","Street4",2,100,-1,200,0,mortgage = false)
-        board = board :+ CellFactory("Street","Street5",2,120,-1,200,0,mortgage = false)
-        board = board :+ CellFactory("Jail","Visit Jail or Jail",0,0,0,0,0,mortgage = false)
+        var board: Vector[Cell] = Vector()
+        board = board :+ CellFactory("Los", "Go", 0, 0, 0, 0, 0, mortgage = false, image = new Image("file:images/Go.png")) //todo go image
+        board = board :+ CellFactory("Street", "Mediterranean Avenue", 1, 60, -1, 200, 0, mortgage = false, image = new Image("file:images/MediterraneanAve.png"))
+        board = board :+ CellFactory("CommunityChest", "CommunityChest1", 0, 0, 0, 0, 0, mortgage = false, image = new Image("file:images/Go.png")) // todo
+        board = board :+ CellFactory("Street", "Baltic Avenue", 1, 60, -1, 200, 0, mortgage = false, image = new Image("file:images/BalticAve.png"))
+        board = board :+ CellFactory("IncomeTax", "IncomeTax", 0, 0, 0, 0, 0, mortgage = false, image = new Image("file:images/OrientalAve.png")) // todo
+        board = board :+ CellFactory("Street", "Reading Railroad", 9, 200, -1, 200, 0, mortgage = false, image = new Image("file:images/ReadingRailroad.png"))
+        board = board :+ CellFactory("Street", "Oriental Avenue", 2, 100, -1, 200, 0, mortgage = false, image = new Image("file:images/OrientalAve.png"))
+        board = board :+ CellFactory("Eventcell", "Eventcell1", 0, 0, 0, 0, 0, mortgage = false, image = new Image("file:images/OrientalAve")) // todo
+        board = board :+ CellFactory("Street", "Vermont Avenue", 2, 100, -1, 200, 0, mortgage = false, image = new Image("file:images/VermontAve.png"))
+        board = board :+ CellFactory("Street", "Conneticut Avenue", 2, 120, -1, 200, 0, mortgage = false, image = new Image("file:images/ConneticutAve.png"))
+        board = board :+ CellFactory("Jail", "Visit Jail or Jail", 0, 0, 0, 0, 0, mortgage = false, image = new Image("file:images/OrientalAve")) // todo
 
-        board = board :+ CellFactory("Street", "Street6", 3, 140, -1, 200, 0, mortgage = false)
-        board = board :+ CellFactory("Street", "ElectricityPlant", 10, 150, -1, 200, 0, mortgage = false)
-        board = board :+ CellFactory("Street", "Street7", 3, 140, -1, 200, 0, mortgage = false)
-        board = board :+ CellFactory("Street", "Street8", 3, 160, -1, 200, 0, mortgage = false)
-        board = board :+ CellFactory("Street", "West Trainstation", 9, 200, -1, 200, 0, mortgage = false)
-        board = board :+ CellFactory("Street", "Street9", 4, 180, -1, 200, 0, mortgage = false)
-        board = board :+ CellFactory("CommunityChest","CommunityChest2",0,0,0,0,0,mortgage = false)
-        board = board :+ CellFactory("Street","Street10",4,180,-1,200,0,mortgage = false)
-        board = board :+ CellFactory("Street","Street11",4,200,-1,200,0,mortgage = false)
-        board = board :+ CellFactory("FreeParking","Free parking",0,0,0,0,0,mortgage = false)
+        board = board :+ CellFactory("Street", "St. Charles Place", 3, 140, -1, 200, 0, mortgage = false, image = new Image("file:images/StCharlesPlace.png"))
+        board = board :+ CellFactory("Street", "Electric Company", 10, 150, -1, 200, 0, mortgage = false, image = new Image("file:images/ElectricCompany.png"))
+        board = board :+ CellFactory("Street", "States Avenue", 3, 140, -1, 200, 0, mortgage = false, image = new Image("file:images/StatesAve.png"))
+        board = board :+ CellFactory("Street", "Virgina Avenue", 3, 160, -1, 200, 0, mortgage = false, image = new Image("file:images/VirginiaAve.png"))
+        board = board :+ CellFactory("Street", "Pennsylvania Railroad", 9, 200, -1, 200, 0, mortgage = false, image = new Image("file:images/PennsylvaniaRR.png"))
+        board = board :+ CellFactory("Street", "St. James Place", 4, 180, -1, 200, 0, mortgage = false, image = new Image("file:images/StJamesPlace.png"))
+        board = board :+ CellFactory("CommunityChest", "CommunityChest2", 0, 0, 0, 0, 0, mortgage = false, image = new Image("file:images/OrientalAve")) // todo
+        board = board :+ CellFactory("Street", "Tennessee Avenue", 4, 180, -1, 200, 0, mortgage = false, image = new Image("file:images/TennesseeAve.png"))
+        board = board :+ CellFactory("Street", "New York Avenue", 4, 200, -1, 200, 0, mortgage = false, image = new Image("file:images/NewYorkAve.png"))
+        board = board :+ CellFactory("FreeParking", "Free parking", 0, 0, 0, 0, 0, mortgage = false, image = new Image("file:images/OrientalAve")) // todo
 
-        board = board :+ CellFactory("Street","Street12",5,220,-1,200,0,mortgage = false)
-        board = board :+ CellFactory("Eventcell","Eventcell2",0,0,0,0,0,mortgage = false)
-        board = board :+ CellFactory("Street","Street13",5,220,-1,200,0,mortgage = false)
-        board = board :+ CellFactory("Street", "Street14", 5, 240, -1, 200, 0, mortgage = false)
-        board = board :+ CellFactory("Street", "North Trainstation", 9, 200, -1, 200, 0, mortgage = false)
-        board = board :+ CellFactory("Street", "Street15", 6, 260, -1, 500, 0, mortgage = false)
-        board = board :+ CellFactory("Street", "Street16", 6, 260, -1, 800, 0, mortgage = false)
-        board = board :+ CellFactory("Street", "Waterplant", 10, 150, -1, 200, 0, mortgage = false)
-        board = board :+ CellFactory("Street", "Street17", 6, 280, -1, 2500, 0, mortgage = false)
-        board = board :+ CellFactory("GoToJail","Go to jail",0,0,0,0,0,mortgage = false)
+        board = board :+ CellFactory("Street", "Kentucky Avenue", 5, 220, -1, 200, 0, mortgage = false, image = new Image("file:images/KentuckyAve.png"))
+        board = board :+ CellFactory("Eventcell", "Eventcell2", 0, 0, 0, 0, 0, mortgage = false, image = new Image("file:images/OrientalAve")) // todo
+        board = board :+ CellFactory("Street", "Indiana Avenue", 5, 220, -1, 200, 0, mortgage = false, image = new Image("file:images/IndianaAve.png"))
+        board = board :+ CellFactory("Street", "Illinois Avenue", 5, 240, -1, 200, 0, mortgage = false, image = new Image("file:images/IllinoisAve.png"))
+        board = board :+ CellFactory("Street", "B & O Railroad", 9, 200, -1, 200, 0, mortgage = false, image = new Image("file:images/BnORailroad.png"))
+        board = board :+ CellFactory("Street", "Atlantic Avenue", 6, 260, -1, 500, 0, mortgage = false, image = new Image("file:images/AtlanticAve.png"))
+        board = board :+ CellFactory("Street", "Ventnor Avenue", 6, 260, -1, 800, 0, mortgage = false, image = new Image("file:images/VentnorAve.png"))
+        board = board :+ CellFactory("Street", "Water Works", 10, 150, -1, 200, 0, mortgage = false, image = new Image("file:images/WaterWorks.png"))
+        board = board :+ CellFactory("Street", "Marvin Gardens", 6, 280, -1, 2500, 0, mortgage = false, image = new Image("file:images/MarvinGardens.png"))
+        board = board :+ CellFactory("GoToJail", "Go to jail", 0, 0, 0, 0, 0, mortgage = false, image = new Image("file:images/OrientalAve")) // todo
 
-        board = board :+ CellFactory("Street","Street18",7,300,-1,200,0,mortgage = false)
-        board = board :+ CellFactory("Street","Street19",7,300,-1,200,0,mortgage = false)
-        board = board :+ CellFactory("CommunityChest","CommunityChest3",0,0,0,0,0,mortgage = false)
-        board = board :+ CellFactory("Street", "Street20", 7, 320, -1, 200, 0, mortgage = false)
-        board = board :+ CellFactory("Street", "East Trainstation", 9, 200, -1, 200, 0, mortgage = false)
-        board = board :+ CellFactory("Eventcell", "Eventcell3", 0, 0, 0, 0, 0, mortgage = false)
-        board = board :+ CellFactory("Street","Street21",8,350,-1,200,0,mortgage = false)
-        board = board :+ CellFactory("IncomeTax","IncomeTax",0,0,0,0,0,mortgage = false)
-        board = board :+ CellFactory("Street","Street22",8,400,-1,200,0,mortgage = false)
+        board = board :+ CellFactory("Street", "Pacific Avenue", 7, 300, -1, 200, 0, mortgage = false, image = new Image("file:images/PacificAve.png"))
+        board = board :+ CellFactory("Street", "North Carolina Avenue", 7, 300, -1, 200, 0, mortgage = false, image = new Image("file:images/NoCarolinaAve.png"))
+        board = board :+ CellFactory("CommunityChest", "CommunityChest3", 0, 0, 0, 0, 0, mortgage = false, image = new Image("file:images/OrientalAve")) // todo
+        board = board :+ CellFactory("Street", "Pennsylvania Avenue", 7, 320, -1, 200, 0, mortgage = false, image = new Image("file:images/PennsylvaniaAve.png"))
+        board = board :+ CellFactory("Street", "Short Line Railroad", 9, 200, -1, 200, 0, mortgage = false, image = new Image("file:images/ShortLineRR.png"))
+        board = board :+ CellFactory("Eventcell", "Eventcell3", 0, 0, 0, 0, 0, mortgage = false, image = new Image("file:images/OrientalAve")) // todo
+        board = board :+ CellFactory("Street", "Park place", 8, 350, -1, 200, 0, mortgage = false, image = new Image("file:images/ParkPlace.png"))
+        board = board :+ CellFactory("IncomeTax", "IncomeTax", 0, 0, 0, 0, 0, mortgage = false, image = new Image("file:images/OrientalAve"))
+        board = board :+ CellFactory("Street", "Broadwalk", 8, 400, -1, 200, 0, mortgage = false, image = new Image("file:images/Broadwalk.png"))
         board
+        // todo create xml or json from board
+        // then add xml/json parser
     }
+
     object CellFactory {
-        def apply(kind:String,name: String, group: Int, price: Int, owner: Int, rent: Int, home: Int, mortgage: Boolean): Cell = kind match {
-            case "Los"=>Los(name)
-            case "Street"=>Street(name,group,price,owner,rent,home,mortgage)
-            case "CommunityChest"=>CommunityChest(name)
-            case "IncomeTax"=>IncomeTax(name)
+        def apply(kind: String, name: String, group: Int, price: Int, owner: Int, rent: Int, home: Int, mortgage: Boolean,
+                  image: Image): Cell = kind match {
+            case "Los" => Los(name)
+            case "Street" => Street(name, group, price, owner, rent, home, mortgage, image: Image)
+            case "CommunityChest" => CommunityChest(name)
+            case "IncomeTax" => IncomeTax(name)
             case "Eventcell" => Eventcell(name)
             case "Jail" => Jail(name)
             case "FreeParking" => FreiParken(name)

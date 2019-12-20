@@ -1,20 +1,24 @@
 package model
 
-trait Cell{
-    val name:String
-    def onPlayerEntered(enteredPlayer: Int):String
+import scalafx.scene.image.Image
+
+trait Cell {
+    val name: String
+
+    def onPlayerEntered(enteredPlayer: Int): String
 }
 
 trait Buyable extends Cell {
-    val mortgage:Boolean
-    val price:Int
-    val rent:Int
-    val owner:Int
+    val mortgage: Boolean
+    val price: Int
+    val rent: Int
+    val owner: Int
+    val image: Image
     def setOwner(x:Int):Buyable
     def getMortgage():Buyable
 }
 
-case class Street(name: String, group: Int, price: Int, owner: Int, rent: Int, home: Int, mortgage: Boolean) extends Buyable{
+case class Street(name: String, group: Int, price: Int, owner: Int, rent: Int, home: Int, mortgage: Boolean, image: Image) extends Buyable {
     override def onPlayerEntered(enteredPlayer: Int): String = {
         println("\nplayer entered " + this.name + ". owner: " + this.owner)
         if (this.owner == -1) "buy"
@@ -22,21 +26,21 @@ case class Street(name: String, group: Int, price: Int, owner: Int, rent: Int, h
         else "pay"
     }
 
-    override def setOwner(x: Int): Buyable = Street(name, group, price, x, rent, home, mortgage)
+    override def setOwner(x: Int): Buyable = Street(name, group, price, x, rent, home, mortgage, image)
 
-    override def getMortgage: Buyable = Street(name, group, price, owner, rent, home, mortgage = true)
+    override def getMortgage: Buyable = Street(name, group, price, owner, rent, home, mortgage = true, image)
 
-    def payMortgage: Street = Street(name, group, price, owner, rent, home, mortgage = false)
+    def payMortgage: Street = Street(name, group, price, owner, rent, home, mortgage = false, image)
 
     //Functions to buy or sell homes to increase rent
     def buyHome(x: Int): Street = {
         val newRent = rent + (home * 200)
-        Street(name, group, price, owner, newRent, home + x, mortgage)
+        Street(name, group, price, owner, newRent, home + x, mortgage, image)
     }
 
     def sellHome(x: Int): Street = {
         val newRent = rent - (x * 200)
-        Street(name, group, price, owner, newRent, home - x, mortgage)
+        Street(name, group, price, owner, newRent, home - x, mortgage, image)
     }
 
     override def toString: String = name + " group: " + group + " price: " + price + " rent: " + rent + " homecount: " + home + " mortgage: " + mortgage

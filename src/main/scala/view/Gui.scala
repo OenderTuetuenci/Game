@@ -150,7 +150,7 @@ class Gui(controller: GameController) extends Observer {
                     padding = Insets(10)
                     val pane = new StackPane()
                     pane.setId("stackpane")
-                    val boardImage = new ImageView(new Image("file:images/board.jpg", 800, 800, false, true))
+                    val boardImage = new ImageView(new Image("file:images/BoardMonopolyDeluxe1992.png", 800, 800, false, true))
                     val box = new VBox(
                         new Text {
                             id = "lblPlayerTurn"
@@ -382,12 +382,7 @@ class Gui(controller: GameController) extends Observer {
         val buyButton = new ButtonType("Buy", ButtonData.OKDone)
         dialog.dialogPane().buttonTypes = Seq(buyButton, ButtonType.Cancel)
 
-        val image = new ImageView(new Image("file:images/broadwalk.png"))
-        //            ,
-        //            400,
-        //            400,
-        //            true,
-        //            true))
+        val image = new ImageView(e.field.image)
 
 
         val grid = new GridPane() {
@@ -428,12 +423,7 @@ class Gui(controller: GameController) extends Observer {
         val payButton = new ButtonType("Pay", ButtonData.OKDone)
         dialog.dialogPane().buttonTypes = Seq(payButton, ButtonType.Cancel)
 
-        val image = new ImageView(new Image("file:images/broadwalk.png"))
-        //            ,
-        //            400,
-        //            400,
-        //            true,
-        //            true))
+        val image = new ImageView(e.field.image)
 
 
         val grid = new GridPane() {
@@ -532,6 +522,7 @@ class Gui(controller: GameController) extends Observer {
         startButton.disable = true
 
         // Do some validation (disable when username is empty).
+        // TODO check if name is already in playernames !!
         tfPlayerName.text.onChange { (_, _, newValue) => startButton.disable = newValue.trim().isEmpty }
 
         dialog.dialogPane().content = grid
@@ -590,7 +581,7 @@ class Gui(controller: GameController) extends Observer {
         // if group = wasserwerk/ewerk/bahnhoefe hide houses and buttons
 
         // image of street
-        var image = new ImageView(new Image("file:images/broadwalk.png"))
+        var image = new ImageView(new Image("file:images/emptryImage.png"))
         // Properties of selected player
         val lvSelectedPlayer = new ListView[String] {
             this.setId("lvSelectedPlayer")
@@ -602,10 +593,8 @@ class Gui(controller: GameController) extends Observer {
                     cell.cursor = Cursor.Hand
                     cell.item.onChange { (_, _, str) => cell.text = str }
                     cell.onMouseClicked = { me: MouseEvent =>
-                        // todo image = street.image
-                        //if (controller.board())
-                        println("Do something with " + cell.text.value)
-
+                        val street = controller.board.filter(_.name == cell.text.value)
+                        image.setImage(street(0).asInstanceOf[Buyable].image)
                     }
                     cell
                 }
