@@ -49,6 +49,13 @@ class GameController extends Observable {
         280, 210, 140, 70, 0, -70, -140, -210, -280, -350,
         -350, -350, -350, -350, -350, -350, -350, -350, -350, -350,
         -280, -210, -140, -70, 0, 70, 140, 210, 280)
+    // todo save gamestate and load gamestate
+    var tmpHumanPlayers = humanPlayers
+    var tmpNpcPlayers = npcPlayers
+    var tmpBoard = board
+    var tmpPlayers = players
+    var tmpRound = round
+    var tmpIsturn = isturn
 
 
     def createGame(playerNames: Vector[String], npcNames: Vector[String]): Unit = {
@@ -112,11 +119,22 @@ class GameController extends Observable {
     }
 
     def onSaveGame() = {
-        ;
+        tmpHumanPlayers = humanPlayers
+        tmpNpcPlayers = npcPlayers
+        tmpBoard = board
+        tmpPlayers = players
+        tmpRound = round
+        tmpIsturn = isturn
     }
 
     def onLoadGame() = {
-        ;
+        GameStates.handle(InitGameEvent())
+        humanPlayers = tmpHumanPlayers
+        npcPlayers = tmpNpcPlayers
+        board = tmpBoard
+        players = tmpPlayers
+        round = tmpRound
+        isturn = tmpIsturn
     }
 
     def onStartGame() = {
@@ -141,10 +159,6 @@ class GameController extends Observable {
         //        } while (!gameOver)
         //        GameStates.handle(gameOverEvent())
         //GameStates.handle(InitGameEvent())
-    }
-
-    def initFirstRound() = {
-        ;
     }
 
     def onRollDice() = {
@@ -183,6 +197,7 @@ class GameController extends Observable {
     }
 
     def onEndTurn() = {
+        // todo "its player x turn" notifyObservers(OpenNextPlayersTurnDialog())
         // init next round
         paschCount = 0
         isturn += 1
@@ -414,16 +429,6 @@ class GameController extends Observable {
             // readd board
             stackpane.getChildren().add(new ImageView(new Image("file:images/BoardMonopolyDeluxe1992.png", 800, 800, false, true))
             )
-            //            humanPlayers = 0
-            //            npcPlayers = 0
-            //            playerCount = 0
-            //            board = Vector[Cell]()
-            //            players = Vector[Player]()
-            //            playerNames = Vector[String]()
-            //            npcNames = Vector[String]()
-            //            round = 1
-            //            answer = ""
-            //            gameOver = false // todo wie über states
         }
 
     }

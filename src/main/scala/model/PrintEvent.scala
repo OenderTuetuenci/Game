@@ -48,6 +48,8 @@ case class streetOnHypothekEvent(street: Street) extends PrintEvent
 
 case class newRoundEvent(round: Int) extends PrintEvent
 
+//todo case class OpenNextPlayersTurnDialog(player: Int) extends PrintEvent
+
 case class PlacePlayersOnBoardEvent() extends PrintEvent
 
 case class endRoundEvent(round: Int) extends PrintEvent
