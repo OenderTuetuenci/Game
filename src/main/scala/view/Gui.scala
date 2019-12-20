@@ -603,6 +603,7 @@ class Gui(controller: GameController) extends Observer {
                     cell.item.onChange { (_, _, str) => cell.text = str }
                     cell.onMouseClicked = { me: MouseEvent =>
                         // todo image = street.image
+                        //if (controller.board())
                         println("Do something with " + cell.text.value)
 
                     }
