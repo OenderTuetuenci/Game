@@ -660,14 +660,17 @@ class Gui(controller: GameController) extends Observer {
             }
             case Some(Result("getMortgage")) => {
                 controller.board = controller.board.updated(controller.board.indexOf(street), street.getMortgage())
-                // todo player.addmoney
+                controller.players = controller.players.updated(playerIdx, controller.players(playerIdx).incMoney(100)) // todo .incMoney(street.mortgageValue))
             }
             case Some(Result("payMortgage")) => {
                 controller.board = controller.board.updated(controller.board.indexOf(street), street.payMortgage())
+                controller.players = controller.players.updated(playerIdx, controller.players(playerIdx).decMoney(100)) // todo .dec(street.mortgageValue))
+
                 // todo player.decmoney
             }
             case Some(Result("sell")) => {
                 controller.players = controller.players.updated(playerIdx, controller.players(playerIdx).sellStreet(controller.board.indexOf(street)))
+                controller.players = controller.players.updated(playerIdx, controller.players(playerIdx).incMoney(street.price))
                 controller.board = controller.board.updated(controller.board.indexOf(street), street.setOwner(-1))
 
                 // todo player.decmoney
