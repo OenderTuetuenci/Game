@@ -150,7 +150,7 @@ class Gui(controller: GameController) extends Observer {
                     padding = Insets(10)
                     val pane = new StackPane()
                     pane.setId("stackpane")
-                    val boardImage = new ImageView(new Image("file:images/BoardMonopolyDeluxe1992.png", 800, 800, false, true))
+                    val boardImage = new ImageView(new Image("file:images/board.jpg", 800, 800, false, true))
                     val box = new VBox(
                         new Text {
                             id = "lblPlayerTurn"
@@ -304,9 +304,6 @@ class Gui(controller: GameController) extends Observer {
         padding = Insets(7)
         this.setId("idString")
     }
-
-
-
     // Dialogs
 
     def getPlayersDialog(e: OpenGetPlayersDialogEvent) = {
@@ -764,8 +761,7 @@ class Gui(controller: GameController) extends Observer {
     def confirmationDialog(e: OpenConfirmationDialogEvent): Unit = {
         val alert = new Alert(AlertType.Confirmation) {
             title = "Confirmation Dialog"
-            headerText = "Look, a Confirmation Dialog."
-            contentText = "Do you want to quit?"
+            headerText = "Do u want to quit?"
         }
 
         val result = alert.showAndWait()
