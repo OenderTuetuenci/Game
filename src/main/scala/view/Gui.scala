@@ -593,7 +593,6 @@ class Gui(controller: GameController) extends Observer {
     def playerStatsDialog(playerIdx: Int): Unit = {
         //todo buy house sell street vlt hier rein erstmal
         case class Result(option: String)
-
         // Create the custom dialog.
         val dialog = new Dialog[Result]() {
             title = controller.players(playerIdx).name
@@ -705,16 +704,11 @@ class Gui(controller: GameController) extends Observer {
                 case Some(Result("payMortgage")) => {
                     controller.board = controller.board.updated(controller.board.indexOf(street), street.payMortgage())
                     controller.players = controller.players.updated(playerIdx, controller.players(playerIdx).decMoney(100)) // todo .dec(street.mortgageValue))
-
-                    // todo player.decmoney
                 }
                 case Some(Result("sell")) => {
                     controller.players = controller.players.updated(playerIdx, controller.players(playerIdx).sellStreet(controller.board.indexOf(street)))
                     controller.players = controller.players.updated(playerIdx, controller.players(playerIdx).incMoney(street.price))
                     controller.board = controller.board.updated(controller.board.indexOf(street), street.setOwner(-1))
-
-                    // todo player.decmoney
-
                 }
                 case None => "Dialog returned: None"
             }
@@ -757,6 +751,7 @@ class Gui(controller: GameController) extends Observer {
             }
             items = ObservableBuffer()
         }
+
         // Properties of Player y
         val lvPlayer2 = new ListView[String] {
             this.setId("lvPlayerY")
@@ -776,6 +771,13 @@ class Gui(controller: GameController) extends Observer {
             }
             items = ObservableBuffer()
         }
+
+        //set this to SINGLE to allow selecting just one item
+        lvPlayer1.getSelectionModel().setSelectionMode(SelectionMode.Multiple)
+
+        //set this to SINGLE to allow selecting just one item
+        lvPlayer1.getSelectionModel().setSelectionMode(SelectionMode.Multiple)
+
         for (item <- controller.players(controller.isturn).ownedStreets)
             lvPlayer1.getItems.add(controller.board(item).name)
         for (item <- controller.players(playerIdx).ownedStreets)
@@ -802,14 +804,31 @@ class Gui(controller: GameController) extends Observer {
 
         result match {
             case Some(Result("accept")) => {
+                // properties of player 1
+
+                val streetP1 = controller.board.filter(_.name == lvPlayer1.getSelectionModel.getSelectedItem)(0).asInstanceOf[Buyable]
+
+                // properties of player 2
+                val streetP2 = controller.board.filter(_.name == lvPlayer2.getSelectionModel.getSelectedItem)(0).asInstanceOf[Buyable]
+
                 //todo trade properties get list of selected properties for both players and set new owner for each lists
                 //geld abziehen
+
                 controller.players = controller.players.updated(controller.isturn, controller.players(controller.isturn).decMoney(tfPlayerXMoney.getText.toInt))
                 controller.players = controller.players.updated(playerIdx, controller.players(playerIdx).decMoney(tfPlayerYMoney.getText.toInt))
                 //geld draufzahlen
                 controller.players = controller.players.updated(controller.isturn, controller.players(controller.isturn).incMoney(tfPlayerYMoney.getText.toInt))
                 controller.players = controller.players.updated(playerIdx, controller.players(playerIdx).incMoney(tfPlayerXMoney.getText.toInt))
                 print("trade items") // todo trade selected items and money
+                // Markierte strassen von spieler 1 an spieler 2 geben
+                controller.players = controller.players.updated(controller.isturn, controller.players(controller.isturn).sellStreet(controller.board.indexOf(streetP1))) // todo remove street
+                controller.board = controller.board.updated(controller.board.indexOf(streetP1), streetP1.setOwner(playerIdx))
+                controller.players = controller.players.updated(playerIdx, controller.players(playerIdx).buyStreet(controller.board.indexWhere(_.name == streetP1.name))) // todo addStreet
+                // Markierte strassen von spieler 2 an spieler 1 geben
+                controller.players = controller.players.updated(playerIdx, controller.players(playerIdx).sellStreet(controller.board.indexOf(streetP2)))
+                controller.board = controller.board.updated(controller.board.indexOf(streetP2), streetP2.setOwner(controller.isturn))
+                controller.players = controller.players.updated(controller.isturn, controller.players(controller.isturn).buyStreet(controller.board.indexWhere(_.name == streetP2.name))) // todo addStreet
+
             }
             case None => "Dialog returned: None"
         }

@@ -135,6 +135,7 @@ class GameController extends Observable {
         players = tmpPlayers
         round = tmpRound
         isturn = tmpIsturn
+        //todo update gui once
     }
 
     def onStartGame() = {
@@ -361,14 +362,6 @@ class GameController extends Observable {
                 val stackpane = currentStage.scene().lookup("#stackpane").asInstanceOf[javafx.scene.layout.StackPane]
                 stackpane.getChildren().add(players(i).figure)
                 notifyObservers(MovePlayerFigureEvent(players(i).figure, 350, 350))
-
-
-                //                timer.schedule(new TimerTask {
-                //                    override def run(): Unit = {
-                //                        movePlayerGui(players(isturn).figure, 350, 350)
-                //                        timer.cancel()
-                //                    }
-                //                }, 1000, 100)
             }
             //todo notifyObservers(e: GuiPutPlayersOnTheBoardEvent)
             // todo game starts here
