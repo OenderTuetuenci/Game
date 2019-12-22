@@ -49,6 +49,7 @@ class GameController extends Observable {
         280, 210, 140, 70, 0, -70, -140, -210, -280, -350,
         -350, -350, -350, -350, -350, -350, -350, -350, -350, -350,
         -280, -210, -140, -70, 0, 70, 140, 210, 280)
+    var collectedTax = 0
     // todo save gamestate and load gamestate
     var tmpHumanPlayers = humanPlayers
     var tmpNpcPlayers = npcPlayers
@@ -56,6 +57,7 @@ class GameController extends Observable {
     var tmpPlayers = players
     var tmpRound = round
     var tmpIsturn = isturn
+    var tmpCollectedTax = collectedTax
 
 
     def createGame(playerNames: Vector[String], npcNames: Vector[String]): Unit = {
@@ -125,6 +127,12 @@ class GameController extends Observable {
         tmpPlayers = players
         tmpRound = round
         tmpIsturn = isturn
+        tmpCollectedTax = collectedTax
+
+        // lblRollDice.gettext
+        // lblResultdice gettext
+        // get buttons roll dice and end turn disable/enable
+        // maybe also get eventlog
     }
 
     def onLoadGame() = {
@@ -135,6 +143,7 @@ class GameController extends Observable {
         players = tmpPlayers
         round = tmpRound
         isturn = tmpIsturn
+        collectedTax = tmpCollectedTax
         //todo update gui once
     }
 
@@ -183,7 +192,7 @@ class GameController extends Observable {
                     players = players.updated(isturn, players(isturn).moveToJail)
                     players = players.updated(isturn, players(isturn).incJailTime)
                     notifyObservers(MovePlayerFigureEvent(players(isturn).figure, -350, 350)) // jailxy
-                    notifyObservers(openGoToJailDialog())
+                    notifyObservers(openGoToJailPaschDialog())
                     val rollDiceBUtton = currentStage.scene().lookup("#rollDice") //.asInstanceOf[javafx.scene.control.Button]
                     rollDiceBUtton.setDisable(true)
                     val endTurnButton = currentStage.scene().lookup("#endTurn") //.asInstanceOf[javafx.scene.control.Button]

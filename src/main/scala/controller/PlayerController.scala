@@ -116,6 +116,8 @@ class PlayerController(gameController: GameController) {
         // schauen ob über los gegangen todo wenn spieler auf jail kommt und pasch gewuerfelt hat
         if (players(isturn).position >= 40) {
             gameController.printFun(playerWentOverGoEvent(players(isturn)))
+            if (!(players(isturn).position == 0)) // falls spieler nicht auf los sonst 2 dialoge
+                gameController.notifyObservers(OpenPlayerPassedGoDialog())
             players = players.updated(isturn, players(isturn).moveBack(40))
         }
         ////////////MoveplayerAfterRollDice////////////////
@@ -130,13 +132,14 @@ class PlayerController(gameController: GameController) {
         field match {
             case e: Buyable => boardController.activateStreet(e.asInstanceOf[Buyable])
             case e: Los => boardController.activateStart(e.asInstanceOf[Los])
-            //            case e: Eventcell => boardController.activateEvent(e.asInstanceOf[Eventcell])
-            //            case e: CommunityChest => boardController.activateCommunityChest(e.asInstanceOf[CommunityChest])
-            //            case e: IncomeTax => boardController.activateIncomeTax(e.asInstanceOf[IncomeTax])
-            //            case e: FreiParken => boardController.activateFreiParken(e.asInstanceOf[FreiParken])
-            //            case e: GoToJail => boardController.activateGoToJail(e.asInstanceOf[GoToJail])
+            case e: Eventcell => boardController.activateChance(e.asInstanceOf[Eventcell])
+            case e: CommunityChest => boardController.activateCommunityChest(e.asInstanceOf[CommunityChest])
+            case e: Jail => boardController.activateVisitJail(e.asInstanceOf[Jail])
+            case e: IncomeTax => boardController.activateIncomeTax(e.asInstanceOf[IncomeTax])
+            case e: FreiParken => boardController.activateFreiParken(e.asInstanceOf[FreiParken])
             case e: GoToJail => boardController.activateJail(e.asInstanceOf[GoToJail])
-            case _ =>
+            case e: Zusatzsteuer => boardController.activateLuxuaryTax(e.asInstanceOf[Zusatzsteuer])
+            case _ => throw new UnsupportedOperationException
         }
         players
     }

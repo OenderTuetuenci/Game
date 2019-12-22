@@ -81,18 +81,7 @@ case class CommunityChest(name: String) extends Cell {
     }
 }
 
-case class IncomeTax(name: String) extends Cell {
-    override def onPlayerEntered(enteredPlayer: Int): String = {
-        println("\nplayer entered IncomeTax")
-        "\nplayer entered IncomeTax"
-    }
-
-    override def toString: String = {
-        name
-    }
-}
-
-case class Los(name: String) extends Cell {
+case class Los(name: String, image: Image) extends Cell {
     override def onPlayerEntered(enteredPlayer: Int): String = {
         println("\nplayer entered start")
         "\nplayer entered start"
@@ -103,9 +92,20 @@ case class Los(name: String) extends Cell {
     }
 }
 
-case class GoToJail(name: String) extends Cell{
+case class IncomeTax(name: String, image: Image) extends Cell {
     override def onPlayerEntered(enteredPlayer: Int): String = {
-        println("\nplayer entered jail")
+        println("\nplayer entered IncomeTax")
+        "\nplayer entered IncomeTax"
+    }
+
+    override def toString: String = {
+        name
+    }
+}
+
+case class GoToJail(name: String, image: Image) extends Cell {
+    override def onPlayerEntered(enteredPlayer: Int): String = {
+        println("\nplayer entered go to jail")
         "\nplayer entered GoToJail"
     }
 
@@ -114,7 +114,7 @@ case class GoToJail(name: String) extends Cell{
     }
 }
 
-case class Jail(name: String) extends Cell{
+case class Jail(name: String, image: Image) extends Cell {
     override def onPlayerEntered(enteredPlayer: Int): String = {
         println("\nplayer entered jail")
         "\nplayer entered jail"
@@ -125,7 +125,7 @@ case class Jail(name: String) extends Cell{
     }
 }
 
-case class FreiParken(name: String) extends Cell {
+case class FreiParken(name: String, image: Image) extends Cell {
     override def onPlayerEntered(enteredPlayer: Int): String = {
         println("\nplayer entered FreiParken")
         "\nplayer entered FreiParken"
@@ -136,7 +136,7 @@ case class FreiParken(name: String) extends Cell {
     }
 }
 
-case class Zusatzsteuer(name: String) extends Cell {
+case class Zusatzsteuer(name: String, image: Image) extends Cell {
     override def onPlayerEntered(enteredPlayer: Int): String = {
         println("\nplayer entered Zusatzsteuer")
         "\nplayer entered Zusatzsteuer"

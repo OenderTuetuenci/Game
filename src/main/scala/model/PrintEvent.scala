@@ -79,9 +79,10 @@ case class UpdateGuiDiceLabelEvent(roll1: Int, roll2: Int, pasch: Boolean) exten
 case class ClearGuiElementsEvent() extends PrintEvent
 
 case class MovePlayerFigureEvent(playerFigure: ImageView, x: Double, y: Double) extends PrintEvent
+
 case class OpenMainWindowEvent() extends PrintEvent
 
-case class openGoToJailDialog() extends PrintEvent
+case class openGoToJailPaschDialog() extends PrintEvent
 
 case class openGameOverDialogEvent() extends PrintEvent
 
@@ -103,8 +104,28 @@ case class OpenInJailDialogEvent() extends PrintEvent
 
 case class OpenPlayerFreeDialog() extends PrintEvent
 
-case class OpenBuyableFieldDialog(field: Buyable) extends PrintEvent
+case class UpdateListViewPlayersEvent() extends PrintEvent
+
+// Field Dialogs
 
 case class OpenPayRentDialog(field: Buyable) extends PrintEvent
 
-case class UpdateListViewPlayersEvent() extends PrintEvent
+case class OpenBuyableFieldDialog(field: Buyable) extends PrintEvent
+
+case class OpenPlayerEnteredGoDialog(field: Los) extends PrintEvent
+
+case class OpenPlayerPassedGoDialog() extends PrintEvent
+
+case class OpenIncomeTaxDialog(field: IncomeTax) extends PrintEvent
+
+case class openGoToJailDialog(field: GoToJail) extends PrintEvent
+
+case class OpenVisitJailDialog(field: Jail) extends PrintEvent
+
+case class OpenParkFreeDialog(field: FreiParken) extends PrintEvent
+
+case class OpenLuxuaryTaxDialog(field: Zusatzsteuer) extends PrintEvent
+
+case class OpenChanceDialog() extends PrintEvent
+
+case class OpenCommunityChestDialog() extends PrintEvent

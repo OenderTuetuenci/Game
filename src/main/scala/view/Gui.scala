@@ -42,13 +42,21 @@ class Gui(controller: GameController) extends Observer {
             case e: OpenPlayerFreeDialog => playerFreeDialog(e)
             case e: OpenBuyableFieldDialog => buyableFieldDialog(e)
             case e: OpenPayRentDialog => payRentDialog(e)
+            case e: OpenPlayerEnteredGoDialog => goDialog(e)
             case e: openGoToJailDialog => goToJailDialog(e)
+            case e: OpenVisitJailDialog => visitJailDialog(e)
+            case e: OpenParkFreeDialog => parkFreeDialog(e)
+            case e: OpenLuxuaryTaxDialog => luxuaryTaxDialog(e)
+            case e: openGoToJailPaschDialog => goToJailPaschDialog(e)
+            case e: OpenChanceDialog => chanceDialog(e)
+            case e: OpenCommunityChestDialog => communityChestDialog(e)
             // others
             case e: MovePlayerFigureEvent => movePlayerFigure(e)
             case e: ClearGuiElementsEvent => clearGuiElements
             case e: UpdateListViewPlayersEvent => updateListViewPlayers()
             case e: PlacePlayersOnBoardEvent => placePlayersOnBoard()
             case e: UpdateGuiDiceLabelEvent => updateGuiDiceLabel(e)
+            case e: OpenPlayerPassedGoDialog => playerWentOverGoDialog
             case _ =>
 
 
@@ -118,6 +126,7 @@ class Gui(controller: GameController) extends Observer {
 
     // widgets
 
+
     def mainWindow(e: OpenMainWindowEvent) = {
         controller.currentStage = new PrimaryStage {
             val menubar = new MenuBar {
@@ -174,7 +183,7 @@ class Gui(controller: GameController) extends Observer {
             }
             menubar.setId("menubar")
             title = "Monopoly SE"
-            scene = new Scene(1100, 800) {
+            scene = new Scene() {
                 fill = Black
                 content = new HBox(menubar) {
                     padding = Insets(10)
@@ -234,33 +243,20 @@ class Gui(controller: GameController) extends Observer {
                         new ListView[String] {
                             this.setId("lvPlayers")
                             orientation = Orientation.Vertical
-
                             cellFactory = {
-
                                 p => {
-
                                     val cell = new ListCell[String]
-
                                     cell.textFill = Color.Blue
-
                                     cell.cursor = Cursor.Hand
-
                                     cell.item.onChange { (_, _, str) => cell.text = str }
-
                                     cell.onMouseClicked = { me: MouseEvent => {
                                         playerStatsDialog(cell.index.toInt)
-                                        updateListViewPlayers()
                                     }
                                     }
-
                                     cell
-
                                 }
-
                             }
-
                             items = ObservableBuffer()
-
                         },
                         new Text {
                             text = "Event Log"
@@ -274,33 +270,21 @@ class Gui(controller: GameController) extends Observer {
                             this.setId("lvEventLog")
                             this.getSelectionModel.setSelectionMode(SelectionMode.Multiple)
                             orientation = Orientation.Vertical
-
                             cellFactory = {
-
                                 p => {
-
                                     val cell = new ListCell[String]
-
                                     cell.textFill = Color.Blue
-
                                     cell.cursor = Cursor.Hand
-
                                     cell.item.onChange { (_, _, str) => cell.text = str }
-
                                     cell.onMouseClicked = { me: MouseEvent =>
                                         println("Do something with " + cell.text.value)
                                         //cell.updateSelected(false)
                                         //if (cell.isSelected) this.getSelectionModel.clearSelection
                                     }
-
                                     cell
-
                                 }
-
                             }
-
                             items = ObservableBuffer()
-
                         }
                     )
                     pane.children = List(boardImage)
@@ -690,9 +674,10 @@ class Gui(controller: GameController) extends Observer {
 
         val result = dialog.showAndWait()
 
-        val street = controller.board.filter(_.name == lvSelectedPlayer.getSelectionModel.getSelectedItem)(0).asInstanceOf[Buyable]
 
         if (lvSelectedPlayer.getSelectionModel.getSelectedItem.nonEmpty) {
+            val street = controller.board.filter(_.name == lvSelectedPlayer.getSelectionModel.getSelectedItem)(0).asInstanceOf[Buyable]
+
             result match {
                 case Some(Result("trade")) => {
                     openTradeDialog(playerIdx)
@@ -712,7 +697,9 @@ class Gui(controller: GameController) extends Observer {
                 }
                 case None => "Dialog returned: None"
             }
+            updateListViewPlayers()
         }
+
 
     }
 
@@ -883,22 +870,6 @@ class Gui(controller: GameController) extends Observer {
         alert.showAndWait()
     }
 
-    def inJailDialog(e: OpenInJailDialogEvent): Unit = {
-        // todo
-        val alert = new Alert(AlertType.Confirmation) {
-            title = "Player is in jail"
-            headerText = "Look, a Confirmation Dialog."
-            contentText = "Ok"
-        }
-
-        val result = alert.showAndWait()
-
-        result match {
-            case Some(ButtonType.OK) => println("ok in jail dialog")
-            case _ => "Cancel"
-        }
-    }
-
     def playerFreeDialog(e: OpenPlayerFreeDialog): Unit = {
         // todo
         val alert = new Alert(AlertType.Confirmation) {
@@ -915,12 +886,11 @@ class Gui(controller: GameController) extends Observer {
         }
     }
 
-
-    def goToJailDialog(e: openGoToJailDialog): Unit = {
+    def goToJailPaschDialog(e: openGoToJailPaschDialog): Unit = {
         // todo
         val alert = new Alert(AlertType.Confirmation) {
             title = "Go to jail"
-            headerText = "Look, a Confirmation Dialog."
+            headerText = controller.paschCount + " Pasch gewuerfelt"
             contentText = "Ok"
         }
 
@@ -929,6 +899,276 @@ class Gui(controller: GameController) extends Observer {
         result match {
             case Some(ButtonType.OK) => println("ok in jail dialog")
             case _ => "Cancel"
+        }
+    }
+
+    // Dialogs which show up as player enters a field
+
+    def goDialog(e: OpenPlayerEnteredGoDialog): Unit = {
+        val dialog = new Dialog() {
+            title = "Entered Go"
+            headerText = controller.players(controller.isturn).name + " entered " + e.field.name
+            //graphic = new ImageView(this.getClass.getResource("login_icon.png").toString)
+        }
+        //dialog.getDialogPane.setPrefSize(600, 500)
+        val payButton = new ButtonType("Collect 400$", ButtonData.OKDone)
+        dialog.dialogPane().buttonTypes = Seq(payButton)
+
+        val image = new ImageView(e.field.image)
+
+        val grid = new GridPane() {
+            hgap = 10
+            vgap = 10
+            padding = Insets(20, 100, 10, 10)
+            add(image, 2, 0)
+        }
+        dialog.dialogPane().content = grid
+        dialog.showAndWait()
+        controller.players = controller.players.updated(controller.isturn, controller.players(controller.isturn).incMoney(400))
+    }
+
+    def chanceDialog(e: OpenChanceDialog): Unit = {
+        val dialog = new Dialog() {
+            title = "Entered Chance"
+            headerText = controller.players(controller.isturn).name + " entered chance"
+            //graphic = new ImageView(this.getClass.getResource("login_icon.png").toString)
+        }
+        //dialog.getDialogPane.setPrefSize(600, 500)
+        val okButton = new ButtonType("Ok", ButtonData.OKDone)
+        dialog.dialogPane().buttonTypes = Seq(okButton)
+
+        //todo image = drawcard .. drawcard -> removecard from controller.cardstack if cardstackempty shuffle
+        val image = new ImageView("file:images/AdvanceToGoChance.png")
+
+        val grid = new GridPane() {
+            hgap = 10
+            vgap = 10
+            padding = Insets(20, 100, 10, 10)
+            add(image, 2, 0)
+        }
+        dialog.dialogPane().content = grid
+        dialog.showAndWait()
+        //todo playercontroller.moveplayer
+        print("chancefinished")
+        //controller.players = controller.players.updated(controller.isturn, controller.players(controller.isturn).incMoney(400))
+    }
+
+    def communityChestDialog(e: OpenCommunityChestDialog): Unit = {
+        val dialog = new Dialog() {
+            title = "Entered Community Chest"
+            headerText = controller.players(controller.isturn).name + " entered Community chest"
+            //graphic = new ImageView(this.getClass.getResource("login_icon.png").toString)
+        }
+        //dialog.getDialogPane.setPrefSize(600, 500)
+        val okButton = new ButtonType("Ok", ButtonData.OKDone)
+        dialog.dialogPane().buttonTypes = Seq(okButton)
+
+        //todo image = drawcard .. drawcard -> removecard from controller.cardstack if cardstackempty shuffle
+        val image = new ImageView("file:images/AdvanceToGoChest.png")
+
+        val grid = new GridPane() {
+            hgap = 10
+            vgap = 10
+            padding = Insets(20, 100, 10, 10)
+            add(image, 2, 0)
+        }
+        dialog.dialogPane().content = grid
+        dialog.showAndWait()
+        //todo playercontroller.moveplayer
+        print("chestfinished")
+        //controller.players = controller.players.updated(controller.isturn, controller.players(controller.isturn).incMoney(400))
+    }
+
+    def inJailDialog(e: OpenInJailDialogEvent): Unit = {
+        val dialog = new Dialog() {
+            title = "Player is in jail"
+            headerText = controller.players(controller.isturn).name + " is in jail."
+            //graphic = new ImageView(this.getClass.getResource("login_icon.png").toString)
+        }
+        //dialog.getDialogPane.setPrefSize(600, 500)
+        val rollButton = new ButtonType("Roll dice", ButtonData.OKDone)
+        val payButton = new ButtonType("Pay", ButtonData.OKDone)
+        val useCardButton = new ButtonType("Use card", ButtonData.OKDone)
+        dialog.dialogPane().buttonTypes = Seq(rollButton, payButton, useCardButton)
+
+        val image = new ImageView("file:images/InJail.png")
+
+        val grid = new GridPane() {
+            hgap = 10
+            vgap = 10
+            padding = Insets(20, 100, 10, 10)
+            add(image, 2, 0)
+        }
+        dialog.dialogPane().content = grid
+        dialog.showAndWait()
+        // todo result
+    }
+
+    def goToJailDialog(e: openGoToJailDialog): Unit = {
+        val dialog = new Dialog() {
+            title = "Entered Go to jail"
+            headerText = controller.players(controller.isturn).name + " entered " + e.field.name
+            //graphic = new ImageView(this.getClass.getResource("login_icon.png").toString)
+        }
+        //dialog.getDialogPane.setPrefSize(600, 500)
+        val okButton = new ButtonType("Go to jail", ButtonData.OKDone)
+        dialog.dialogPane().buttonTypes = Seq(okButton)
+
+        val image = new ImageView(e.field.image)
+
+        val grid = new GridPane() {
+            hgap = 10
+            vgap = 10
+            padding = Insets(20, 100, 10, 10)
+            add(image, 2, 0)
+        }
+        dialog.dialogPane().content = grid
+        dialog.showAndWait()
+    }
+
+    def playerWentOverGoDialog(): Unit = {
+        val dialog = new Dialog() {
+            title = "Player passed Go"
+            headerText = controller.players(controller.isturn).name + " passed " + controller.board(0).name
+            //graphic = new ImageView(this.getClass.getResource("login_icon.png").toString)
+        }
+        //dialog.getDialogPane.setPrefSize(600, 500)
+        val payButton = new ButtonType("Collect 200$", ButtonData.OKDone)
+        dialog.dialogPane().buttonTypes = Seq(payButton)
+
+        val image = new ImageView(controller.board(0).asInstanceOf[Los].image)
+
+        val grid = new GridPane() {
+            hgap = 10
+            vgap = 10
+            padding = Insets(20, 100, 10, 10)
+            add(image, 2, 0)
+        }
+        dialog.dialogPane().content = grid
+        dialog.showAndWait()
+        controller.players = controller.players.updated(controller.isturn, controller.players(controller.isturn).incMoney(200))
+    }
+
+    def visitJailDialog(e: OpenVisitJailDialog): Unit = {
+        val dialog = new Dialog() {
+            title = "Entered Go"
+            headerText = controller.players(controller.isturn).name + " entered " + e.field.name
+            //graphic = new ImageView(this.getClass.getResource("login_icon.png").toString)
+        }
+        //dialog.getDialogPane.setPrefSize(600, 500)
+        val okButton = new ButtonType("Ok", ButtonData.OKDone)
+        dialog.dialogPane().buttonTypes = Seq(okButton)
+
+        val image = new ImageView(e.field.image)
+
+        val grid = new GridPane() {
+            hgap = 10
+            vgap = 10
+            padding = Insets(20, 100, 10, 10)
+            add(image, 2, 0)
+        }
+        dialog.dialogPane().content = grid
+        dialog.showAndWait()
+    }
+
+    def parkFreeDialog(e: OpenParkFreeDialog): Unit = {
+        val dialog = new Dialog() {
+            title = "Entered Park free"
+            headerText = controller.players(controller.isturn).name + " entered " + e.field.name
+            //graphic = new ImageView(this.getClass.getResource("login_icon.png").toString)
+        }
+        //dialog.getDialogPane.setPrefSize(600, 500)
+        var text = "Ok"
+        if (controller.collectedTax > 0) text = "Collect " + controller.collectedTax
+
+        val okButton = new ButtonType(text, ButtonData.OKDone)
+        dialog.dialogPane().buttonTypes = Seq(okButton)
+
+        val image = new ImageView(e.field.image)
+
+        val grid = new GridPane() {
+            hgap = 10
+            vgap = 10
+            padding = Insets(20, 100, 10, 10)
+            add(image, 2, 0)
+        }
+        dialog.dialogPane().content = grid
+        dialog.showAndWait()
+        if (controller.collectedTax > 0) {
+            controller.players = controller.players.updated(controller.isturn, controller.players(controller.isturn).incMoney(controller.collectedTax))
+            controller.collectedTax = 0
+
+        }
+    }
+
+    def luxuaryTaxDialog(e: OpenLuxuaryTaxDialog): Unit = {
+        val dialog = new Dialog() {
+            title = "Entered Luxuary tax"
+            headerText = controller.players(controller.isturn).name + " entered " + e.field.name
+            //graphic = new ImageView(this.getClass.getResource("login_icon.png").toString)
+        }
+        //dialog.getDialogPane.setPrefSize(600, 500)
+        val okButton = new ButtonType("Pay 75$", ButtonData.OKDone)
+        dialog.dialogPane().buttonTypes = Seq(okButton)
+
+        val image = new ImageView(e.field.image)
+
+        val grid = new GridPane() {
+            hgap = 10
+            vgap = 10
+            padding = Insets(20, 100, 10, 10)
+            add(image, 2, 0)
+        }
+        dialog.dialogPane().content = grid
+        dialog.showAndWait()
+        controller.players = controller.players.updated(controller.isturn, controller.players(controller.isturn).decMoney(75))
+        controller.collectedTax += 75
+    }
+
+    def incomeTaxDialog(e: OpenIncomeTaxDialog): Unit = {
+        case class Result(option: String)
+
+        // Create the custom dialog.
+        val dialog = new Dialog[Result]() {
+            title = "Entered Income Tax"
+            headerText = controller.players(controller.isturn).name + " entered " + e.field.name
+            //graphic = new ImageView(this.getClass.getResource("login_icon.png").toString)
+        }
+        //dialog.getDialogPane.setPrefSize(600, 500)
+        val pay10PercentButton = new ButtonType("Pay 10 %", ButtonData.OKDone)
+        val pay200Button = new ButtonType("Pay 200 $", ButtonData.OKDone)
+        dialog.dialogPane().buttonTypes = Seq(pay10PercentButton, pay200Button)
+
+        val image = new ImageView(e.field.image)
+
+        val grid = new GridPane() {
+            hgap = 10
+            vgap = 10
+            padding = Insets(20, 100, 10, 10)
+            add(image, 2, 0)
+        }
+        dialog.dialogPane().content = grid
+
+
+        // Convert the result to a username-password-pair when the login button is clicked.
+        dialog.resultConverter = dialogButton =>
+            if (dialogButton == pay10PercentButton) Result("pay10percent")
+            else if (dialogButton == pay200Button) Result("pay200")
+            else null
+
+        val result = dialog.showAndWait()
+
+        result match {
+            case Some(Result("pay10percent")) => {
+                val playerTax = (controller.players(controller.isturn).money * 0.1).toInt
+                controller.collectedTax += playerTax
+                controller.players = controller.players.updated(controller.isturn, controller.players(controller.isturn).decMoney(playerTax))
+            }
+            case Some(Result("pay200")) => {
+                controller.collectedTax += 200
+                controller.players = controller.players.updated(controller.isturn, controller.players(controller.isturn).decMoney(200))
+            }
+            case None => "Dialog returned: None"
         }
     }
 }

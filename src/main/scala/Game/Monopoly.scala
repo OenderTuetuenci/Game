@@ -28,7 +28,26 @@ import scala.language.implicitConversions
 // sbt -> run ....https://github.com/scalafx/scalafx-hello-world/tree/SFX-8
 // dialogs: https://github.com/scalafx/scalafx/blob/master/scalafx-demos/src/main/scala/scalafx/controls/DialogsDemo.scala
 object Monopoly extends JFXApp {
-    val gameController = new GameController
+//    stage = new PrimaryStage {
+//        title = "MenuBar Test"
+//        width = 300
+//        height = 225
+//        scene = new Scene {
+//            fill = Color.LightGray
+//            content = new BorderPane {
+//                top = new MenuBar {
+//                    useSystemMenuBar = true
+//                    minWidth = 100
+//                    menus.add(new Menu("test"))
+//                }
+//                children = Seq( new HBox() {
+//                    new Text("hallo")
+//                }
+//                )
+//            }
+//        }
+//    }
+val gameController = new GameController
     val gui = new Gui(gameController)
     val tui = new Tui(gameController)
 
