@@ -46,17 +46,19 @@ class Gui(controller: GameController) extends Observer {
             case e: openGoToJailDialog => goToJailDialog(e)
             case e: OpenVisitJailDialog => visitJailDialog(e)
             case e: OpenParkFreeDialog => parkFreeDialog(e)
+            case e: OpenIncomeTaxDialog => incomeTaxDialog(e)
             case e: OpenLuxuaryTaxDialog => luxuaryTaxDialog(e)
             case e: openGoToJailPaschDialog => goToJailPaschDialog(e)
             case e: OpenChanceDialog => chanceDialog(e)
             case e: OpenCommunityChestDialog => communityChestDialog(e)
+            case e: OpenPlayerPassedGoDialog => playerWentOverGoDialog
+
             // others
             case e: MovePlayerFigureEvent => movePlayerFigure(e)
             case e: ClearGuiElementsEvent => clearGuiElements
             case e: UpdateListViewPlayersEvent => updateListViewPlayers()
             case e: PlacePlayersOnBoardEvent => placePlayersOnBoard()
             case e: UpdateGuiDiceLabelEvent => updateGuiDiceLabel(e)
-            case e: OpenPlayerPassedGoDialog => playerWentOverGoDialog
             case _ =>
 
 
