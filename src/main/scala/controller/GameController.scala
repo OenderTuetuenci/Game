@@ -13,6 +13,9 @@ class GameController extends Observable {
     var humanPlayers = 0
     var npcPlayers = 0
     var board: Vector[Cell] = Vector[Cell]()
+    var chanceCards: Vector[Cards] = Vector[Cards]()
+    var communityChestCards: Vector[Cards] = Vector[Cards]()
+
     var players: Vector[Player] = Vector[Player]()
     var playerNames: Vector[String] = Vector[String]()
     var remainingFiguresToPick = List[String]("Fingerhut",
@@ -105,6 +108,17 @@ class GameController extends Observable {
         notifyObservers(e)
     }
 
+    def checkDepth(player:Player,ownerIdx: Int): Unit = {
+            notifyObservers(OpenPlayerDeptDialog(ownerIdx))
+            //Disable roll button turn endturn button to declare bankrupt
+            val rollDiceBUtton = currentStage.scene().lookup("#rollDice") //.asInstanceOf[javafx.scene.control.Button]
+            rollDiceBUtton.setDisable(false)
+            val endTurnButton = currentStage.scene().lookup("#endTurn").asInstanceOf[javafx.scene.control.Button]
+            endTurnButton.setDisable(false)
+            endTurnButton.setText("Declare Bankrupt")
+    }
+
+
 
     ///////////todo GUI  ///////////////////////////////////////////
 
@@ -145,6 +159,10 @@ class GameController extends Observable {
         isturn = tmpIsturn
         collectedTax = tmpCollectedTax
         //todo update gui once
+        // clear board (houses,ownersofStreets,playerfigurese)
+        // readd (...)
+        // updatePlayerList,updateLabels,ClearEventlist
+
     }
 
     def onStartGame() = {

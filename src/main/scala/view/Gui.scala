@@ -53,6 +53,7 @@ class Gui(controller: GameController) extends Observer {
             case e: OpenChanceDialog => chanceDialog(e)
             case e: OpenCommunityChestDialog => communityChestDialog(e)
             case e: OpenPlayerPassedGoDialog => playerWentOverGoDialog
+            case e: OpenPlayerDeptDialog => playerDeptDialog(e)
 
             // others
             case e: MovePlayerFigureEvent => movePlayerFigure(e)
@@ -438,7 +439,7 @@ class Gui(controller: GameController) extends Observer {
         }
         //dialog.getDialogPane.setPrefSize(600, 500)
         val payButton = new ButtonType("Pay", ButtonData.OKDone)
-        dialog.dialogPane().buttonTypes = Seq(payButton, ButtonType.Cancel)
+        dialog.dialogPane().buttonTypes = Seq(payButton)
 
         val image = new ImageView(e.field.image)
 
@@ -462,6 +463,8 @@ class Gui(controller: GameController) extends Observer {
         result match {
             case Some(Result("pay")) => {
                 controller.payRent
+                if (controller.players(controller.isturn).money < 0)
+                    controller.checkDepth(controller.players(controller.isturn),e.field.owner)
             }
             case None => "Dialog returned: None"
         }
@@ -1011,6 +1014,30 @@ class Gui(controller: GameController) extends Observer {
         val dialog = new Dialog() {
             title = "New turn"
             headerText = "It is " + controller.players(controller.isturn).name + "`s turn."
+            //graphic = new ImageView(this.getClass.getResource("login_icon.png").toString)
+        }
+        //dialog.getDialogPane.setPrefSize(600, 500)
+        val okButton = new ButtonType("Ok", ButtonData.OKDone)
+
+        dialog.dialogPane().buttonTypes = Seq(okButton)
+
+        // todo val image = controller.players(controller.isturn).figure
+
+        val grid = new GridPane() {
+            hgap = 10
+            vgap = 10
+            padding = Insets(20, 100, 10, 10)
+            //todo add(image, 2, 0)
+        }
+        dialog.dialogPane().content = grid
+        dialog.showAndWait()
+        // todo result
+    }
+
+    def playerDeptDialog(e: OpenPlayerDeptDialog): Unit = {
+        val dialog = new Dialog() {
+            title = "Player has dept"
+            headerText = controller.players(controller.isturn).name + " has dept."
             //graphic = new ImageView(this.getClass.getResource("login_icon.png").toString)
         }
         //dialog.getDialogPane.setPrefSize(600, 500)

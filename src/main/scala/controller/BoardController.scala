@@ -70,6 +70,7 @@ class BoardController(gameController: GameController) {
     def activateStreet(field: Buyable): Unit = {
         if (field.owner == -1 && field.owner != gameController.isturn) gameController.notifyObservers(OpenBuyableFieldDialog(field))
         else gameController.notifyObservers(OpenPayRentDialog(field))
+
     }
 
     def activateIncomeTax(field: IncomeTax): Unit = {
