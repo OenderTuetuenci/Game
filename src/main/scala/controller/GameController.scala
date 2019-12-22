@@ -237,7 +237,7 @@ class GameController extends Observable {
         }
         // wenn spieler im jail jaildialog oeffnen
         if (players(isturn).jailCount > 0) notifyObservers(OpenInJailDialogEvent())
-
+        else notifyObservers(OpenNormalTurnDialogEvent())
         notifyObservers(UpdateListViewPlayersEvent())
         rollDiceBUtton.requestFocus() // zum durchentern
 
@@ -361,6 +361,9 @@ class GameController extends Observable {
             lblPlayerTurn.setText("It is " + players(isturn).name + "´s turn")
             val lblDiceResult = currentStage.scene().lookup("#lblDiceResult").asInstanceOf[javafx.scene.text.Text]
             lblDiceResult.setText("Result dice roll: ")
+            // todo gamestart
+            notifyObservers(OpenNormalTurnDialogEvent())
+
         }
 
         def createBoardAndPlayersState = {

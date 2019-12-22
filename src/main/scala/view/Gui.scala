@@ -39,6 +39,7 @@ class Gui(controller: GameController) extends Observer {
             case e: OpenInformationDialogEvent => informationDialog(e)
             case e: OpenConfirmationDialogEvent => confirmationDialog(e)
             case e: OpenInJailDialogEvent => inJailDialog(e)
+            case e: OpenNormalTurnDialogEvent => normalTurnDialog(e)
             case e: OpenPlayerFreeDialog => playerFreeDialog(e)
             case e: OpenBuyableFieldDialog => buyableFieldDialog(e)
             case e: OpenPayRentDialog => payRentDialog(e)
@@ -1000,6 +1001,30 @@ class Gui(controller: GameController) extends Observer {
             vgap = 10
             padding = Insets(20, 100, 10, 10)
             add(image, 2, 0)
+        }
+        dialog.dialogPane().content = grid
+        dialog.showAndWait()
+        // todo result
+    }
+
+    def normalTurnDialog(e: OpenNormalTurnDialogEvent): Unit = {
+        val dialog = new Dialog() {
+            title = "New turn"
+            headerText = "It is " + controller.players(controller.isturn).name + "`s turn."
+            //graphic = new ImageView(this.getClass.getResource("login_icon.png").toString)
+        }
+        //dialog.getDialogPane.setPrefSize(600, 500)
+        val okButton = new ButtonType("Ok", ButtonData.OKDone)
+
+        dialog.dialogPane().buttonTypes = Seq(okButton)
+
+        // todo val image = controller.players(controller.isturn).figure
+
+        val grid = new GridPane() {
+            hgap = 10
+            vgap = 10
+            padding = Insets(20, 100, 10, 10)
+            //todo add(image, 2, 0)
         }
         dialog.dialogPane().content = grid
         dialog.showAndWait()
