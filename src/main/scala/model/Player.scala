@@ -3,7 +3,7 @@ package model
 import controller.HumanOrNpcStrategy
 import scalafx.scene.image.ImageView
 
-case class Player(name: String, position: Int = 0, money: Int = 2000, jailCount: Int = 0,
+case class Player(name: String, position: Int = 0, money: Int = 1000, jailCount: Int = 0,
                   ownedStreets: Vector[Int] = Vector[Int](), turnPosition: Int = 0, rollForPosition: Int = 0, strategy: HumanOrNpcStrategy, figure: ImageView) {
     override def toString: String = {
         "name: " + this.name + " pos: " + this.position + " money: " + this.money + " roundsInJail: " + this.jailCount + " ownedStreets: " + this.ownedStreets.mkString(",") + " rollForPosition: " + this.rollForPosition + " turnPosition: " + this.turnPosition

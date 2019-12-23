@@ -225,23 +225,31 @@ class GameController extends Observable {
     }
 
     def onEndTurn() = {
+        val endTurnButton = currentStage.scene().lookup("#endTurn").asInstanceOf[javafx.scene.control.Button]
+        if (endTurnButton.getText == "Declare Bankrupt") {
+            endTurnButton.setText("End turn")
+            if (checkGameOver) GameStates.handle(gameOverEvent())
+        }
         // todo "its player x turn" notifyObservers(OpenNextPlayersTurnDialog())
         // init next round
         paschCount = 0
-        isturn += 1
-        if (isturn == humanPlayers + npcPlayers) {
-            isturn = 0 // erster spieler ist wieder dran
-            round += 1
-            //start next round
-            notifyObservers(newRoundEvent(round))
-        }
+        // beim neuen zug spieler die kein geld mehr haben ueberspringen
+        do {
+            isturn += 1
+            if (isturn == humanPlayers + npcPlayers) {
+                isturn = 0 // erster spieler ist wieder dran
+                round += 1
+                //start next round
+                notifyObservers(newRoundEvent(round))
+            }
+        } while (players(isturn).money <= 0)
+
         // update round label
         val lblPlayerTurn = currentStage.scene().lookup("#lblPlayerTurn").asInstanceOf[javafx.scene.text.Text]
         lblPlayerTurn.setText("It is " + players(isturn).name + "´s turn")
         // Enable rollbutton and disable endturn button
         val rollDiceBUtton = currentStage.scene().lookup("#rollDice") //.asInstanceOf[javafx.scene.control.Button]
         rollDiceBUtton.setDisable(false)
-        val endTurnButton = currentStage.scene().lookup("#endTurn") //.asInstanceOf[javafx.scene.control.Button]
         endTurnButton.setDisable(true)
         // todo hier iwo if botplayer run bot round -> roll ->  move -> end turn
         //start next turn
@@ -258,8 +266,6 @@ class GameController extends Observable {
         else notifyObservers(OpenNormalTurnDialogEvent())
         notifyObservers(UpdateListViewPlayersEvent())
         rollDiceBUtton.requestFocus() // zum durchentern
-
-
     }
 
     object GameStates {
@@ -379,6 +385,10 @@ class GameController extends Observable {
             lblPlayerTurn.setText("It is " + players(isturn).name + "´s turn")
             val lblDiceResult = currentStage.scene().lookup("#lblDiceResult").asInstanceOf[javafx.scene.text.Text]
             lblDiceResult.setText("Result dice roll: ")
+            val rollDiceBUtton = currentStage.scene().lookup("#rollDice") //.asInstanceOf[javafx.scene.control.Button]
+            rollDiceBUtton.setDisable(false)
+            val endTurnButton = currentStage.scene().lookup("#endTurn") //.asInstanceOf[javafx.scene.control.Button]
+            endTurnButton.setDisable(false)
             // todo gamestart
             notifyObservers(OpenNormalTurnDialogEvent())
 
@@ -409,6 +419,10 @@ class GameController extends Observable {
         }
 
         def gameOverState = {
+            val rollDiceBUtton = currentStage.scene().lookup("#rollDice") //.asInstanceOf[javafx.scene.control.Button]
+            rollDiceBUtton.setDisable(true)
+            val endTurnButton = currentStage.scene().lookup("#endTurn") //.asInstanceOf[javafx.scene.control.Button]
+            endTurnButton.setDisable(true)
             notifyObservers(openGameOverDialogEvent())
 
 
