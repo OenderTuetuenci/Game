@@ -4,7 +4,7 @@ import model._
 import scalafx.application.JFXApp.PrimaryStage
 import util.{Observable, UndoManager}
 
-class GameController extends Observable {
+class GameController extends GameControllerInterface {
     val dice = Dice()
     val undoManager = new UndoManager
     val playerController = new PlayerController(this)
@@ -12,10 +12,10 @@ class GameController extends Observable {
     var humanPlayers = 0
     var npcPlayers = 0
     var board: Vector[Cell] = Vector[Cell]()
-    var chanceCards: Vector[Cards] = Vector[Cards]()
-    var communityChestCards: Vector[Cards] = Vector[Cards]()
+    //var chanceCards: Vector[Card] = Vector[Card]()
+    //var communityChestCards: Vector[Card] = Vector[Card]()
 
-    var players: Vector[Player] = Vector[Player]()
+    var players: Vector[PlayerInterface] = Vector[PlayerInterface]()
     var playerNames: Vector[String] = Vector[String]()
     var remainingFiguresToPick = List[String]("Fingerhut",
         "Hut",
@@ -65,12 +65,9 @@ class GameController extends Observable {
         board = boardController.createBoard
         humanPlayers = playerNames.length
         npcPlayers = npcNames.length
-        if (answer == "yes") {
-            undoManager.undoStep
-        }
     }
 
-    def checkGameOver(): (Boolean) = {
+    def checkGameOver(): Boolean = {
         var playerwithmoney = 0
         var winner = 0
         for (i <- players.indices) {
@@ -105,7 +102,7 @@ class GameController extends Observable {
         notifyObservers(e)
     }
 
-    def checkDepth(player:Player,ownerIdx: Int): Unit = {
+    def checkDepth(player:PlayerInterface,ownerIdx: Int): Unit = {
             notifyObservers(OpenPlayerDeptDialog(ownerIdx))
             //Disable roll button turn endturn button to declare bankrupt
             val rollDiceBUtton = currentStage.scene().lookup("#rollDice") //.asInstanceOf[javafx.scene.control.Button]
@@ -323,7 +320,7 @@ class GameController extends Observable {
                 println(players(i))
             }
             // Spieler suchen die das gleiche gewuerfelt haben
-            var rolledSame: Vector[Player] = Vector[Player]()
+            var rolledSame: Vector[PlayerInterface] = Vector[PlayerInterface]()
             for (i <- 0 until humanPlayers + npcPlayers) {
                 for (j <- (i + 1) until humanPlayers + npcPlayers) {
                     if (players(i).rollForPosition == players(j).rollForPosition) {

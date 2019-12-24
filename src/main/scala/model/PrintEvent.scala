@@ -22,27 +22,27 @@ case class brokeEvent(player: Player) extends PrintEvent
 
 case class gameFinishedEvent(winner: Player) extends PrintEvent
 
-case class payRentEvent(from: Player, to: Player) extends PrintEvent
+case class payRentEvent(from: PlayerInterface, to: PlayerInterface) extends PrintEvent
 
-case class buyStreetEvent(player: Player, street: Buyable) extends PrintEvent
+case class buyStreetEvent(player: PlayerInterface, street: Buyable) extends PrintEvent
 
-case class buyTrainstationEvent(player: Player, street: Street) extends PrintEvent
+case class buyTrainstationEvent(player: PlayerInterface, street: Street) extends PrintEvent
 
-case class playerInJailEvent(player: Player) extends PrintEvent
+case class playerInJailEvent(player: PlayerInterface) extends PrintEvent
 
-case class playerRemainsInJailEvent(player: Player) extends PrintEvent
+case class playerRemainsInJailEvent(player: PlayerInterface) extends PrintEvent
 
-case class normalTurnEvent(player: Player) extends PrintEvent
+case class normalTurnEvent(player: PlayerInterface) extends PrintEvent
 
 case class diceEvent(eyeCount1: Int, eyeCount2: Int, pasch: Boolean) extends PrintEvent
 
 case class playerSellsStreetEvent(from: Player, street: Street) extends PrintEvent
 
-case class playerUsesHyptohekOnStreetEvent(player: Player, street: Street) extends PrintEvent
+case class playerUsesHyptohekOnStreetEvent(player: PlayerInterface, street: Street) extends PrintEvent
 
-case class playerPaysHyptohekOnStreetEvent(player: Player, street: Street) extends PrintEvent
+case class playerPaysHyptohekOnStreetEvent(player: PlayerInterface, street: Street) extends PrintEvent
 
-case class playerHasDeptEvent(player: Player) extends PrintEvent
+case class playerHasDeptEvent(player: PlayerInterface) extends PrintEvent
 
 case class streetOnHypothekEvent(street: Street) extends PrintEvent
 
@@ -54,21 +54,21 @@ case class PlacePlayersOnBoardEvent() extends PrintEvent
 
 case class endRoundEvent(round: Int) extends PrintEvent
 
-case class playerMoveToJail(player: Player) extends PrintEvent
+case class playerMoveToJail(player: PlayerInterface) extends PrintEvent
 
 case class optionEvent(option: String) extends PrintEvent
 
 case class printEverythingEvent() extends PrintEvent
 
-case class playerMoveEvent(player: Player) extends PrintEvent
+case class playerMoveEvent(player: PlayerInterface) extends PrintEvent
 
-case class playerIsFreeEvent(player: Player) extends PrintEvent
+case class playerIsFreeEvent(player: PlayerInterface) extends PrintEvent
 
-case class playerRemainsInJail(player: Player) extends PrintEvent
+case class playerRemainsInJail(player: PlayerInterface) extends PrintEvent
 
-case class playerWentOverGoEvent(player: Player) extends PrintEvent
+case class playerWentOverGoEvent(player: PlayerInterface) extends PrintEvent
 
-case class playerWentOnGoEvent(player: Player) extends PrintEvent
+case class playerWentOnGoEvent(player: PlayerInterface) extends PrintEvent
 
 case class falseTestEvent() extends PrintEvent
 
@@ -92,9 +92,9 @@ case class OpenGetPlayersDialogEvent() extends PrintEvent
 
 case class OpenGetNameDialogEvent(currPlayer: Int) extends PrintEvent
 
-case class OpenRollForPosDialogEvent(player: Player) extends PrintEvent
+case class OpenRollForPosDialogEvent(player: PlayerInterface) extends PrintEvent
 
-case class OpenRollDiceDialogEvent(player: Player) extends PrintEvent
+case class OpenRollDiceDialogEvent(player: PlayerInterface) extends PrintEvent
 
 case class OpenInformationDialogEvent() extends PrintEvent
 
@@ -102,7 +102,7 @@ case class OpenConfirmationDialogEvent() extends PrintEvent
 
 case class OpenInJailDialogEvent() extends PrintEvent
 
-case class OpenNormalTurnDialogEvent(player: Player) extends PrintEvent
+case class OpenNormalTurnDialogEvent(player: PlayerInterface) extends PrintEvent
 
 case class OpenPlayerFreeDialog() extends PrintEvent
 

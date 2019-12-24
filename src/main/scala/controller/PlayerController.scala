@@ -82,7 +82,7 @@ class PlayerController(gameController: GameController) {
         }
     }
 
-    def buy(field: Buyable): (Vector[Cell], Vector[Player]) = {
+    def buy(field: Buyable): (Vector[Cell], Vector[PlayerInterface]) = {
         var board = gameController.board
         var players = gameController.players
         val currentPlayer = gameController.currentPlayer
@@ -108,7 +108,7 @@ class PlayerController(gameController: GameController) {
         (roll1, roll2, pasch)
     }
 
-    def movePlayer(sumDiceThrow: Int): Vector[Player] = {
+    def movePlayer(sumDiceThrow: Int): Vector[PlayerInterface] = {
         // spieler bewegen
         import gameController._
         players = players.updated(currentPlayer, players(currentPlayer).move(sumDiceThrow))
@@ -144,7 +144,7 @@ class PlayerController(gameController: GameController) {
         players
     }
 
-    def payRent(field: Buyable): (Vector[Cell], Vector[Player]) = {
+    def payRent(field: Buyable): (Vector[Cell], Vector[PlayerInterface]) = {
         var players = gameController.players
         val currentPlayer = gameController.currentPlayer
         // mietpreis holen

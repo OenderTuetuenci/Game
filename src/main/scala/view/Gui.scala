@@ -22,10 +22,10 @@ import util.Observer
 import scala.io.StdIn._
 import scala.language.implicitConversions
 
-class Gui(controller: GameController) extends Observer {
+class Gui(controller: GameControllerInterface) extends Observer {
     controller.add(this)
 
-    def getController: GameController = controller
+    def getController: GameControllerInterface = controller
 
     override def update(e: PrintEvent): Any = {
         e match {
@@ -363,11 +363,9 @@ class Gui(controller: GameController) extends Observer {
             add(new Label("Npc:"), 0, 1)
             add(tfNpcCount, 1, 1)
         }
-
         // Enable/Disable button depending on whether a username was entered.
         val startButton = dialog.dialogPane().lookupButton(startButtonType)
         //startButton.disable = true
-
         // todo validation players + npc <= 8
         //tfPlayerCount.text.onChange { (_, _, newValue) =>
         //    startButton.disable = tfPlayerCount.text().toInt + tfNpcCount.text().toInt <= 8 && newValue.trim().isEmpty}

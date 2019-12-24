@@ -24,7 +24,7 @@ class Tui(controller: GameController) extends Observer {
             case e: newGameEvent => getPlayerCount
             case e: askBuyEvent => askBuyString
             //Output
-            case e: gameIsGoingToStartEvent => getGameIsGoingToStartString(e)
+            case e: gameIsGoingToStartEvent => println(getGameIsGoingToStartString(e))
             case e: displayRollForPositionsEvent => getRollForPositionsString(e)
             case e: brokeEvent => getBrokeEventString(e)
             case e: gameFinishedEvent => getFinishedString(e)
@@ -51,6 +51,7 @@ class Tui(controller: GameController) extends Observer {
             case e: playerHasDeptEvent => getPlayerHasDeptEventString(e)
             case _ =>
         }
+
     }
 
     def askBuyHomeString: Unit = {

@@ -133,7 +133,7 @@ class BoardController(gameController: GameController) {
         }
     }
 
-    def buyHome(field: Street): (Vector[Cell], Vector[Player]) = {
+    def buyHome(field: Street): (Vector[Cell], Vector[PlayerInterface]) = {
         val currentPlayer = gameController.currentPlayer
         var players = gameController.players
         var board = gameController.board
