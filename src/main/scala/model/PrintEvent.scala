@@ -102,7 +102,7 @@ case class OpenConfirmationDialogEvent() extends PrintEvent
 
 case class OpenInJailDialogEvent() extends PrintEvent
 
-case class OpenNormalTurnDialogEvent() extends PrintEvent
+case class OpenNormalTurnDialogEvent(player: Player) extends PrintEvent
 
 case class OpenPlayerFreeDialog() extends PrintEvent
 

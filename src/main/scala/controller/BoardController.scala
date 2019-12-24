@@ -62,55 +62,55 @@ class BoardController(gameController: GameController) {
     }
 
     def activateStart(field: Los): Unit = {
-        field.onPlayerEntered(gameController.isturn)
+        field.onPlayerEntered(gameController.currentPlayer)
         gameController.notifyObservers(OpenPlayerEnteredGoDialog(field))
     }
 
 
     def activateStreet(field: Buyable): Unit = {
-        if (field.owner == -1 && field.owner != gameController.isturn) gameController.notifyObservers(OpenBuyableFieldDialog(field))
+        if (field.owner == -1 && field.owner != gameController.currentPlayer) gameController.notifyObservers(OpenBuyableFieldDialog(field))
         else gameController.notifyObservers(OpenPayRentDialog(field))
 
     }
 
     def activateIncomeTax(field: IncomeTax): Unit = {
-        field.onPlayerEntered(gameController.isturn)
+        field.onPlayerEntered(gameController.currentPlayer)
         gameController.notifyObservers(OpenIncomeTaxDialog(field))
     }
 
     def activateVisitJail(field: Jail): Unit = {
-        field.onPlayerEntered(gameController.isturn)
+        field.onPlayerEntered(gameController.currentPlayer)
         gameController.notifyObservers(OpenVisitJailDialog(field))
     }
 
     def activateFreiParken(field: FreiParken): Unit = {
-        field.onPlayerEntered(gameController.isturn)
+        field.onPlayerEntered(gameController.currentPlayer)
         gameController.notifyObservers(OpenParkFreeDialog(field))
 
     }
 
     def activateLuxuaryTax(field: Zusatzsteuer): Unit = {
-        field.onPlayerEntered(gameController.isturn)
+        field.onPlayerEntered(gameController.currentPlayer)
         gameController.notifyObservers(OpenLuxuaryTaxDialog(field))
 
     }
 
     def activateChance(field: Eventcell): Unit = {
-        field.onPlayerEntered(gameController.isturn)
+        field.onPlayerEntered(gameController.currentPlayer)
         gameController.notifyObservers(OpenChanceDialog())
     }
 
     def activateCommunityChest(field: CommunityChest): Unit = {
-        field.onPlayerEntered(gameController.isturn)
+        field.onPlayerEntered(gameController.currentPlayer)
         gameController.notifyObservers(OpenCommunityChestDialog())
     }
 
     def activateJail(field: GoToJail): Unit = {
-        field.onPlayerEntered(gameController.isturn)
+        field.onPlayerEntered(gameController.currentPlayer)
         gameController.notifyObservers(openGoToJailDialog(field))
-        gameController.players = gameController.players.updated(gameController.isturn, gameController.players(gameController.isturn).moveToJail)
-        gameController.players = gameController.players.updated(gameController.isturn, gameController.players(gameController.isturn).incJailTime)
-        gameController.notifyObservers(MovePlayerFigureEvent(gameController.players(gameController.isturn).figure, -350, 350)) // jailxy
+        gameController.players = gameController.players.updated(gameController.currentPlayer, gameController.players(gameController.currentPlayer).moveToJail)
+        gameController.players = gameController.players.updated(gameController.currentPlayer, gameController.players(gameController.currentPlayer).incJailTime)
+        gameController.notifyObservers(MovePlayerFigureEvent(gameController.players(gameController.currentPlayer).figure, -350, 350)) // jailxy
         val rollDiceBUtton = gameController.currentStage.scene().lookup("#rollDice") //.asInstanceOf[javafx.scene.control.Button]
         rollDiceBUtton.setDisable(true)
         val endTurnButton = gameController.currentStage.scene().lookup("#endTurn") //.asInstanceOf[javafx.scene.control.Button]
@@ -134,14 +134,14 @@ class BoardController(gameController: GameController) {
     }
 
     def buyHome(field: Street): (Vector[Cell], Vector[Player]) = {
-        val isturn = gameController.isturn
+        val currentPlayer = gameController.currentPlayer
         var players = gameController.players
         var board = gameController.board
-        if (players(isturn).money > 200 && !field.mortgage) // nur wenn straße nicht hypothek hat
-            players = players.updated(isturn, players(isturn).decMoney(200))
+        if (players(currentPlayer).money > 200 && !field.mortgage) // nur wenn straße nicht hypothek hat
+            players = players.updated(currentPlayer, players(currentPlayer).decMoney(200))
         // todo if player owns group of streets buy house
         // todo if housecount = street.maxhouses buy hotel
-        board = board.updated(players(isturn).position, board(players(isturn).position).asInstanceOf[Street].buyHome(1))
+        board = board.updated(players(currentPlayer).position, board(players(currentPlayer).position).asInstanceOf[Street].buyHome(1))
         (board, players)
     }
 }

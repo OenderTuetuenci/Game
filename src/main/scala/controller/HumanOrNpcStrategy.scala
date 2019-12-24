@@ -47,10 +47,10 @@ case class HumanStrategy(controller: GameController) extends HumanOrNpcStrategy 
       case "buy home" => buyHome
       case "turnInJail" => turnInJail
       case "rollForPosition" =>
-        controller.notifyObservers(OpenRollForPosDialogEvent(controller.players(controller.isturn)))
+        controller.notifyObservers(OpenRollForPosDialogEvent(controller.players(controller.currentPlayer)))
         controller.playerController.wuerfeln
       case "rollDice" =>
-        //controller.notifyObservers(OpenRollDiceDialogEvent(controller.players(controller.isturn)))
+          //controller.notifyObservers(OpenRollDiceDialogEvent(controller.players(controller.currentPlayer)))
         controller.playerController.wuerfeln
       case _ =>
     }
@@ -73,7 +73,7 @@ case class HumanStrategy(controller: GameController) extends HumanOrNpcStrategy 
   }
 
   def turnInJail: String = {
-    //controller.notifyObservers(OpenInJailDialogEvent(controller.currentStage, controller.players(controller.isturn)))
+      //controller.notifyObservers(OpenInJailDialogEvent(controller.currentStage, controller.players(controller.currentPlayer)))
     "rollDice"
   }
 }
