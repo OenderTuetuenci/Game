@@ -1,6 +1,7 @@
 package controller
 
-import model.{Cell, Dice, DiceInterface, Player, PlayerInterface, PrintEvent}
+import controller.controllerComponent.{BoardController, PlayerController}
+import model.{Cell, DiceInterface, PlayerInterface, PrintEvent}
 import scalafx.application.JFXApp.PrimaryStage
 import util.{Observable, UndoManager}
 

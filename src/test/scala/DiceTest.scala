@@ -1,4 +1,4 @@
-import model.Dice
+import model.DiceComponent.Dice
 import org.scalatest.{Matchers, WordSpec}
 
 

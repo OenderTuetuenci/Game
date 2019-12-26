@@ -1,6 +1,8 @@
-package controller
+package controller.controllerComponent
 
-import model._
+import controller.{HumanStrategy, NPCStrategy}
+import model.{playerComponent, _}
+import model.playerComponent.Player
 import scalafx.scene.image.{Image, ImageView}
 
 import scala.util.control.Breaks.{break, breakable}
@@ -17,7 +19,7 @@ class PlayerController(gameController: GameController) {
                 true,
                 true))
             imgView.setId("player" + i)
-            players = players :+ Player(name, strategy = HumanStrategy(gameController), figure = imgView)
+            players = players :+ playerComponent.Player(name, strategy = HumanStrategy(gameController),figure = imgView)
             i += 1
 
         }
@@ -55,7 +57,7 @@ class PlayerController(gameController: GameController) {
                 50,
                 true,
                 true))
-            players = players :+ Player(name, strategy = NPCStrategy(gameController), figure = imgView)
+            players = players :+ playerComponent.Player(name, strategy = NPCStrategy(gameController),figure = imgView)
         }
         players
     }

@@ -1,6 +1,7 @@
 package model
 
 import controller.HumanOrNpcStrategy
+import model.playerComponent.Player
 import scalafx.scene.image.ImageView
 
 trait PlayerInterface {

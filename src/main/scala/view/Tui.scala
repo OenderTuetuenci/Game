@@ -1,16 +1,17 @@
 package view
 
 import controller._
+import controller.controllerComponent.GameController
 import model._
 import util.Observer
 
 import scala.io.StdIn._
 import scala.language.implicitConversions
 
-class Tui(controller: GameController) extends Observer {
+class Tui(controller: GameControllerInterface) extends Observer {
     controller.add(this)
 
-    def getController: GameController = controller
+    def getController: GameControllerInterface = controller
 
     override def update(e: PrintEvent): Any = {
         e match {

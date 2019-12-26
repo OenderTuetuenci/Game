@@ -1,4 +1,6 @@
-package model
+package model.DiceComponent
+
+import model.DiceInterface
 
 case class Dice() extends DiceInterface {
     def roll: Int =  1 + (scala.math.random() * 6).toInt

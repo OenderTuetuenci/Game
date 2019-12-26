@@ -6,7 +6,9 @@ scalaVersion := "2.13.0"
 libraryDependencies += "org.scalactic" %% "scalactic" % "3.0.8"
 libraryDependencies += "org.scalatest" % "scalatest_2.13" % "3.0.8" % "test"
 resolvers += "Artima Maven Repository" at "http://repo.artima.com/releases"
-
+//Guice Dependecies
+libraryDependencies += "com.google.inject" % "guice" % "4.1.0"
+libraryDependencies += "net.codingwell" %% "scala-guice" % "4.2.6"
 
 //libraryDependencies += "org.scalafx" %% "scalafx" % "8.0.144-R12"
 //// Add dependency on JavaFX library based on JAVA_HOME variable

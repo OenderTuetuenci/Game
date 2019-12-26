@@ -1,8 +1,11 @@
-package controller
+package controller.controllerComponent
 
+import controller.GameControllerInterface
+import model.DiceComponent.Dice
 import model._
+import model.playerComponent.Player
 import scalafx.application.JFXApp.PrimaryStage
-import util.{Observable, UndoManager}
+import util.UndoManager
 
 class GameController extends GameControllerInterface {
     val dice = Dice()

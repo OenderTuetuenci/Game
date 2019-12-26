@@ -1,5 +1,4 @@
-package controller
-
+package controller.controllerComponent
 
 import model._
 import scalafx.scene.image.Image

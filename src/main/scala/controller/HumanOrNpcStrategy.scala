@@ -1,14 +1,16 @@
 package controller
 
+import com.google.inject.Inject
+import com.google.inject.name.Named
+import controller.controllerComponent.GameController
 import model.{OpenRollForPosDialogEvent, askBuyEvent, askBuyHomeEvent}
 
 trait HumanOrNpcStrategy {
-  val controller: GameController
-
+  val controller: GameControllerInterface
   def execute(option: String): Any
 }
 
-case class NPCStrategy(controller: GameController) extends HumanOrNpcStrategy {
+case class NPCStrategy @Inject() (controller: GameControllerInterface) extends HumanOrNpcStrategy {
   override def execute(option: String): Any = {
     option match {
       case "pay" => pay
@@ -39,7 +41,7 @@ case class NPCStrategy(controller: GameController) extends HumanOrNpcStrategy {
 
 }
 
-case class HumanStrategy(controller: GameController) extends HumanOrNpcStrategy {
+case class HumanStrategy @Inject() (controller: GameControllerInterface) extends HumanOrNpcStrategy {
   override def execute(option: String): Any = {
     option match {
       case "pay" => pay

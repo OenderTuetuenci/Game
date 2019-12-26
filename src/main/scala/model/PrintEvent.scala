@@ -1,6 +1,7 @@
 package model
 
 import javafx.scene.image.ImageView
+import model.playerComponent.Player
 
 trait PrintEvent
 
