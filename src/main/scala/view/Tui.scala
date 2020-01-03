@@ -1,7 +1,6 @@
 package view
 
 import controller._
-import controller.controllerComponent.GameController
 import model._
 import util.Observer
 
@@ -31,7 +30,6 @@ class Tui(controller: GameControllerInterface) extends Observer {
             case e: gameFinishedEvent => getFinishedString(e)
             case e: payRentEvent => getPayRentString(e)
             case e: buyStreetEvent => getBuyStreetEventString(e)
-            case e: buyTrainstationEvent => getBuyTrainstationEventString(e)
             case e: playerInJailEvent => getPlayerInJailString(e)
             case e: normalTurnEvent => getNormalTurnString(e)
             case e: diceEvent => getRollString(e)
@@ -130,15 +128,6 @@ class Tui(controller: GameControllerInterface) extends Observer {
     def getStreetOnHypothekString(e: streetOnHypothekEvent): String = e.street.name + " is on hypothek."
 
     def getBuyStreetEventString(e: buyStreetEvent): String = {
-        var string = e.player.money + "\n"
-        if (e.player.money > e.street.price)
-            string += "bought " + e.street.name
-        else
-            string += "can´t afford street"
-        string
-    }
-
-    def getBuyTrainstationEventString(e: buyTrainstationEvent): String = {
         var string = e.player.money + "\n"
         if (e.player.money > e.street.price)
             string += "bought " + e.street.name

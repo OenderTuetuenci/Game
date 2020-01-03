@@ -5,9 +5,11 @@ import model.DiceComponent.Dice
 import model._
 import model.playerComponent.Player
 import scalafx.application.JFXApp.PrimaryStage
+import scalafx.scene.image.{Image, ImageView}
 import util.UndoManager
 
 class GameController extends GameControllerInterface {
+    val cards = Cards()
     val dice = Dice()
     val undoManager = new UndoManager
     val playerController = new PlayerController(this)
@@ -15,12 +17,43 @@ class GameController extends GameControllerInterface {
     var humanPlayers = 0
     var npcPlayers = 0
     var board: Vector[Cell] = Vector[Cell]()
-    //var chanceCards: Vector[Card] = Vector[Card]()
-    //var communityChestCards: Vector[Card] = Vector[Card]()
+    val chanceCardsList: List[String] = List[String](
+        "file:images/Pay15Chance.png",
+        "file:images/PayEachPlayer50Chance.png",
+        "file:images/Collect50Chance.png",
+        "file:images/Collect150Chance.png",
+        "file:images/GoBack3SpacesChance.png",
+        "file:images/GoToBroadwalkChance.png",
+        "file:images/GoToIllinoisAveChance.png",
+        "file:images/GoToJailChance.png",
+        "file:images/GoToNextUtilityThrowDicePay10TimesChance.png",
+        "file:images/GoToReadingChance.png",
+        "file:images/GoToStCharlesPlaceChance.png",
+        "file:images/JailFreeCardChance.png",
+        "file:images/Pay25ForHouse100ForHotelChance.png")
+    var chanceCards: Vector[String] = cards.shuffleChanceCards(chanceCardsList)
+    val communityChestCardsList: List[String] = List[String](
+        "file:images/Receive25Chest.png",
+        "file:images/PayHostpital100Chest.png",
+        "file:images/Pay50Chest.png",
+        "file:images/Pay150Chest.png",
+        "file:images/IncomeTaxChest.png",
+        "file:images/Collect10Chest.png",
+        "file:images/Collect45Chest.png",
+        "file:images/Collect100Chest.png",
+        "file:images/Inherit100Chest.png",
+        "file:images/Collect100Chest2.png",
+        "file:images/Collect200Chest.png",
+        "file:images/Collect50FromEveryPlayerChest.png",
+        "file:images/GoToJailChest.png",
+        "file:images/JailFreeCardChest.png",
+        "file:images/GoToNextRailroadPayTwiceChest.png",
+        "file:images/Pay40ForHouse155ForHotelChest.png")
+    var communityChestCards: Vector[String] = cards.shuffleCommunityChestCards(communityChestCardsList)
 
     var players: Vector[PlayerInterface] = Vector[PlayerInterface]()
     var playerNames: Vector[String] = Vector[String]()
-    var remainingFiguresToPick = List[String]("Fingerhut",
+    var remainingFiguresToPick: List[String] = List[String]("Fingerhut",
         "Hut",
         "Schubkarre",
         "Schuh",
@@ -37,10 +70,6 @@ class GameController extends GameControllerInterface {
     var currentPlayer = 0 // aktueller spieler
     var paschCount = 0
     // feldcoords todo resizeable mainwindow offset xy stackpane
-    val goXY = (350, 350)
-    val jailXY = (-350, 350)
-    val ParkFreeXY = (-350, -350)
-    val GoToJailXy = (350, -350)
     val fieldCoordsX = List[Double](
         350, 280, 210, 140, 70, 0, -70, -140, -210, -280, -350,
         -350, -350, -350, -350, -350, -350, -350, -350, -350, -350,
@@ -53,6 +82,7 @@ class GameController extends GameControllerInterface {
         -350, -350, -350, -350, -350, -350, -350, -350, -350, -350,
         -280, -210, -140, -70, 0, 70, 140, 210, 280)
     var collectedTax = 0
+
     // todo save gamestate and load gamestate
     var tmpHumanPlayers = humanPlayers
     var tmpNpcPlayers = npcPlayers
@@ -61,7 +91,6 @@ class GameController extends GameControllerInterface {
     var tmpRound = round
     var tmpCurrentPlayer = currentPlayer
     var tmpCollectedTax = collectedTax
-
 
     def createGame(playerNames: Vector[String], npcNames: Vector[String]): Unit = {
         players = playerController.createPlayers(playerNames, npcNames)
@@ -89,6 +118,15 @@ class GameController extends GameControllerInterface {
         board = updated._1
     }
 
+    def payTax = {
+        ;
+    }
+
+
+    def payElse = {
+        ;
+    }
+
     def buy: Unit = {
         val updated = playerController.buy(board(players(currentPlayer).position).asInstanceOf[Buyable])
         board = updated._1
@@ -105,7 +143,12 @@ class GameController extends GameControllerInterface {
         notifyObservers(e)
     }
 
-    def checkDepth(player:PlayerInterface,ownerIdx: Int): Unit = {
+    def checkPlayerDept(ownerIdx: Int) = {
+        if (players(currentPlayer).money > 0) {
+            val endTurnButton = currentStage.scene().lookup("#endTurn").asInstanceOf[javafx.scene.control.Button]
+            endTurnButton.setText("End turn")
+        }
+        else {
             notifyObservers(OpenPlayerDeptDialog(ownerIdx))
             //Disable roll button turn endturn button to declare bankrupt
             val rollDiceBUtton = currentStage.scene().lookup("#rollDice") //.asInstanceOf[javafx.scene.control.Button]
@@ -113,8 +156,9 @@ class GameController extends GameControllerInterface {
             val endTurnButton = currentStage.scene().lookup("#endTurn").asInstanceOf[javafx.scene.control.Button]
             endTurnButton.setDisable(false)
             endTurnButton.setText("Declare Bankrupt")
-    }
+        }
 
+    }
 
 
     ///////////todo GUI  ///////////////////////////////////////////
@@ -129,6 +173,10 @@ class GameController extends GameControllerInterface {
 
     def onInformation() = {
         notifyObservers(OpenInformationDialogEvent())
+    }
+
+    def auction: Unit = {
+        notifyObservers(OpenAuctionDialogEvent(board(players(currentPlayer).position).asInstanceOf[Buyable]))
     }
 
     def onSaveGame() = {
@@ -173,10 +221,19 @@ class GameController extends GameControllerInterface {
         notifyObservers(displayRollForPositionsEvent())
         GameStates.handle(rollForPositionsEvent())
         // Enable roll and disable endturn button
-        val rollDiceBUtton = currentStage.scene().lookup("#rollDice") //.asInstanceOf[javafx.scene.control.Button]
-        rollDiceBUtton.setDisable(false)
+        val rollDiceButton = currentStage.scene().lookup("#rollDice") //.asInstanceOf[javafx.scene.control.Button]
+        rollDiceButton.setDisable(false)
         val endTurnButton = currentStage.scene().lookup("#endTurn") //.asInstanceOf[javafx.scene.control.Button]
         endTurnButton.setDisable(true)
+        // enable save and load buttons
+        //       todo use .getChildren().filtered(_.getId == "#player" + controller.currentPlayer)
+        //       todo val menubar = currentStage.scene().lookup("#menubar").asInstanceOf[javafx.scene.control.MenuBar]
+        //
+        //        //println(menubar.getMenus().filtered(_ => ))
+        //        val miSaveGame = currentStage.scene().lookup("#miSaveGame").asInstanceOf[MenuItem]
+        //        miSaveGame.setDisable(false)
+        //        val miLoadGame = currentStage.scene().lookup("#miLoadGame").asInstanceOf[MenuItem]
+        //        miLoadGame.setDisable(false)
 
         //        do {
 
@@ -184,10 +241,12 @@ class GameController extends GameControllerInterface {
         //        } while (!gameOver)
         //        GameStates.handle(gameOverEvent())
         //GameStates.handle(InitGameEvent())
+
+
     }
 
     def onRollDice() = {
-        players(currentPlayer).strategy.execute("rollDice") match {
+        HumanOrNPCStrategy.execute("rollDice") match {
             case (roll1: Int, roll2: Int, pasch: Boolean) => println(roll1, roll2, pasch)
                 if (pasch) {
                     paschCount += 1
@@ -203,10 +262,10 @@ class GameController extends GameControllerInterface {
                     endTurnButton.setDisable(false)
                 }
                 //move to jail
-                if (paschCount == 2) { //todo 3
+                if (paschCount == 3) {
                     players = players.updated(currentPlayer, players(currentPlayer).moveToJail)
                     players = players.updated(currentPlayer, players(currentPlayer).incJailTime)
-                    notifyObservers(MovePlayerFigureEvent(players(currentPlayer).figure, -350, 350)) // jailxy
+                    notifyObservers(MovePlayerFigureEvent(-350, 350)) // jailxy
                     notifyObservers(openGoToJailPaschDialog())
                     val rollDiceBUtton = currentStage.scene().lookup("#rollDice") //.asInstanceOf[javafx.scene.control.Button]
                     rollDiceBUtton.setDisable(true)
@@ -244,7 +303,7 @@ class GameController extends GameControllerInterface {
                     //start next round
                     notifyObservers(newRoundEvent(round))
                 }
-            } while (players(currentPlayer).money <= 0)
+            } while (players(currentPlayer).money < 0)
 
             // update round label
             val lblPlayerTurn = currentStage.scene().lookup("#lblPlayerTurn").asInstanceOf[javafx.scene.text.Text]
@@ -308,7 +367,7 @@ class GameController extends GameControllerInterface {
             for (i <- 0 until humanPlayers + npcPlayers) {
                 // jeden einmal wuerfeln lassen
                 currentPlayer = i
-                players(currentPlayer).strategy.execute("rollForPosition") match {
+                HumanOrNPCStrategy.execute("rollForPosition") match {
                     case (roll1: Int, roll2: Int, pasch: Boolean) => println(roll1, roll2, pasch)
                         //ergebnis speichern für jeden spieler
                         players = players.updated(i, players(i).setRollForPosition(roll1 + roll2))
@@ -400,9 +459,12 @@ class GameController extends GameControllerInterface {
             players = playerController.createPlayers(playerNames, npcNames)
             board = boardController.createBoard
             for (i <- 0 until humanPlayers + npcPlayers) {
+                currentPlayer = i
                 val stackpane = currentStage.scene().lookup("#stackpane").asInstanceOf[javafx.scene.layout.StackPane]
-                stackpane.getChildren().add(players(i).figure)
-                notifyObservers(MovePlayerFigureEvent(players(i).figure, 350, 350))
+                val figure = new ImageView(new Image(players(i).figure, 50, 50, true, true))
+                figure.setId("#player" + i)
+                stackpane.getChildren().add(figure)
+                notifyObservers(MovePlayerFigureEvent(350, 350))
             }
             //todo notifyObservers(e: GuiPutPlayersOnTheBoardEvent)
             // todo game starts here
@@ -446,6 +508,45 @@ class GameController extends GameControllerInterface {
             stackpane.getChildren().removeAll()
         }
 
+    }
+
+    object HumanOrNPCStrategy {
+        def execute(option: String): Any = {
+            option match {
+                case "pay" => pay
+                case "buy" => buy
+                case "buy home" => buyHome
+                case "turnInJail" => turnInJail
+                case "rollForPosition" =>
+                    notifyObservers(OpenRollForPosDialogEvent(players(currentPlayer)))
+                    playerController.wuerfeln
+                case "rollDice" =>
+                    //notifyObservers(OpenRollDiceDialogEvent(controller.players(controller.currentPlayer)))
+                    playerController.wuerfeln
+                case _ =>
+            }
+        }
+
+        def buyHome: Unit = {
+            notifyObservers(askBuyHomeEvent())
+            if (answer == "yes")
+                buyHome
+        }
+
+        def buy: Unit = {
+            notifyObservers(askBuyEvent())
+            if (answer == "yes")
+                buy
+        }
+
+        def pay: Unit = {
+            payRent
+        }
+
+        def turnInJail: String = {
+            //controller.notifyObservers(OpenInJailDialogEvent(controller.currentStage, controller.players(controller.currentPlayer)))
+            "rollDice"
+        }
     }
 
 

@@ -4,7 +4,7 @@ import scalafx.scene.image.Image
 
 trait Cell {
     val name: String
-
+    val group: Int
     def onPlayerEntered(enteredPlayer: Int): String
 }
 
@@ -13,6 +13,7 @@ trait Buyable extends Cell {
     val price: Int
     val rent: Int
     val owner: Int
+    val homecount: Int
     val image: Image
     def setOwner(x: Int): Buyable
 
@@ -21,7 +22,7 @@ trait Buyable extends Cell {
     def getMortgage(): Buyable
 }
 
-case class Street(name: String, group: Int, price: Int, owner: Int, rent: Int, home: Int, mortgage: Boolean, image: Image) extends Buyable {
+case class Street(name: String, group: Int, price: Int, owner: Int, rent: Int, homecount: Int, mortgage: Boolean, image: Image) extends Buyable {
     override def onPlayerEntered(enteredPlayer: Int): String = {
         println("\nplayer entered " + this.name + ". owner: " + this.owner)
         if (this.owner == -1) "buy"
@@ -29,28 +30,28 @@ case class Street(name: String, group: Int, price: Int, owner: Int, rent: Int, h
         else "pay"
     }
 
-    override def setOwner(x: Int): Buyable = Street(name, group, price, x, rent, home, mortgage, image)
+    override def setOwner(x: Int): Buyable = Street(name, group, price, x, rent, homecount, mortgage, image)
 
-    override def getMortgage: Buyable = Street(name, group, price, owner, rent, home, mortgage = true, image)
+    override def getMortgage: Buyable = Street(name, group, price, owner, rent, homecount, mortgage = true, image)
 
-    override def payMortgage: Buyable = Street(name, group, price, owner, rent, home, mortgage = false, image)
+    override def payMortgage: Buyable = Street(name, group, price, owner, rent, homecount, mortgage = false, image)
 
     //Functions to buy or sell homes to increase rent
     def buyHome(x: Int): Street = {
-        val newRent = rent + (home * 200)
-        Street(name, group, price, owner, newRent, home + x, mortgage, image)
+        val newRent = rent + (homecount * 200)
+        Street(name, group, price, owner, newRent, homecount + x, mortgage, image)
     }
 
     def sellHome(x: Int): Street = {
         val newRent = rent - (x * 200)
-        Street(name, group, price, owner, newRent, home - x, mortgage, image)
+        Street(name, group, price, owner, newRent, homecount - x, mortgage, image)
     }
 
-    override def toString: String = name + " group: " + group + " price: " + price + " rent: " + rent + " homecount: " + home + " mortgage: " + mortgage
+    override def toString: String = name + " group: " + group + " price: " + price + " rent: " + rent + " homecount: " + homecount + " mortgage: " + mortgage
 }
 
 
-case class Eventcell(name: String) extends Cell {
+case class Eventcell(name: String, group: Int) extends Cell {
     override def onPlayerEntered(enteredPlayer: Int): String = {
         println("\nplayer entered an event")
         "\nplayer entered an event"
@@ -66,7 +67,7 @@ case class Eventcell(name: String) extends Cell {
 }
 
 
-case class CommunityChest(name: String) extends Cell {
+case class CommunityChest(name: String, group: Int) extends Cell {
     override def onPlayerEntered(enteredPlayer: Int): String = {
         println("\nplayer entered CommunityChest")
         "\nplayer entered CommunityChest"
@@ -81,7 +82,7 @@ case class CommunityChest(name: String) extends Cell {
     }
 }
 
-case class Los(name: String, image: Image) extends Cell {
+case class Los(name: String, group: Int, image: Image) extends Cell {
     override def onPlayerEntered(enteredPlayer: Int): String = {
         println("\nplayer entered start")
         "\nplayer entered start"
@@ -92,7 +93,7 @@ case class Los(name: String, image: Image) extends Cell {
     }
 }
 
-case class IncomeTax(name: String, image: Image) extends Cell {
+case class IncomeTax(name: String, group: Int, image: Image) extends Cell {
     override def onPlayerEntered(enteredPlayer: Int): String = {
         println("\nplayer entered IncomeTax")
         "\nplayer entered IncomeTax"
@@ -103,7 +104,7 @@ case class IncomeTax(name: String, image: Image) extends Cell {
     }
 }
 
-case class GoToJail(name: String, image: Image) extends Cell {
+case class GoToJail(name: String, group: Int, image: Image) extends Cell {
     override def onPlayerEntered(enteredPlayer: Int): String = {
         println("\nplayer entered go to jail")
         "\nplayer entered GoToJail"
@@ -114,7 +115,7 @@ case class GoToJail(name: String, image: Image) extends Cell {
     }
 }
 
-case class Jail(name: String, image: Image) extends Cell {
+case class Jail(name: String, group: Int, image: Image) extends Cell {
     override def onPlayerEntered(enteredPlayer: Int): String = {
         println("\nplayer entered jail")
         "\nplayer entered jail"
@@ -125,7 +126,7 @@ case class Jail(name: String, image: Image) extends Cell {
     }
 }
 
-case class FreiParken(name: String, image: Image) extends Cell {
+case class FreiParken(name: String, group: Int, image: Image) extends Cell {
     override def onPlayerEntered(enteredPlayer: Int): String = {
         println("\nplayer entered FreiParken")
         "\nplayer entered FreiParken"
@@ -136,7 +137,7 @@ case class FreiParken(name: String, image: Image) extends Cell {
     }
 }
 
-case class Zusatzsteuer(name: String, image: Image) extends Cell {
+case class Zusatzsteuer(name: String, group: Int, image: Image) extends Cell {
     override def onPlayerEntered(enteredPlayer: Int): String = {
         println("\nplayer entered Zusatzsteuer")
         "\nplayer entered Zusatzsteuer"

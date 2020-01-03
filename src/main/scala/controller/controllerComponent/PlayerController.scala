@@ -1,11 +1,7 @@
 package controller.controllerComponent
 
-import controller.{HumanStrategy, NPCStrategy}
-import model.{playerComponent, _}
 import model.playerComponent.Player
-import scalafx.scene.image.{Image, ImageView}
-
-import scala.util.control.Breaks.{break, breakable}
+import model.{playerComponent, _}
 
 class PlayerController(gameController: GameController) {
 
@@ -13,15 +9,8 @@ class PlayerController(gameController: GameController) {
         var players: Vector[Player] = Vector()
         var i = 0
         for (name <- playerNames) {
-            val imgView = new ImageView(new Image(gameController.playerFigures(i),
-                50,
-                50,
-                true,
-                true))
-            imgView.setId("player" + i)
-            players = players :+ playerComponent.Player(name, strategy = HumanStrategy(gameController),figure = imgView)
+            players = players :+ playerComponent.Player(name, figure = gameController.playerFigures(i))
             i += 1
-
         }
         i = 0
         for (name <- npcNames) {
@@ -51,13 +40,7 @@ class PlayerController(gameController: GameController) {
             }
             // ausgewählte figur aus der auswahl nehmen
             gameController.remainingFiguresToPick = gameController.remainingFiguresToPick.filterNot(elm => elm == figure)
-            /////////////////////////////
-            val imgView = new ImageView(new Image(imgPath,
-                50,
-                50,
-                true,
-                true))
-            players = players :+ playerComponent.Player(name, strategy = NPCStrategy(gameController),figure = imgView)
+            players = players :+ playerComponent.Player(name, figure = imgPath)
         }
         players
     }
@@ -90,7 +73,6 @@ class PlayerController(gameController: GameController) {
         val currentPlayer = gameController.currentPlayer
         if (players(currentPlayer).money >= field.price) {
             players = players.updated(currentPlayer, players(currentPlayer).decMoney(field.price))
-            players = players.updated(currentPlayer, players(currentPlayer).buyStreet(players(currentPlayer).position))
             // spieler.besitz add streetnr
             board = board.updated(players(currentPlayer).position, field.setOwner(currentPlayer))
         }
@@ -123,7 +105,7 @@ class PlayerController(gameController: GameController) {
             players = players.updated(currentPlayer, players(currentPlayer).moveBack(40))
         }
         ////////////MoveplayerAfterRollDice////////////////
-        gameController.notifyObservers(MovePlayerFigureEvent(gameController.players(currentPlayer).figure,
+        gameController.notifyObservers(MovePlayerFigureEvent(
             gameController.fieldCoordsX(players(currentPlayer).position),
             gameController.fieldCoordsY(players(currentPlayer).position)))
 
@@ -161,56 +143,4 @@ class PlayerController(gameController: GameController) {
         //todo checkDept(players)
         (gameController.board, players)
     }
-
-    def checkDept(playerState: Vector[Player]): (Vector[Cell], Vector[Player]) = {
-        // wenn spieler im minus its wird
-        // so lange verkauft bis im plus oder nichts mehr verkauft wurde dann gameover
-        var board = gameController.board
-        val currentPlayer = gameController.currentPlayer
-        var players = playerState
-        if (players(currentPlayer).money <= 0) {
-            gameController.printFun(playerHasDeptEvent(players(currentPlayer)))
-            var actionDone = false
-            breakable { // break wenn player plus -> breakable from scala.util.
-                do {
-                    for (i <- board.indices) {
-                        actionDone = false
-                        board(i) match {
-                            //todo straßen, karten, ... verkaufen, später an spieler oder bank
-                            case s: Street =>
-                                // erst auf hypothek setzen dann an bank verkaufen
-                                if (board(i).asInstanceOf[Street].owner == currentPlayer) {
-                                    // todo hotels dann haeuser zuerst verkaufen
-                                    // strasse mit hypothek belasten
-                                    if (!s.mortgage) {
-                                        board = board.updated(i, board(i).asInstanceOf[Buyable].getMortgage)
-                                        players = players.updated(currentPlayer, players(currentPlayer).incMoney(s.price))
-                                        gameController.printFun(playerUsesHyptohekOnStreetEvent(players(currentPlayer), board(i).asInstanceOf[Street]))
-                                        actionDone = true
-                                    } else {
-                                        //sonst straße verkaufen an bank todo später an spieler
-                                        board = board.updated(i, board(i).asInstanceOf[Buyable].setOwner(-1))
-                                        players = players.updated(currentPlayer, players(currentPlayer).incMoney(s.price))
-                                        players = players.updated(currentPlayer, players(currentPlayer).sellStreet(i))
-                                        gameController.printFun(playerSellsStreetEvent(players(currentPlayer), board(i).asInstanceOf[Street]))
-                                        actionDone = true
-                                    }
-                                }
-                            case _ => // TODO restliche felder aber besser andere lösung für felder finden da alles redundant
-                        }
-                    }
-                    if (players(currentPlayer).money > 0) break // sobald alle schulden bezahlt sind nichtmehr verkaufen
-                } while (actionDone)
-            }
-
-            // wenn immernoch pleite dann game over oder todo "declare bankrupt" später
-            if (players(currentPlayer).money <= 0) {
-                //players = players.filterNot(o => o == players(currentPlayer))// spieler aus dem spiel nehmen
-                gameController.printFun(brokeEvent(players(currentPlayer)))
-            }
-        }
-        (board, players)
-    }
-
-
 }

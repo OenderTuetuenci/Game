@@ -1,6 +1,5 @@
 package model
 
-import javafx.scene.image.ImageView
 import model.playerComponent.Player
 
 trait PrintEvent
@@ -79,7 +78,7 @@ case class UpdateGuiDiceLabelEvent(roll1: Int, roll2: Int, pasch: Boolean) exten
 
 case class ClearGuiElementsEvent() extends PrintEvent
 
-case class MovePlayerFigureEvent(playerFigure: ImageView, x: Double, y: Double) extends PrintEvent
+case class MovePlayerFigureEvent(x: Double, y: Double) extends PrintEvent
 
 case class OpenMainWindowEvent() extends PrintEvent
 
@@ -111,6 +110,7 @@ case class UpdateListViewPlayersEvent() extends PrintEvent
 
 case class OpenPlayerDeptDialog(ownerIdx: Int) extends PrintEvent
 
+case class OpenAuctionDialogEvent(field: Buyable) extends PrintEvent
 
 // Field Dialogs
 

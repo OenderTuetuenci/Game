@@ -37,6 +37,7 @@ class Gui(controller: GameControllerInterface) extends Observer {
             case e: OpenRollDiceDialogEvent => rollDiceDialog(e)
             case e: OpenRollForPosDialogEvent => rollForPosDialog(e)
             case e: OpenInformationDialogEvent => informationDialog(e)
+            case e: OpenAuctionDialogEvent => auctionDialog(e)
             case e: OpenConfirmationDialogEvent => confirmationDialog(e)
             case e: OpenInJailDialogEvent => inJailDialog(e)
             case e: OpenNormalTurnDialogEvent => normalTurnDialog(e)
@@ -62,8 +63,6 @@ class Gui(controller: GameControllerInterface) extends Observer {
             case e: PlacePlayersOnBoardEvent => placePlayersOnBoard()
             case e: UpdateGuiDiceLabelEvent => updateGuiDiceLabel(e)
             case _ =>
-
-
 
             //Input
             case e: askUndoGetPlayersEvent => {
@@ -105,9 +104,15 @@ class Gui(controller: GameControllerInterface) extends Observer {
     }
 
     def movePlayerFigure(e: MovePlayerFigureEvent) = {
+        // todo get scale and board position
+        val stackpane = controller.currentStage.scene().lookup("#stackpane").asInstanceOf[javafx.scene.layout.StackPane]
+        //grausam...
+        //        val vboxStackpane = stackpane.getChildren().filtered(_.getId == "#vboxStackpane").get(0)
+        //        print("bounds:" + vboxStackpane)
+        val figure = stackpane.getChildren().filtered(_.getId == "#player" + controller.currentPlayer)
+        figure.get(0).setTranslateX(e.x)
+        figure.get(0).setTranslateY(e.y + 70)
         println("moveplayer x y " + e.x + e.y)
-        e.playerFigure.setTranslateX(e.x)
-        e.playerFigure.setTranslateY(e.y)
     }
 
     // todo moveplayerfiguer
@@ -148,19 +153,25 @@ class Gui(controller: GameControllerInterface) extends Observer {
                                 onAction = handle {
                                     controller.onSaveGame()
                                 }
+                                this.setId("miSaveGame")
+                                this.setDisable(true)
                             },
                             new MenuItem {
                                 text = "Load game"
                                 onAction = handle {
                                     controller.onLoadGame()
                                 }
+                                this.setDisable(true) //todo weg spaeter wenn persistent
+                                this.setId("miLoadGame")
                             }
+
                         )
+                        this.setId("menuGame")
                     },
-                    new Menu("Settings") {
+                    new Menu("Board size") {
                         items = List(
-                            new MenuItem("Resolution"),
-                            new MenuItem("Etc"),
+                            new MenuItem("400 x 400 px"),
+                            new MenuItem("800 x 800 px"),
                         )
                     },
                     new Menu("Help") {
@@ -191,12 +202,11 @@ class Gui(controller: GameControllerInterface) extends Observer {
                 fill = Black
                 root = new VBox() {
                     padding = Insets(10)
-
-
                     val pane = new StackPane()
                     pane.setId("stackpane")
                     val boardImage = new ImageView(new Image("file:images/BoardMonopolyDeluxe1992.png", 800, 800, false, true))
-                    val box = new VBox(
+                    boardImage.setId("#boardImage")
+                    val vbox = new VBox(
                         new Text {
                             id = "lblPlayerTurn"
                             text = "Game Over"
@@ -237,6 +247,10 @@ class Gui(controller: GameControllerInterface) extends Observer {
                             padding = Insets(7)
                             this.setDisable(true)
                         },
+                        boardImage
+                    )
+                    vbox.setId("#vboxStackpane")
+                    val box = new VBox(
                         new Text {
                             text = "Players                                                                          "
                             style = "-fx-font-size: 20pt"
@@ -293,7 +307,7 @@ class Gui(controller: GameControllerInterface) extends Observer {
                             items = ObservableBuffer()
                         }
                     )
-                    pane.children = List(boardImage)
+                    pane.children = List(vbox)
                     val box2 = new HBox()
                     box2.children = Seq(pane, box)
                     children = Seq(menubar, box2)
@@ -310,6 +324,7 @@ class Gui(controller: GameControllerInterface) extends Observer {
         controller.currentStage.setY(bounds.getMinY)
         controller.currentStage.setWidth(bounds.getWidth)
         controller.currentStage.setHeight(bounds.getHeight)
+
     }
 
     //    def playerListItem(imgPath: String="",name: String="",money: String="") = new VBox() { // todo in die playerlist später
@@ -329,260 +344,6 @@ class Gui(controller: GameControllerInterface) extends Observer {
 
     // Dialogs
 
-    def getPlayersDialog(e: OpenGetPlayersDialogEvent) = {
-
-        case class Result(playerCount: String, npcCount: String)
-
-        // create dialog
-        val dialog = new Dialog[Result]() {
-            //initOwner(e.stage)
-            title = "Start Game"
-            headerText = "How many players and npc"
-            //graphic = new ImageView(this.getClass.getResource("login_icon.png").toString)
-        }
-        // Set the button types.
-        val startButtonType = new ButtonType("Start", ButtonData.OKDone)
-        dialog.dialogPane().buttonTypes = Seq(startButtonType, ButtonType.Cancel)
-        // Create labels and fields.
-        val tfPlayerCount = new TextField() {
-            promptText = "playerCount"
-            text = "0"
-        }
-        val tfNpcCount = new TextField() {
-            promptText = "npcCount"
-            text = "0"
-        }
-
-        val grid = new GridPane() {
-            hgap = 10
-            vgap = 10
-            padding = Insets(20, 100, 10, 10)
-
-            add(new Label("Players:"), 0, 0)
-            add(tfPlayerCount, 1, 0)
-            add(new Label("Npc:"), 0, 1)
-            add(tfNpcCount, 1, 1)
-        }
-        // Enable/Disable button depending on whether a username was entered.
-        val startButton = dialog.dialogPane().lookupButton(startButtonType)
-        //startButton.disable = true
-        // todo validation players + npc <= 8
-        //tfPlayerCount.text.onChange { (_, _, newValue) =>
-        //    startButton.disable = tfPlayerCount.text().toInt + tfNpcCount.text().toInt <= 8 && newValue.trim().isEmpty}
-
-
-        dialog.dialogPane().content = grid
-        // Request focus on the username field by default.
-        Platform.runLater(tfPlayerCount.requestFocus())
-        // Convert the result to a username-password-pair when the login button is clicked.
-        dialog.resultConverter = dialogButton =>
-            if (dialogButton == startButtonType) Result(tfPlayerCount.text(), tfNpcCount.text())
-            else null
-
-        val result = dialog.showAndWait()
-
-        result match {
-            case Some(Result(p, npc)) => {
-                controller.humanPlayers = p.toInt
-                controller.npcPlayers = npc.toInt
-            }
-            case None => ("Dialog returned", "None") //todo initstate
-        }
-    }
-
-    def buyableFieldDialog(e: OpenBuyableFieldDialog): Unit = {
-        case class Result(option: String)
-
-        // Create the custom dialog.
-        val dialog = new Dialog[Result]() {
-            title = "Entered buyable"
-            headerText = controller.players(controller.currentPlayer).name + " entered " + e.field.name
-            //graphic = new ImageView(this.getClass.getResource("login_icon.png").toString)
-        }
-        //dialog.getDialogPane.setPrefSize(600, 500)
-        val buyButton = new ButtonType("Buy", ButtonData.OKDone)
-        dialog.dialogPane().buttonTypes = Seq(buyButton, ButtonType.Cancel)
-
-        val image = new ImageView(e.field.image)
-
-
-        val grid = new GridPane() {
-            hgap = 10
-            vgap = 10
-            padding = Insets(20, 100, 10, 10)
-            add(image, 2, 0)
-        }
-        dialog.dialogPane().content = grid
-
-        //todo if (players(currentPlayer).money >= field.price) {
-
-        // Convert the result to a username-password-pair when the login button is clicked.
-        dialog.resultConverter = dialogButton =>
-            if (dialogButton == buyButton) Result("buy")
-            else null
-
-        val result = dialog.showAndWait()
-
-        result match {
-            case Some(Result("buy")) => {
-                controller.buy
-            }
-            case None => "Dialog returned: None"
-        }
-    }
-
-    def payRentDialog(e: OpenPayRentDialog): Unit = {
-        case class Result(option: String)
-
-        // Create the custom dialog.
-        val dialog = new Dialog[Result]() {
-            title = "Entered owned Field"
-            headerText = controller.players(controller.currentPlayer).name + " entered " + e.field.name
-            //graphic = new ImageView(this.getClass.getResource("login_icon.png").toString)
-        }
-        //dialog.getDialogPane.setPrefSize(600, 500)
-        val payButton = new ButtonType("Pay", ButtonData.OKDone)
-        dialog.dialogPane().buttonTypes = Seq(payButton)
-
-        val image = new ImageView(e.field.image)
-
-
-        val grid = new GridPane() {
-            hgap = 10
-            vgap = 10
-            padding = Insets(20, 100, 10, 10)
-            add(image, 2, 0)
-        }
-        dialog.dialogPane().content = grid
-
-
-        // Convert the result to a username-password-pair when the login button is clicked.
-        dialog.resultConverter = dialogButton =>
-            if (dialogButton == payButton) Result("pay")
-            else null
-
-        val result = dialog.showAndWait()
-
-        result match {
-            case Some(Result("pay")) => {
-                controller.payRent
-                if (controller.players(controller.currentPlayer).money < 0)
-                    controller.checkDepth(controller.players(controller.currentPlayer), e.field.owner)
-            }
-            case None => "Dialog returned: None"
-        }
-    }
-
-    def getPlayerNameDialog(e: OpenGetNameDialogEvent) = {
-        case class Result(playerName: String, figure: String)
-
-        // Create the custom dialog.
-        val dialog = new Dialog[Result]() {
-            title = "Enter Player names:"
-            headerText = "Player " + e.currPlayer + " enter name"
-            //graphic = new ImageView(this.getClass.getResource("login_icon.png").toString)
-        }
-        dialog.getDialogPane.setPrefSize(600, 500)
-        val startButtonType = new ButtonType("Start", ButtonData.OKDone)
-        dialog.dialogPane().buttonTypes = Seq(startButtonType, ButtonType.Cancel)
-
-        val tfPlayerName = new TextField() {
-            promptText = "Enter name"
-        }
-
-        val comboBox = new ComboBox[String]()
-
-        comboBox.getItems().addAll(controller.remainingFiguresToPick) // bilder hinzufuegen
-        comboBox.getSelectionModel.select(0) // das 1. element vorher schon auswählen
-        val initImg = comboBox.getSelectionModel.getSelectedItem.toString match {
-            case "Hut" => "file:images/Hat.jpg"
-            case "Fingerhut" => "file:images/Fingerhut.jpg"
-            case "Schubkarre" => "file:images/Schubkarre.jpg"
-            case "Schuh" => "file:images/Schuh.jpg"
-            case "Hund" => "file:images/Hund.jpg"
-            case "Auto" => "file:images/Auto.png"
-            case "Bügeleisen" => "file:images/Buegeleisen.jpg"
-            case "Fingerhut" => "file:images/Fingerhut.jpg"
-            case "Schiff" => "file:images/Schiff.jpg"
-        }
-        val image = new ImageView(new Image(initImg,
-            200,
-            200,
-            true,
-            true))
-        comboBox.value.onChange {
-            val imgPath = comboBox.getSelectionModel.getSelectedItem.toString match {
-                case "Hut" => "file:images/Hat.jpg"
-                case "Fingerhut" => "file:images/Fingerhut.jpg"
-                case "Schubkarre" => "file:images/Schubkarre.jpg"
-                case "Schuh" => "file:images/Schuh.jpg"
-                case "Hund" => "file:images/Hund.jpg"
-                case "Auto" => "file:images/Auto.png"
-                case "Bügeleisen" => "file:images/Buegeleisen.jpg"
-                case "Fingerhut" => "file:images/Fingerhut.jpg"
-                case "Schiff" => "file:images/Schiff.jpg"
-            }
-            image.setImage(new Image(imgPath,
-                200,
-                200,
-                true,
-                true))
-        }
-        comboBox.value.onChange()
-
-        val grid = new GridPane() {
-            hgap = 10
-            vgap = 10
-            padding = Insets(20, 100, 10, 10)
-            add(new Label("Name:"), 1, 0)
-            add(tfPlayerName, 1, 1)
-            add(image, 2, 0)
-            add(comboBox, 1, 2)
-        }
-
-        // Enable/Disable login button depending on whether a username was entered.
-        val startButton = dialog.dialogPane().lookupButton(startButtonType)
-        startButton.disable = true
-
-        // Do some validation (disable when username is empty).
-        // TODO check if name is already in playernames !!
-        tfPlayerName.text.onChange { (_, _, newValue) => startButton.disable = newValue.trim().isEmpty }
-
-        dialog.dialogPane().content = grid
-
-        // Request focus on the username field by default.
-        Platform.runLater(tfPlayerName.requestFocus())
-
-        // Convert the result to a username-password-pair when the login button is clicked.
-        dialog.resultConverter = dialogButton =>
-            if (dialogButton == startButtonType) Result(tfPlayerName.text(), comboBox.getSelectionModel.getSelectedItem.toString)
-            else null
-
-        val result = dialog.showAndWait()
-
-        result match {
-            case Some(Result(name, figure)) => {
-                controller.playerNames = controller.playerNames :+ name
-                val imgPath = figure match {
-                    case "Hut" => "file:images/Hat.jpg"
-                    case "Fingerhut" => "file:images/Fingerhut.jpg"
-                    case "Schubkarre" => "file:images/Schubkarre.jpg"
-                    case "Schuh" => "file:images/Schuh.jpg"
-                    case "Hund" => "file:images/Hund.jpg"
-                    case "Auto" => "file:images/Auto.png"
-                    case "Bügeleisen" => "file:images/Buegeleisen.jpg"
-                    case "Fingerhut" => "file:images/Fingerhut.jpg"
-                    case "Schiff" => "file:images/Schiff.jpg"
-                }
-                // ausgewählte figur aus der auswahl nehmen
-                controller.remainingFiguresToPick = controller.remainingFiguresToPick.filterNot(elm => elm == figure)
-                controller.playerFigures = controller.playerFigures :+ imgPath
-            }
-            case None => "Dialog returned: None"
-        }
-    }
-
-
     def playerStatsDialog(playerIdx: Int): Unit = {
         //todo buy house sell street vlt hier rein erstmal
         case class Result(option: String)
@@ -595,7 +356,7 @@ class Gui(controller: GameControllerInterface) extends Observer {
         //dialog.getDialogPane.setPrefSize(600, 500)
 
         // image of selected street
-        var image = new ImageView(new Image("file:images/emptryImage.png"))
+        val image = new ImageView(new Image("file:images/emptryImage.png"))
         val tradeButton = new ButtonType("Trade", ButtonData.OKDone)
         val sellButton = new ButtonType("Sell to bank", ButtonData.OKDone)
         val buyHomeButton = new ButtonType("Buy house", ButtonData.OKDone)
@@ -619,7 +380,7 @@ class Gui(controller: GameControllerInterface) extends Observer {
         btnPayMortage.setVisible(false)
         // trade button nur wenn spieler besitz haben und wenn spieller nicht aktueller spieler ist
         if (controller.players(controller.currentPlayer).name != controller.players(playerIdx).name) {
-            if (controller.players(playerIdx).ownedStreets.nonEmpty) btnTrade.setVisible(true)
+            if (controller.board.filter(x => x.group != 0 && x.asInstanceOf[Buyable].owner == playerIdx).nonEmpty) btnTrade.setVisible(true)
         }
 
         // Properties of selected player
@@ -645,13 +406,27 @@ class Gui(controller: GameControllerInterface) extends Observer {
                             if (street.mortgage) btnPayMortage.setVisible(true)
                             else if (!street.mortgage) btnGetMortage.setVisible(true)
                         }
-
-
-                        // sell street button
                         // wenn spieler aktueller spieler ist darf er verkaufen
                         if (controller.players(controller.currentPlayer).name == controller.players(playerIdx).name) {
                             btnSell.setVisible(true)
-                            //todo btnBuyHome.setVisible(true) // nur wenn gruppe im besitz
+                            // wenn spieler alle strassen der gruppe besitzt darf er ein haus kaufen
+                            // wenn 4 haeuser dann hotel
+                            // nur wenn strasse nicht hypothek
+                            // und wenn haeuser <5
+                            // kein bahnhof kein ewerk, wasserwerk
+                            btnBuyHome.setVisible(true)
+                            for (street <- controller.board.filter(_.group == street.group)) {
+                                if (street.asInstanceOf[Buyable].owner != controller.currentPlayer) {
+                                    //                                    || controller.players(controller.currentPlayer).money < 200
+                                    //                                    || street.asInstanceOf[Buyable].mortgage
+                                    //                                    || street.asInstanceOf[Buyable].homecount == 5
+                                    //                                    || street.asInstanceOf[Buyable].group == 1
+                                    //                                    || street.asInstanceOf[Buyable].group == 2
+
+                                    btnBuyHome.setVisible(false)
+                                }
+                            }
+
                             //todo btnSellHome.setVisible(true) // nur wenn haus drauf
                             // if group = wasserwerk/ewerk/bahnhoefe hide houses and buttons
 
@@ -662,8 +437,9 @@ class Gui(controller: GameControllerInterface) extends Observer {
             }
             items = ObservableBuffer()
         }
-        for (item <- controller.players(playerIdx).ownedStreets)
-            lvSelectedPlayer.getItems.add(controller.board(item).name)
+
+        for (item <- controller.board.filter(x => x.group != 0 && x.asInstanceOf[Buyable].owner == playerIdx))
+            lvSelectedPlayer.getItems.add(item.name)
         val grid = new GridPane() {
             hgap = 10
             vgap = 10
@@ -699,19 +475,17 @@ class Gui(controller: GameControllerInterface) extends Observer {
                     controller.board = controller.board.updated(controller.board.indexOf(street), street.payMortgage())
                     controller.players = controller.players.updated(playerIdx, controller.players(playerIdx).decMoney(100)) // todo .dec(street.mortgageValue))
                 }
-                case Some(Result("sell")) => {
-                    controller.players = controller.players.updated(playerIdx, controller.players(playerIdx).sellStreet(controller.board.indexOf(street)))
+                case Some(Result("sell")) =>
                     controller.players = controller.players.updated(playerIdx, controller.players(playerIdx).incMoney(street.price))
                     controller.board = controller.board.updated(controller.board.indexOf(street), street.setOwner(-1))
-                }
+
                 case None => "Dialog returned: None"
             }
+            // falls spieler schulden hat und etwas verkauft wird geschaut ob er wieder im plus ist
+            controller.checkPlayerDept(-1) //
             updateListViewPlayers()
         }
-
-
     }
-
 
     def openTradeDialog(playerIdx: Int): Unit = {
         case class Result(option: String)
@@ -774,10 +548,10 @@ class Gui(controller: GameControllerInterface) extends Observer {
         //set this to SINGLE to allow selecting just one item
         lvPlayer1.getSelectionModel().setSelectionMode(SelectionMode.Multiple)
 
-        for (item <- controller.players(controller.currentPlayer).ownedStreets)
-            lvPlayer1.getItems.add(controller.board(item).name)
-        for (item <- controller.players(playerIdx).ownedStreets)
-            lvPlayer2.getItems.add(controller.board(item).name)
+        for (item <- controller.board.filter(x => x.group != 0 && x.asInstanceOf[Buyable].owner == controller.currentPlayer))
+            lvPlayer1.getItems.add(item.name)
+        for (item <- controller.board.filter(x => x.group != 0 && x.asInstanceOf[Buyable].owner == playerIdx))
+            lvPlayer2.getItems.add(item.name)
 
         val grid = new GridPane() {
             hgap = 10
@@ -787,11 +561,10 @@ class Gui(controller: GameControllerInterface) extends Observer {
             add(lvPlayer2, 1, 0)
             add(tfPlayerXMoney, 0, 1)
             add(tfPlayerYMoney, 1, 1)
-
         }
         dialog.dialogPane().content = grid
 
-        // Convert the result to a username-password-pair when the login button is clicked.
+        // Convert the result
         dialog.resultConverter = dialogButton =>
             if (dialogButton == tradeButton) Result("accept")
             else null
@@ -817,16 +590,475 @@ class Gui(controller: GameControllerInterface) extends Observer {
                 controller.players = controller.players.updated(playerIdx, controller.players(playerIdx).incMoney(tfPlayerXMoney.getText.toInt))
                 print("trade items") // todo trade selected items and money
                 // Markierte strassen von spieler 1 an spieler 2 geben
-                controller.players = controller.players.updated(controller.currentPlayer, controller.players(controller.currentPlayer).sellStreet(controller.board.indexOf(streetP1))) // todo remove street
                 controller.board = controller.board.updated(controller.board.indexOf(streetP1), streetP1.setOwner(playerIdx))
-                controller.players = controller.players.updated(playerIdx, controller.players(playerIdx).buyStreet(controller.board.indexWhere(_.name == streetP1.name))) // todo addStreet
                 // Markierte strassen von spieler 2 an spieler 1 geben
-                controller.players = controller.players.updated(playerIdx, controller.players(playerIdx).sellStreet(controller.board.indexOf(streetP2)))
                 controller.board = controller.board.updated(controller.board.indexOf(streetP2), streetP2.setOwner(controller.currentPlayer))
-                controller.players = controller.players.updated(controller.currentPlayer, controller.players(controller.currentPlayer).buyStreet(controller.board.indexWhere(_.name == streetP2.name))) // todo addStreet
-
+                controller.checkPlayerDept(-1)
             }
             case None => "Dialog returned: None"
+        }
+    }
+
+    def getPlayersDialog(e: OpenGetPlayersDialogEvent) = {
+
+        case class Result(playerCount: String, npcCount: String)
+
+        val dialog = new Dialog[Result]() {
+            title = "Start Game"
+            headerText = "How many players and npc"
+            //graphic = new ImageView(this.getClass.getResource("login_icon.png").toString)
+        }
+
+        val okButtonType = new ButtonType("Start", ButtonData.OKDone)
+        dialog.dialogPane().buttonTypes = Seq(okButtonType, ButtonType.Cancel)
+
+        val tfPlayerCount = new TextField() {
+            promptText = "playerCount"
+            text = "0"
+        }
+        val tfNpcCount = new TextField() {
+            promptText = "npcCount"
+            text = "0"
+        }
+
+        val grid = new GridPane() {
+            hgap = 10
+            vgap = 10
+            padding = Insets(20, 100, 10, 10)
+
+            add(new Label("Players:"), 0, 0)
+            add(tfPlayerCount, 1, 0)
+            add(new Label("Npc:"), 0, 1)
+            add(tfNpcCount, 1, 1)
+        }
+
+        val okButton = dialog.dialogPane().lookupButton(okButtonType)
+        okButton.disable = true
+
+        tfPlayerCount.text.onChange {
+            okButton.disable = tfPlayerCount.text().toInt + tfNpcCount.text().toInt >= 8
+        }
+
+        tfNpcCount.text.onChange {
+            okButton.disable = tfPlayerCount.text().toInt + tfNpcCount.text().toInt >= 8
+        }
+
+        dialog.dialogPane().content = grid
+        // Request focus on the username field by default.
+        Platform.runLater(tfPlayerCount.requestFocus())
+        // Convert the result to a username-password-pair when the login button is clicked.
+        dialog.resultConverter = dialogButton =>
+            if (dialogButton == okButtonType) Result(tfPlayerCount.text(), tfNpcCount.text())
+            else null
+
+        val result = dialog.showAndWait()
+
+        result match {
+            case Some(Result(p, npc)) => {
+                controller.humanPlayers = p.toInt
+                controller.npcPlayers = npc.toInt
+            }
+            case None => ("Dialog returned", "None") //todo initstate
+        }
+    }
+
+    def buyableFieldDialog(e: OpenBuyableFieldDialog): Unit = {
+        case class Result(option: String)
+
+        // Create the custom dialog.
+        val dialog = new Dialog[Result]() {
+            title = "Entered buyable"
+            headerText = controller.players(controller.currentPlayer).name + " entered " + e.field.name
+            //graphic = new ImageView(this.getClass.getResource("login_icon.png").toString)
+        }
+        //dialog.getDialogPane.setPrefSize(600, 500)
+        val buyButton = new ButtonType("Buy", ButtonData.OKDone)
+        val auctionButton = new ButtonType("Auction", ButtonData.OKDone)
+
+        dialog.dialogPane().buttonTypes = Seq(buyButton, auctionButton)
+
+        val image = new ImageView(e.field.image)
+
+
+        val grid = new GridPane() {
+            hgap = 10
+            vgap = 10
+            padding = Insets(20, 100, 10, 10)
+            add(image, 2, 0)
+        }
+        dialog.dialogPane().content = grid
+
+        // validation for buy button
+        val btnBuy = dialog.dialogPane().lookupButton(buyButton)
+        btnBuy.disable = controller.players(controller.currentPlayer).money < e.field.price
+
+        // convert result
+        dialog.resultConverter = dialogButton =>
+            if (dialogButton == buyButton) Result("buy")
+            else if (dialogButton == auctionButton) Result("auction")
+            else Result("auction")
+
+        val result = dialog.showAndWait()
+
+        result match {
+            case Some(Result("buy")) =>
+                controller.buy
+            case Some(Result("auction")) =>
+                controller.auction
+            case None => "Dialog returned: None"
+        }
+    }
+
+    def payRentDialog(e: OpenPayRentDialog): Unit = {
+        val dialog = new Dialog() {
+            title = "Entered owned Field"
+            headerText = controller.players(controller.currentPlayer).name + " entered " + e.field.name
+            //graphic = new ImageView(this.getClass.getResource("login_icon.png").toString)
+        }
+        //dialog.getDialogPane.setPrefSize(600, 500)
+        val payButton = new ButtonType("Pay", ButtonData.OKDone)
+        dialog.dialogPane().buttonTypes = Seq(payButton)
+
+        val image = new ImageView(e.field.image)
+
+        val grid = new GridPane() {
+            hgap = 10
+            vgap = 10
+            padding = Insets(20, 100, 10, 10)
+            add(image, 2, 0)
+        }
+        dialog.dialogPane().content = grid
+
+        dialog.showAndWait()
+
+        controller.payRent
+        controller.checkPlayerDept(e.field.owner)
+    }
+
+    def getPlayerNameDialog(e: OpenGetNameDialogEvent) = {
+        case class Result(playerName: String, figure: String)
+
+        val dialog = new Dialog[Result]() {
+            title = "Enter Player names:"
+            headerText = "Player " + (e.currPlayer + 1) + " enter name"
+            //graphic = new ImageView(this.getClass.getResource("login_icon.png").toString)
+        }
+        dialog.getDialogPane.setPrefSize(250, 400)
+        val startButtonType = new ButtonType("Start", ButtonData.OKDone)
+        dialog.dialogPane().buttonTypes = Seq(startButtonType, ButtonType.Cancel)
+
+        val tfPlayerName = new TextField() {
+            promptText = "Enter name"
+        }
+
+        val comboBox = new ComboBox[String]()
+
+        comboBox.getItems().addAll(controller.remainingFiguresToPick) // bilder hinzufuegen
+        comboBox.getSelectionModel.select(0) // das 1. element vorher schon auswählen
+        val initImg = comboBox.getSelectionModel.getSelectedItem.toString match {
+            case "Hut" => "file:images/Hat.jpg"
+            case "Fingerhut" => "file:images/Fingerhut.jpg"
+            case "Schubkarre" => "file:images/Schubkarre.jpg"
+            case "Schuh" => "file:images/Schuh.jpg"
+            case "Hund" => "file:images/Hund.jpg"
+            case "Auto" => "file:images/Auto.png"
+            case "Bügeleisen" => "file:images/Buegeleisen.jpg"
+            case "Fingerhut" => "file:images/Fingerhut.jpg"
+            case "Schiff" => "file:images/Schiff.jpg"
+        }
+        val image = new ImageView(new Image(initImg,
+            200,
+            200,
+            true,
+            true))
+
+        comboBox.value.onChange {
+            val imgPath = comboBox.getSelectionModel.getSelectedItem.toString match {
+                case "Hut" => "file:images/Hat.jpg"
+                case "Fingerhut" => "file:images/Fingerhut.jpg"
+                case "Schubkarre" => "file:images/Schubkarre.jpg"
+                case "Schuh" => "file:images/Schuh.jpg"
+                case "Hund" => "file:images/Hund.jpg"
+                case "Auto" => "file:images/Auto.png"
+                case "Bügeleisen" => "file:images/Buegeleisen.jpg"
+                case "Fingerhut" => "file:images/Fingerhut.jpg"
+                case "Schiff" => "file:images/Schiff.jpg"
+            }
+            image.setImage(new Image(imgPath,
+                200,
+                200,
+                true,
+                true))
+        }
+        comboBox.value.onChange()
+
+        val hbox = new HBox(
+            new Label("Name:"),
+            tfPlayerName
+        )
+        hbox.padding = Insets(10, 10, 10, 10)
+
+        val hbox1 = new HBox(
+            new Label("Figure:"),
+            comboBox
+        )
+        hbox1.padding = Insets(10, 10, 10, 10)
+
+        val layoutBox = new VBox(
+            hbox,
+            hbox1,
+            image
+        )
+
+        layoutBox.padding = Insets(10, 10, 10, 10)
+
+        dialog.dialogPane().content = layoutBox
+
+        // Enable/Disable login button depending on whether a username was entered.
+        val startButton = dialog.dialogPane().lookupButton(startButtonType)
+        startButton.disable = true
+
+        // Do some validation (disable when username is empty).
+        // TODO check if name is already in playernames !!
+        tfPlayerName.text.onChange {
+            startButton.disable = tfPlayerName.text == "" || controller.playerNames.contains(tfPlayerName.text)
+        }
+
+        dialog.resultConverter = dialogButton =>
+            if (dialogButton == startButtonType) Result(tfPlayerName.text(), comboBox.getSelectionModel.getSelectedItem.toString)
+            else null
+        // Request focus on the username field by default.
+        Platform.runLater(tfPlayerName.requestFocus())
+        val result = dialog.showAndWait()
+
+        result match {
+            case Some(Result(name, figure)) => {
+                controller.playerNames = controller.playerNames :+ name
+                val imgPath = figure match {
+                    case "Hut" => "file:images/Hat.jpg"
+                    case "Fingerhut" => "file:images/Fingerhut.jpg"
+                    case "Schubkarre" => "file:images/Schubkarre.jpg"
+                    case "Schuh" => "file:images/Schuh.jpg"
+                    case "Hund" => "file:images/Hund.jpg"
+                    case "Auto" => "file:images/Auto.png"
+                    case "Bügeleisen" => "file:images/Buegeleisen.jpg"
+                    case "Fingerhut" => "file:images/Fingerhut.jpg"
+                    case "Schiff" => "file:images/Schiff.jpg"
+                }
+                // ausgewählte figur aus der auswahl nehmen
+                controller.remainingFiguresToPick = controller.remainingFiguresToPick.filterNot(elm => elm == figure)
+                controller.playerFigures = controller.playerFigures :+ imgPath
+            }
+            case None => "Dialog returned: None"
+        }
+    }
+
+    def auctionDialog(e: OpenAuctionDialogEvent): Unit = {
+        case class Result(option: String)
+
+        val dialog = new Dialog[Result]() {
+            title = "Auction"
+            headerText = "Auction for " + e.field.name + " Price: " + e.field.price
+            //graphic = new ImageView(this.getClass.getResource("login_icon.png").toString)
+        }
+        val lvPlayerBids = new ListView[String] {
+            this.setId("lvPlayerBids")
+            orientation = Orientation.Vertical
+            items = ObservableBuffer()
+        }
+        //spieler raussuchen die bieten duerfen
+        var bidders: Vector[PlayerInterface] = Vector[PlayerInterface]()
+        var biddersWithdraw: Vector[Boolean] = Vector[Boolean]()
+        for (player <- controller.players) {
+            if (player.money > 0) {
+                bidders = bidders :+ player
+                biddersWithdraw = biddersWithdraw :+ false
+            }
+        }
+        // spielerindex auf akuellen spieler setzen
+        var playerIdx = bidders.indexOf(controller.players(controller.currentPlayer))
+        // 1. gebot aufnehmen
+        var auctionValue = 10 //Startvalue
+        lvPlayerBids.getItems.add(0, bidders(playerIdx).name + " : " + auctionValue)
+        val lblHighestBidder = new Text {
+            text = "Highest bidding:" + bidders(playerIdx).name
+            style = "-fx-font-size: 20pt"
+            fill = new LinearGradient(
+                endX = 0,
+                stops = Stops(PaleGreen, SeaGreen))
+        }
+        // spielerindex auf 2. spieler setzen
+        if (playerIdx + 1 == controller.players.length) playerIdx = 0
+        else playerIdx += 1
+        //dialog.getDialogPane.setPrefSize(600, 500)
+        val image = new ImageView(e.field.image)
+        val hbox1 = new HBox(lvPlayerBids, image)
+        var playerStatsString = ""
+        for (bidder <- bidders) {
+            playerStatsString = playerStatsString + bidder.name + " money: " + bidder.money + "\n"
+        }
+        val lblPlayerStats = new Text {
+            text = playerStatsString
+            style = "-fx-font-size: 20pt"
+            fill = new LinearGradient(
+                endX = 0,
+                stops = Stops(PaleGreen, SeaGreen))
+        }
+
+        val lblPlayerName = new Text {
+            text = bidders(playerIdx).name + " is currently bidding"
+            style = "-fx-font-size: 20pt"
+            fill = new LinearGradient(
+                endX = 0,
+                stops = Stops(PaleGreen, SeaGreen))
+        }
+        val buttonTypeCancel = new ButtonType("Close", ButtonData.CancelClose)
+        dialog.dialogPane().buttonTypes = Seq(buttonTypeCancel)
+        // init buttons
+        val btnCancel = dialog.dialogPane().lookupButton(buttonTypeCancel)
+        btnCancel.setDisable(true)
+        val bid1Button = new Button {
+            text = "Bid +1"
+        }
+        val bid10Button = new Button {
+            text = "Bid +10"
+        }
+        val bid100Button = new Button {
+            text = "Bid +100"
+        }
+        bid1Button.onAction = handle {
+            if (bidders(playerIdx).money < auctionValue + 1) {
+                bid1Button.setDisable(true)
+            } else if (bidders(playerIdx).money < auctionValue + 10) {
+                bid10Button.setDisable(true)
+            } else if (bidders(playerIdx).money < auctionValue + 100) {
+                bid100Button.setDisable(true)
+            } else {
+                lblHighestBidder.setText("Highest bidder: " + bidders(playerIdx).name)
+                auctionValue += 1
+            }
+            val string = bidders(playerIdx).name + " : " + auctionValue
+            lvPlayerBids.getItems.add(0, string)
+            //naechster spieler ist an der reihe wenn er noch nciht raus ist
+            do {
+                if (playerIdx + 1 == bidders.length) {
+                    playerIdx = 0
+                }
+                else playerIdx += 1
+            } while (biddersWithdraw(playerIdx))
+            lblPlayerName.setText(bidders(playerIdx).name + " is currently bidding")
+            lblPlayerStats.setText(playerStatsString)
+        }
+        bid10Button.onAction = handle {
+            if (bidders(playerIdx).money < auctionValue + 1) {
+                bid1Button.setDisable(true)
+            } else if (bidders(playerIdx).money < auctionValue + 10) {
+                bid10Button.setDisable(true)
+            } else if (bidders(playerIdx).money < auctionValue + 100) {
+                bid100Button.setDisable(true)
+            } else {
+                lblHighestBidder.setText("Highest bidder: " + bidders(playerIdx).name)
+                auctionValue += 10
+            }
+            val string = bidders(playerIdx).name + " : " + auctionValue
+            lvPlayerBids.getItems.add(0, string)
+            //naechster spieler ist an der reihe wenn er noch nciht raus ist
+            do {
+                if (playerIdx + 1 == bidders.length) {
+                    playerIdx = 0
+                }
+                else playerIdx += 1
+            } while (biddersWithdraw(playerIdx))
+            lblPlayerName.setText(bidders(playerIdx).name + " is currently bidding")
+            lblPlayerStats.setText(playerStatsString)
+        }
+        bid100Button.onAction = handle {
+            if (bidders(playerIdx).money < auctionValue + 1) {
+                bid1Button.setDisable(true)
+            } else if (bidders(playerIdx).money < auctionValue + 10) {
+                bid10Button.setDisable(true)
+            } else if (bidders(playerIdx).money < auctionValue + 100) {
+                bid100Button.setDisable(true)
+            } else {
+                lblHighestBidder.setText("Highest bidder: " + bidders(playerIdx).name)
+                auctionValue += 100
+            }
+            val string = bidders(playerIdx).name + " : " + auctionValue
+            lvPlayerBids.getItems.add(0, string)
+            //naechster spieler ist an der reihe wenn er noch nciht raus ist
+            do {
+                if (playerIdx + 1 == bidders.length) {
+                    playerIdx = 0
+                }
+                else playerIdx += 1
+            } while (biddersWithdraw(playerIdx))
+            lblPlayerName.setText(bidders(playerIdx).name + " is currently bidding")
+            lblPlayerStats.setText(playerStatsString)
+        }
+
+        val withdrawButton = new Button {
+            text = "Withdraw"
+            onAction = handle {
+                // spieler rausnehmen
+                biddersWithdraw = biddersWithdraw.updated(playerIdx, true)
+                //naechster spieler ist an der reihe wenn er noch nciht raus ist
+                do {
+                    if (playerIdx + 1 == bidders.length) {
+                        playerIdx = 0
+                    }
+                    else playerIdx += 1
+                } while (biddersWithdraw(playerIdx))
+                lblPlayerName.setText(bidders(playerIdx).name + " is currently bidding")
+                //wenn alle raus sind ausser 1 spieler dann close
+                if (biddersWithdraw.filter(_ == false).length == 1) {
+                    btnCancel.setDisable(false)
+                    bid1Button.setDisable(true)
+                    bid10Button.setDisable(true)
+                    bid100Button.setDisable(true)
+                    this.setDisable(true)
+                }
+                //val cancelButton = dialog.getDialogPane().lookupButton( buttonTypeCancel ).asInstanceOf[Button]
+                //cancelButton.fire
+            }
+        }
+        val hbox = new HBox(
+            bid1Button,
+            bid10Button,
+            bid100Button,
+            withdrawButton,
+        )
+
+        val vbox = new VBox(lblPlayerStats, lblPlayerName, hbox, lblHighestBidder, hbox1)
+
+        vbox.padding = Insets(20, 100, 10, 10)
+
+        dialog.dialogPane().content = vbox
+        dialog.resultConverter = dialogButton => {
+            if (dialogButton == buttonTypeCancel) Result("Close")
+            else null
+        }
+
+        val result = dialog.showAndWait()
+
+        result match {
+            case Some(Result("Close")) => {
+                //todo closebutton
+                //get highest bidder
+                val nameValue = lvPlayerBids.getItems.get(0).toString.split(":").map(_.trim)
+                // gebot abziehen
+                bidders = bidders.updated(playerIdx, bidders(bidders.indexWhere(_.name == nameValue(0))).decMoney(nameValue(1).toInt))
+                // besitzer setzen
+                controller.board = controller.board.updated(controller.board.indexWhere(_.name == e.field.name),
+                    e.field.setOwner(controller.players.indexWhere(_.name == bidders(playerIdx).name)))
+                // spieler update
+                for (player <- controller.players) {
+                    for (bidder <- bidders) {
+                        if (player.name == bidder.name) {
+                            controller.players = controller.players.updated(controller.players.indexWhere(_.name == bidder.name), bidder)
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -854,6 +1086,7 @@ class Gui(controller: GameControllerInterface) extends Observer {
             contentText = "I have a great message for you!"
         }.showAndWait()
     }
+
 
     def confirmationDialog(e: OpenConfirmationDialogEvent): Unit = {
         val alert = new Alert(AlertType.Confirmation) {
@@ -929,7 +1162,7 @@ class Gui(controller: GameControllerInterface) extends Observer {
             hgap = 10
             vgap = 10
             padding = Insets(20, 100, 10, 10)
-            add(image, 2, 0)
+            add(image, 0, 0)
         }
         dialog.dialogPane().content = grid
         dialog.showAndWait()
@@ -946,19 +1179,47 @@ class Gui(controller: GameControllerInterface) extends Observer {
         val okButton = new ButtonType("Ok", ButtonData.OKDone)
         dialog.dialogPane().buttonTypes = Seq(okButton)
 
-        //todo image = drawcard .. drawcard -> removecard from controller.cardstack if cardstackempty shuffle
-        val image = new ImageView("file:images/AdvanceToGoChance.png")
+        var drawnCard = ""
+        try {
+            drawnCard = controller.chanceCards.head
+        }
+        catch {
+            case e: Exception => {
+                controller.chanceCards = controller.cards.shuffleChanceCards(controller.chanceCardsList)
+                drawnCard = controller.chanceCards.head
+            }
+        }
+        val image = new ImageView(drawnCard)
+        controller.chanceCards = controller.cards.drawCard(controller.chanceCards)
 
         val grid = new GridPane() {
             hgap = 10
             vgap = 10
             padding = Insets(20, 100, 10, 10)
-            add(image, 2, 0)
+            add(image, 0, 0)
         }
         dialog.dialogPane().content = grid
         dialog.showAndWait()
-        //todo playercontroller.moveplayer
-        print("chancefinished")
+
+        drawnCard match {
+            case d if d == controller.chanceCardsList.head => {
+                // card 1 action here
+            }
+            case d if d == controller.chanceCardsList(1).toString => println("one, a lonely number")
+            case d if d == controller.chanceCardsList(2).toString => println("one, a lonely number")
+            case d if d == controller.chanceCardsList(3).toString => println("one, a lonely number")
+            case d if d == controller.chanceCardsList(4).toString => println("one, a lonely number")
+            case d if d == controller.chanceCardsList(5).toString => println("one, a lonely number")
+            case d if d == controller.chanceCardsList(6).toString => println("one, a lonely number")
+            case d if d == controller.chanceCardsList(7).toString => println("one, a lonely number")
+            case d if d == controller.chanceCardsList(8).toString => println("one, a lonely number")
+            case d if d == controller.chanceCardsList(9).toString => println("one, a lonely number")
+            case d if d == controller.chanceCardsList(10).toString => println("one, a lonely number")
+            case d if d == controller.chanceCardsList(11).toString => println("one, a lonely number")
+            case d if d == controller.chanceCardsList(12).toString => println("one, a lonely number")
+
+            case _ => throw new UnsupportedOperationException
+        }
         //controller.players = controller.players.updated(controller.currentPlayer, controller.players(controller.currentPlayer).incMoney(400))
     }
 
@@ -972,8 +1233,19 @@ class Gui(controller: GameControllerInterface) extends Observer {
         val okButton = new ButtonType("Ok", ButtonData.OKDone)
         dialog.dialogPane().buttonTypes = Seq(okButton)
 
-        //todo image = drawcard .. drawcard -> removecard from controller.cardstack if cardstackempty shuffle
-        val image = new ImageView("file:images/AdvanceToGoChest.png")
+        var drawnCard = ""
+        try {
+            drawnCard = controller.communityChestCards.head
+        }
+        catch {
+            case e: Exception => {
+                controller.communityChestCards = controller.cards.shuffleCommunityChestCards(controller.communityChestCardsList)
+                drawnCard = controller.communityChestCards.head
+            }
+        }
+        val image = new ImageView(drawnCard)
+        controller.communityChestCards = controller.cards.drawCard(controller.communityChestCards)
+
 
         val grid = new GridPane() {
             hgap = 10
@@ -983,6 +1255,16 @@ class Gui(controller: GameControllerInterface) extends Observer {
         }
         dialog.dialogPane().content = grid
         dialog.showAndWait()
+        println("drawnCard" + drawnCard)
+        drawnCard match {
+            case "file:images/AdvanceToGoChance.jpg" => {
+
+            }
+            case "file:images/AdvanceToGoChest.jpg" => {
+
+            }
+            case _ => throw new UnsupportedOperationException
+        }
         //todo playercontroller.moveplayer
         print("chestfinished")
         //controller.players = controller.players.updated(controller.currentPlayer, controller.players(controller.currentPlayer).incMoney(400))
@@ -1023,14 +1305,13 @@ class Gui(controller: GameControllerInterface) extends Observer {
         val okButton = new ButtonType("Ok", ButtonData.OKDone)
 
         dialog.dialogPane().buttonTypes = Seq(okButton)
-
-        val image = new ImageView(controller.players(controller.currentPlayer).figure.getImage)
+        val image = new ImageView(new Image(controller.players(controller.currentPlayer).figure, 150, 150, true, true))
 
         val grid = new GridPane() {
             hgap = 10
             vgap = 10
             padding = Insets(20, 100, 10, 10)
-            add(image, 2, 0)
+            add(image, 0, 0)
         }
         dialog.dialogPane().content = grid
         dialog.showAndWait()
@@ -1047,13 +1328,13 @@ class Gui(controller: GameControllerInterface) extends Observer {
 
         dialog.dialogPane().buttonTypes = Seq(okButton)
 
-        // todo val image = controller.players(controller.currentPlayer).figure
+        val image = controller.currentStage.scene().lookup("#player" + controller.currentPlayer).asInstanceOf[ImageView]
 
         val grid = new GridPane() {
             hgap = 10
             vgap = 10
             padding = Insets(20, 100, 10, 10)
-            //todo add(image, 2, 0)
+            add(image, 0, 0)
         }
         dialog.dialogPane().content = grid
         dialog.showAndWait()
@@ -1153,7 +1434,6 @@ class Gui(controller: GameControllerInterface) extends Observer {
         if (controller.collectedTax > 0) {
             controller.players = controller.players.updated(controller.currentPlayer, controller.players(controller.currentPlayer).incMoney(controller.collectedTax))
             controller.collectedTax = 0
-
         }
     }
 
@@ -1179,6 +1459,7 @@ class Gui(controller: GameControllerInterface) extends Observer {
         dialog.showAndWait()
         controller.players = controller.players.updated(controller.currentPlayer, controller.players(controller.currentPlayer).decMoney(75))
         controller.collectedTax += 75
+        controller.checkPlayerDept(-1)
     }
 
     def incomeTaxDialog(e: OpenIncomeTaxDialog): Unit = {
@@ -1226,7 +1507,6 @@ class Gui(controller: GameControllerInterface) extends Observer {
             }
             case None => "Dialog returned: None"
         }
+        controller.checkPlayerDept(-1)
     }
 }
-
-

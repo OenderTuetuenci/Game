@@ -24,8 +24,6 @@ class PlayerTest extends WordSpec with Matchers {
     //  }
     //    "can buy and sell Streets" in{
     //      val player = Player("X")
-    //      val bplayer = player.buyStreet(2)
-    //      val splayer = player.sellStreet(2)
     //      bplayer.ownedStreet.contains(2) should be (true)
     //      splayer.ownedStreet.contains(2) should be (false)
     //    }
