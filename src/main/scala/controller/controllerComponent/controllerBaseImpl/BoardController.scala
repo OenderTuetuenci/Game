@@ -1,11 +1,11 @@
-package controller.controllerComponent
+package controller.controllerComponent.controllerBaseImpl
 
 import model._
 import scalafx.scene.image.Image
 
 class BoardController(gameController: GameController) {
 
-    def newOwner(playerNr:Int,cell: Cell):Cell = {
+    def newOwner(playerNr: Int, cell: Cell): Cell = {
         val updated = cell.asInstanceOf[Buyable].setOwner(playerNr)
         updated
     }

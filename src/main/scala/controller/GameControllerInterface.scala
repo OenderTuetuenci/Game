@@ -1,6 +1,6 @@
 package controller
 
-import controller.controllerComponent.{BoardController, PlayerController}
+import controller.controllerComponent.controllerBaseImpl.{BoardController, PlayerController}
 import model._
 import scalafx.application.JFXApp.PrimaryStage
 import util.{Observable, UndoManager}
@@ -31,7 +31,7 @@ trait GameControllerInterface extends Observable {
     val fieldCoordsX: List[Double]
     val fieldCoordsY: List[Double]
     var collectedTax: Int
-  var tmpHumanPlayers:Int
+    var tmpHumanPlayers: Int
     var tmpNpcPlayers: Int
     var tmpBoard: Vector[Cell]
     var tmpPlayers: Vector[PlayerInterface]

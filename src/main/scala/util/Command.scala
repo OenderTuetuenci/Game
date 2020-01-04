@@ -1,41 +1,9 @@
 package util
 
-import controller.GameControllerInterface
-import controller.controllerComponent.GameController
-import model.newGameEvent
-
 trait Command {
-  def doStep:Unit
-  def redoStep:Unit
-  def undoStep:Unit
-}
+  def doStep: Unit
 
-class createGameCommand(controller: GameControllerInterface, npcNames: Vector[String], playerNames: Vector[String]) extends Command {
-  override def doStep: Unit = controller.createGame(npcNames, playerNames)
-  override def redoStep: Unit = controller.createGame(npcNames, playerNames)
-  override def undoStep: Unit = controller.notifyObservers(newGameEvent())
-}
+  def redoStep: Unit
 
-//todo runround undo
-class createRunRoundCommand()
-
-class UndoManager{
-  private var undoStack:List[Command] = Nil
-  private var redoStack:List[Command] = Nil
-
-  def doStep(command: Command): Unit ={
-    undoStack = command :: undoStack
-    command.doStep
-  }
-  def undoStep = {
-    undoStack match {
-      case Nil =>
-      case head::stack => {
-        head.undoStep
-        undoStack = stack
-        redoStack = head::redoStack
-      }
-    }
-  }
-
+  def undoStep: Unit
 }

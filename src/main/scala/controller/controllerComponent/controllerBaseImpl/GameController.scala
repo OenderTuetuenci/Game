@@ -1,4 +1,4 @@
-package controller.controllerComponent
+package controller.controllerComponent.controllerBaseImpl
 
 import controller.GameControllerInterface
 import model.DiceComponent.Dice

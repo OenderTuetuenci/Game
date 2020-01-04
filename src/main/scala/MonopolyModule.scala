@@ -3,7 +3,7 @@ package Game
 import com.google.inject.AbstractModule
 import com.google.inject.name.Names
 import controller.GameControllerInterface
-import controller.controllerComponent.GameController
+import controller.controllerComponent.controllerBaseImpl.GameController
 import model.DiceComponent.Dice
 import model.fileIOComponent._
 import model.playerComponent.Player

@@ -1,4 +1,4 @@
-package controller.controllerComponent
+package controller.controllerComponent.controllerBaseImpl
 
 import model.playerComponent.Player
 import model.{playerComponent, _}
