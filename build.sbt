@@ -9,10 +9,10 @@ resolvers += "Artima Maven Repository" at "http://repo.artima.com/releases"
 //Guice Dependecies
 libraryDependencies += "com.google.inject" % "guice" % "4.1.0"
 libraryDependencies += "net.codingwell" %% "scala-guice" % "4.2.6"
+// json and xml Dependencies
+libraryDependencies += "org.scala-lang.modules" %% "scala-xml" % "1.2.0"
 
-//libraryDependencies += "org.scalafx" %% "scalafx" % "8.0.144-R12"
-//// Add dependency on JavaFX library based on JAVA_HOME variable
-//unmanagedJars in Compile += Attributed.blank(file(System.getenv("JAVA_HOME") + "/lib/scalafx_2.13-12.0.2-R18.jar"))
+libraryDependencies += "com.typesafe.play" %% "play-json" % "2.8.0"
 
 // Add dependency on ScalaFX library
 libraryDependencies += "org.scalafx" %% "scalafx" % "12.0.2-R18"
