@@ -1,7 +1,7 @@
 package Game
 
 import com.google.inject.Guice
-import controller._
+import controller.controllerComponent.GameControllerInterface
 import model.OpenMainWindowEvent
 import view.{Gui, Tui}
 //// todo undo pattern spieleranzahl namen wie viele spieler und bots im beforegamestartsstate

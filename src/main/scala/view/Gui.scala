@@ -1,6 +1,6 @@
 package view
 
-import controller._
+import controller.controllerComponent.GameControllerInterface
 import model._
 import scalafx.Includes.{handle, _}
 import scalafx.application.JFXApp.PrimaryStage
@@ -657,6 +657,7 @@ class Gui(controller: GameControllerInterface) extends Observer {
             case Some(Result(p, npc)) => {
                 controller.humanPlayers = p.toInt
                 controller.npcPlayers = npc.toInt
+                // todo somehow controller.gameStates.handle(getPlayersEvent())
             }
             case None => ("Dialog returned", "None") //todo initstate
         }

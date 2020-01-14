@@ -1,6 +1,6 @@
 package controller.controllerComponent.controllerBaseImpl
 
-import controller.GameControllerInterface
+import controller.controllerComponent.GameControllerInterface
 import model.newGameEvent
 import util.Command
 

@@ -1,6 +1,6 @@
 package view
 
-import controller._
+import controller.controllerComponent.GameControllerInterface
 import model._
 import util.Observer
 

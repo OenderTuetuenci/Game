@@ -1,6 +1,6 @@
 package controller.controllerComponent.controllerBaseImpl
 
-import controller.GameControllerInterface
+import controller.controllerComponent.GameControllerInterface
 import model.DiceComponent.Dice
 import model._
 import model.playerComponent.Player
