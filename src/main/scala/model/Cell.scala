@@ -1,7 +1,6 @@
 package model
 
 import play.api.libs.json._
-import scalafx.scene.image.Image
 
 trait Cell {
     val name: String
@@ -15,7 +14,7 @@ trait Buyable extends Cell {
     val rent: Int
     val owner: Int
     val homecount: Int
-    val image: Image
+    val image: String
     def setOwner(x: Int): Buyable
 
     def payMortgage(): Buyable
@@ -23,7 +22,7 @@ trait Buyable extends Cell {
     def getMortgage(): Buyable
 }
 
-case class Street(name: String, group: Int, price: Int, owner: Int, rent: Int, homecount: Int, mortgage: Boolean, image: Image) extends Buyable {
+case class Street(name: String, group: Int, price: Int, owner: Int, rent: Int, homecount: Int, mortgage: Boolean, image: String) extends Buyable {
     override def onPlayerEntered(enteredPlayer: Int): String = {
         println("\nplayer entered " + this.name + ". owner: " + this.owner)
         if (this.owner == -1) "buy"
@@ -93,7 +92,7 @@ object CommunityChest{
     implicit val communityReads = Json.reads[CommunityChest]
 }
 
-case class Los(name: String, group: Int, image: Image) extends Cell {
+case class Los(name: String, group: Int, image: String) extends Cell {
     override def onPlayerEntered(enteredPlayer: Int): String = {
         println("\nplayer entered start")
         "\nplayer entered start"
@@ -108,7 +107,7 @@ object Los{
     implicit val losReads = Json.reads[Los]
 }
 
-case class IncomeTax(name: String, group: Int, image: Image) extends Cell {
+case class IncomeTax(name: String, group: Int, image: String) extends Cell {
     override def onPlayerEntered(enteredPlayer: Int): String = {
         println("\nplayer entered IncomeTax")
         "\nplayer entered IncomeTax"
@@ -123,7 +122,7 @@ object IncomeTax{
     implicit val incomeReads = Json.reads[IncomeTax]
 }
 
-case class GoToJail(name: String, group: Int, image: Image) extends Cell {
+case class GoToJail(name: String, group: Int, image: String) extends Cell {
     override def onPlayerEntered(enteredPlayer: Int): String = {
         println("\nplayer entered go to jail")
         "\nplayer entered GoToJail"
@@ -137,7 +136,8 @@ object GoToJail{
     implicit val toJailWrites = Json.writes[GoToJail]
     implicit val toJailReads = Json.reads[GoToJail]
 }
-case class Jail(name: String, group: Int, image: Image) extends Cell {
+
+case class Jail(name: String, group: Int, image: String) extends Cell {
     override def onPlayerEntered(enteredPlayer: Int): String = {
         println("\nplayer entered jail")
         "\nplayer entered jail"
@@ -152,7 +152,7 @@ object Jail{
     implicit val jailReads = Json.reads[Jail]
 }
 
-case class FreiParken(name: String, group: Int, image: Image) extends Cell {
+case class FreiParken(name: String, group: Int, image: String) extends Cell {
     override def onPlayerEntered(enteredPlayer: Int): String = {
         println("\nplayer entered FreiParken")
         "\nplayer entered FreiParken"
@@ -167,7 +167,7 @@ object FreiParken{
     implicit val freeParkingReads = Json.reads[FreiParken]
 }
 
-case class Zusatzsteuer(name: String, group: Int, image: Image) extends Cell {
+case class Zusatzsteuer(name: String, group: Int, image: String) extends Cell {
     override def onPlayerEntered(enteredPlayer: Int): String = {
         println("\nplayer entered Zusatzsteuer")
         "\nplayer entered Zusatzsteuer"

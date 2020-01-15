@@ -213,6 +213,9 @@ class GameController extends GameControllerInterface {
     def onStartGame() = {
         GameStates.handle(InitGameEvent())
         notifyObservers(OpenGetPlayersDialogEvent())
+    }
+
+    def runNewGame() = {
         notifyObservers(ClearGuiElementsEvent())
         notifyObservers(UpdateListViewPlayersEvent())
         GameStates.handle(getPlayersEvent())
@@ -241,8 +244,6 @@ class GameController extends GameControllerInterface {
         //        } while (!gameOver)
         //        GameStates.handle(gameOverEvent())
         //GameStates.handle(InitGameEvent())
-
-
     }
 
     def onRollDice() = {

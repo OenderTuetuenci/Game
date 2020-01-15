@@ -398,7 +398,7 @@ class Gui(controller: GameControllerInterface) extends Observer {
                         val street = controller.board.filter(_.name == cell.text.value)(0).asInstanceOf[Buyable]
                         // bild setzen je nachdem ob hypothek
                         if (street.mortgage) image.setImage(new Image("file:images/Mortgaged.png"))
-                        else image.setImage(street.image)
+                        else image.setImage(new Image(street.image))
                         // mortgage button
                         btnPayMortage.setVisible(false)
                         btnGetMortage.setVisible(false)
@@ -657,9 +657,9 @@ class Gui(controller: GameControllerInterface) extends Observer {
             case Some(Result(p, npc)) => {
                 controller.humanPlayers = p.toInt
                 controller.npcPlayers = npc.toInt
-                // todo somehow controller.gameStates.handle(getPlayersEvent())
+                controller.runNewGame()
             }
-            case None => ("Dialog returned", "None") //todo initstate
+            case None => ("Dialog returned", "None")
         }
     }
 
@@ -678,7 +678,7 @@ class Gui(controller: GameControllerInterface) extends Observer {
 
         dialog.dialogPane().buttonTypes = Seq(buyButton, auctionButton)
 
-        val image = new ImageView(e.field.image)
+        val image = new ImageView(new Image(e.field.image))
 
 
         val grid = new GridPane() {
@@ -720,7 +720,7 @@ class Gui(controller: GameControllerInterface) extends Observer {
         val payButton = new ButtonType("Pay", ButtonData.OKDone)
         dialog.dialogPane().buttonTypes = Seq(payButton)
 
-        val image = new ImageView(e.field.image)
+        val image = new ImageView(new Image(e.field.image))
 
         val grid = new GridPane() {
             hgap = 10
@@ -892,7 +892,7 @@ class Gui(controller: GameControllerInterface) extends Observer {
         if (playerIdx + 1 == controller.players.length) playerIdx = 0
         else playerIdx += 1
         //dialog.getDialogPane.setPrefSize(600, 500)
-        val image = new ImageView(e.field.image)
+        val image = new ImageView(new Image(e.field.image))
         val hbox1 = new HBox(lvPlayerBids, image)
         var playerStatsString = ""
         for (bidder <- bidders) {
@@ -1038,7 +1038,14 @@ class Gui(controller: GameControllerInterface) extends Observer {
             if (dialogButton == buttonTypeCancel) Result("Close")
             else null
         }
-
+        // init bid buttons
+        if (bidders(playerIdx).money < auctionValue + 1) {
+            bid1Button.setDisable(true)
+        } else if (bidders(playerIdx).money < auctionValue + 10) {
+            bid10Button.setDisable(true)
+        } else if (bidders(playerIdx).money < auctionValue + 100) {
+            bid100Button.setDisable(true)
+        }
         val result = dialog.showAndWait()
 
         result match {
@@ -1157,7 +1164,7 @@ class Gui(controller: GameControllerInterface) extends Observer {
         val payButton = new ButtonType("Collect 400$", ButtonData.OKDone)
         dialog.dialogPane().buttonTypes = Seq(payButton)
 
-        val image = new ImageView(e.field.image)
+        val image = new ImageView(new Image(e.field.image))
 
         val grid = new GridPane() {
             hgap = 10
@@ -1352,7 +1359,7 @@ class Gui(controller: GameControllerInterface) extends Observer {
         val okButton = new ButtonType("Go to jail", ButtonData.OKDone)
         dialog.dialogPane().buttonTypes = Seq(okButton)
 
-        val image = new ImageView(e.field.image)
+        val image = new ImageView(new Image(e.field.image))
 
         val grid = new GridPane() {
             hgap = 10
@@ -1397,7 +1404,7 @@ class Gui(controller: GameControllerInterface) extends Observer {
         val okButton = new ButtonType("Ok", ButtonData.OKDone)
         dialog.dialogPane().buttonTypes = Seq(okButton)
 
-        val image = new ImageView(e.field.image)
+        val image = new ImageView(new Image(e.field.image))
 
         val grid = new GridPane() {
             hgap = 10
@@ -1422,7 +1429,7 @@ class Gui(controller: GameControllerInterface) extends Observer {
         val okButton = new ButtonType(text, ButtonData.OKDone)
         dialog.dialogPane().buttonTypes = Seq(okButton)
 
-        val image = new ImageView(e.field.image)
+        val image = new ImageView(new Image(e.field.image))
 
         val grid = new GridPane() {
             hgap = 10
@@ -1448,7 +1455,7 @@ class Gui(controller: GameControllerInterface) extends Observer {
         val okButton = new ButtonType("Pay 75$", ButtonData.OKDone)
         dialog.dialogPane().buttonTypes = Seq(okButton)
 
-        val image = new ImageView(e.field.image)
+        val image = new ImageView(new Image(e.field.image))
 
         val grid = new GridPane() {
             hgap = 10
@@ -1477,7 +1484,7 @@ class Gui(controller: GameControllerInterface) extends Observer {
         val pay200Button = new ButtonType("Pay 200 $", ButtonData.OKDone)
         dialog.dialogPane().buttonTypes = Seq(pay10PercentButton, pay200Button)
 
-        val image = new ImageView(e.field.image)
+        val image = new ImageView(new Image(e.field.image))
 
         val grid = new GridPane() {
             hgap = 10

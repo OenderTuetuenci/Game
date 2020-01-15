@@ -63,6 +63,8 @@ trait GameControllerInterface extends Observable {
 
     def onStartGame(): Unit
 
+    def runNewGame(): Unit
+
     def onRollDice(): Unit
 
     def onEndTurn(): Unit
