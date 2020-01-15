@@ -1,64 +1,64 @@
 {
   "game" : {
     "chanceCards" : [ [ {
-      "card" : "file:images/GoToIllinoisAveChance.png"
-    }, {
-      "card" : "file:images/GoToNextUtilityThrowDicePay10TimesChance.png"
+      "card" : "file:images/Pay15Chance.png"
     }, {
       "card" : "file:images/GoToStCharlesPlaceChance.png"
     }, {
-      "card" : "file:images/PayEachPlayer50Chance.png"
-    }, {
-      "card" : "file:images/Collect50Chance.png"
-    }, {
-      "card" : "file:images/GoToBroadwalkChance.png"
-    }, {
-      "card" : "file:images/Collect150Chance.png"
-    }, {
-      "card" : "file:images/Pay15Chance.png"
-    }, {
-      "card" : "file:images/Pay25ForHouse100ForHotelChance.png"
+      "card" : "file:images/GoBack3SpacesChance.png"
     }, {
       "card" : "file:images/GoToJailChance.png"
     }, {
-      "card" : "file:images/GoBack3SpacesChance.png"
+      "card" : "file:images/JailFreeCardChance.png"
+    }, {
+      "card" : "file:images/Collect50Chance.png"
+    }, {
+      "card" : "file:images/GoToNextUtilityThrowDicePay10TimesChance.png"
+    }, {
+      "card" : "file:images/GoToIllinoisAveChance.png"
+    }, {
+      "card" : "file:images/PayEachPlayer50Chance.png"
+    }, {
+      "card" : "file:images/GoToBroadwalkChance.png"
     }, {
       "card" : "file:images/GoToReadingChance.png"
     }, {
-      "card" : "file:images/JailFreeCardChance.png"
+      "card" : "file:images/Pay25ForHouse100ForHotelChance.png"
+    }, {
+      "card" : "file:images/Collect150Chance.png"
     } ] ],
     "communityChestCards" : [ [ {
+      "card" : "file:images/PayHostpital100Chest.png"
+    }, {
+      "card" : "file:images/JailFreeCardChest.png"
+    }, {
+      "card" : "file:images/Collect100Chest.png"
+    }, {
       "card" : "file:images/Collect50FromEveryPlayerChest.png"
     }, {
-      "card" : "file:images/GoToNextRailroadPayTwiceChest.png"
+      "card" : "file:images/GoToJailChest.png"
+    }, {
+      "card" : "file:images/Pay150Chest.png"
+    }, {
+      "card" : "file:images/Pay50Chest.png"
     }, {
       "card" : "file:images/Collect200Chest.png"
+    }, {
+      "card" : "file:images/Receive25Chest.png"
+    }, {
+      "card" : "file:images/Collect45Chest.png"
+    }, {
+      "card" : "file:images/Collect10Chest.png"
+    }, {
+      "card" : "file:images/IncomeTaxChest.png"
+    }, {
+      "card" : "file:images/GoToNextRailroadPayTwiceChest.png"
     }, {
       "card" : "file:images/Collect100Chest2.png"
     }, {
       "card" : "file:images/Inherit100Chest.png"
     }, {
-      "card" : "file:images/Collect45Chest.png"
-    }, {
-      "card" : "file:images/Receive25Chest.png"
-    }, {
-      "card" : "file:images/GoToJailChest.png"
-    }, {
-      "card" : "file:images/PayHostpital100Chest.png"
-    }, {
       "card" : "file:images/Pay40ForHouse155ForHotelChest.png"
-    }, {
-      "card" : "file:images/Collect10Chest.png"
-    }, {
-      "card" : "file:images/JailFreeCardChest.png"
-    }, {
-      "card" : "file:images/Pay50Chest.png"
-    }, {
-      "card" : "file:images/Pay150Chest.png"
-    }, {
-      "card" : "file:images/IncomeTaxChest.png"
-    }, {
-      "card" : "file:images/Collect100Chest.png"
     } ] ],
     "humanPlayers" : 2,
     "npcPlayers" : 0,
@@ -117,7 +117,7 @@
         "mortgage" : false,
         "price" : 100,
         "rent" : 200,
-        "owner" : 1,
+        "owner" : -1,
         "homecount" : 0,
         "image" : "file:images/OrientalAve.png"
       }
@@ -144,7 +144,7 @@
         "mortgage" : false,
         "price" : 120,
         "rent" : 200,
-        "owner" : -1,
+        "owner" : 0,
         "homecount" : 0,
         "image" : "file:images/ConneticutAve.png"
       }
@@ -182,7 +182,7 @@
         "mortgage" : false,
         "price" : 140,
         "rent" : 200,
-        "owner" : 1,
+        "owner" : -1,
         "homecount" : 0,
         "image" : "file:images/StatesAve.png"
       }
@@ -434,26 +434,27 @@
     "players" : [ {
       "player" : {
         "name" : "a",
-        "position" : 0,
-        "money" : 1000,
+        "position" : 9,
+        "money" : 880,
         "jailCount" : 0,
         "turnPosition" : 0,
-        "rollForPosition" : 8,
+        "rollForPosition" : 11,
         "figure" : "file:images/Fingerhut.jpg"
       }
     }, {
       "player" : {
         "name" : "b",
-        "position" : 13,
-        "money" : 760,
+        "position" : 20,
+        "money" : 1000,
         "jailCount" : 0,
         "turnPosition" : 1,
-        "rollForPosition" : 8,
+        "rollForPosition" : 9,
         "figure" : "file:images/Hat.jpg"
       }
     } ],
     "round" : 2,
-    "paschCount" : 0,
-    "collectedTax" : 0
+    "paschCount" : 2,
+    "collectedTax" : 0,
+    "currentPlayer" : 1
   }
 }

@@ -161,7 +161,7 @@ class Gui(controller: GameControllerInterface) extends Observer {
                                 onAction = handle {
                                     controller.onLoadGame()
                                 }
-                                this.setDisable(true) //todo weg spaeter wenn persistent
+                                //this.setDisable(true) //todo weg spaeter wenn persistent
                                 this.setId("miLoadGame")
                             }
 

@@ -12,7 +12,7 @@ class BoardController(gameController: GameController) {
     def createBoard : Vector[Cell] = {
         // group 0 go, etc, group 1 water,electricity, group 2 railroads,
         var board: Vector[Cell] = Vector()
-        board = board :+ CellFactory("Los", "Go", 0, 0, 0, 0, 0, mortgage = false, image = "file:images/Go.png")
+        board = board :+ CellFactory("Go", "Go", 0, 0, 0, 0, 0, mortgage = false, image = "file:images/Go.png")
         board = board :+ CellFactory("Street", "Mediterranean Avenue", 3, 60, -1, 200, 0, mortgage = false, image = "file:images/MediterraneanAve.png")
         board = board :+ CellFactory("CommunityChest", "CommunityChest1", 0, 0, 0, 0, 0, mortgage = false, image = "file:images/Go.png") // todo
         board = board :+ CellFactory("Street", "Baltic Avenue", 3, 60, -1, 200, 0, mortgage = false, image = "file:images/BalticAve.png")
@@ -128,7 +128,7 @@ class BoardController(gameController: GameController) {
     object CellFactory {
         def apply(kind: String, name: String, group: Int, price: Int, owner: Int, rent: Int, home: Int, mortgage: Boolean,
                   image: String): Cell = kind match {
-            case "Los" => Los(name, group, image: String)
+            case "Go" => Los(name, group, image: String)
             case "Street" => Street(name, group, price, owner, rent, home, mortgage, image: String)
             case "CommunityChest" => CommunityChest(name, group)
             case "IncomeTax" => IncomeTax(name, group, image: String)

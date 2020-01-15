@@ -200,14 +200,17 @@ class GameController extends GameControllerInterface {
     }
 
     def onLoadGame() = {
-        GameStates.handle(InitGameEvent())
-        humanPlayers = tmpHumanPlayers
-        npcPlayers = tmpNpcPlayers
-        board = tmpBoard
-        players = tmpPlayers
-        round = tmpRound
-        currentPlayer = tmpCurrentPlayer
-        collectedTax = tmpCollectedTax
+        val updated = fileIo.loadGame
+        humanPlayers = updated._1
+        npcPlayers = updated._2
+        board = updated._6
+        players = updated._7
+        round = updated._3
+        currentPlayer = updated._10
+        paschCount = updated._4
+        collectedTax = updated._5
+        chanceCards = updated._8
+        communityChestCards = updated._9
         //todo update gui once
         // clear board (houses,ownersofStreets,playerfigurese)
         // readd (...)
