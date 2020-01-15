@@ -3,6 +3,7 @@ package model.playerComponent
 import com.google.inject.Inject
 import com.google.inject.name.Named
 import model.PlayerInterface
+import play.api.libs.json.Json
 
 case class Player @Inject()(@Named("name") name: String, @Named("position") position: Int = 0, @Named("money") money: Int = 2000, @Named("jailCount") jailCount: Int = 0,
                             @Named("turnPosition") turnPosition: Int = 0, @Named("rollForPosition") rollForPosition: Int = 0, @Named("figure") figure: String) extends PlayerInterface {
@@ -31,5 +32,9 @@ case class Player @Inject()(@Named("name") name: String, @Named("position") posi
     def setTurnPosition(x: Int): Player = this.copy(turnPosition = x)
 
     def setFigure(imgPath: String): Player = this.copy(figure = imgPath)
-
 }
+object Player{
+    implicit val playerWrites = Json.writes[Player]
+    implicit val playerReads = Json.reads[Player]
+}
+

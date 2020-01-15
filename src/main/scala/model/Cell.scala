@@ -1,5 +1,6 @@
 package model
 
+import play.api.libs.json._
 import scalafx.scene.image.Image
 
 trait Cell {
@@ -49,7 +50,10 @@ case class Street(name: String, group: Int, price: Int, owner: Int, rent: Int, h
 
     override def toString: String = name + " group: " + group + " price: " + price + " rent: " + rent + " homecount: " + homecount + " mortgage: " + mortgage
 }
-
+object Street{
+    implicit val streetWrites = Json.writes[Street]
+    implicit val streetReads = Json.reads[Street]
+}
 
 case class Eventcell(name: String, group: Int) extends Cell {
     override def onPlayerEntered(enteredPlayer: Int): String = {
@@ -65,7 +69,10 @@ case class Eventcell(name: String, group: Int) extends Cell {
         name
     }
 }
-
+object Eventcell{
+    implicit val eventCellWrites = Json.writes[Eventcell]
+    implicit val eventCellReads = Json.reads[Eventcell]
+}
 
 case class CommunityChest(name: String, group: Int) extends Cell {
     override def onPlayerEntered(enteredPlayer: Int): String = {
@@ -81,6 +88,10 @@ case class CommunityChest(name: String, group: Int) extends Cell {
         name
     }
 }
+object CommunityChest{
+    implicit val communityWrites = Json.writes[CommunityChest]
+    implicit val communityReads = Json.reads[CommunityChest]
+}
 
 case class Los(name: String, group: Int, image: Image) extends Cell {
     override def onPlayerEntered(enteredPlayer: Int): String = {
@@ -91,6 +102,10 @@ case class Los(name: String, group: Int, image: Image) extends Cell {
     override def toString: String = {
         name
     }
+}
+object Los{
+    implicit val losWrites = Json.writes[Los]
+    implicit val losReads = Json.reads[Los]
 }
 
 case class IncomeTax(name: String, group: Int, image: Image) extends Cell {
@@ -103,6 +118,10 @@ case class IncomeTax(name: String, group: Int, image: Image) extends Cell {
         name
     }
 }
+object IncomeTax{
+    implicit val incomeWrites = Json.writes[IncomeTax]
+    implicit val incomeReads = Json.reads[IncomeTax]
+}
 
 case class GoToJail(name: String, group: Int, image: Image) extends Cell {
     override def onPlayerEntered(enteredPlayer: Int): String = {
@@ -114,7 +133,10 @@ case class GoToJail(name: String, group: Int, image: Image) extends Cell {
         name
     }
 }
-
+object GoToJail{
+    implicit val toJailWrites = Json.writes[GoToJail]
+    implicit val toJailReads = Json.reads[GoToJail]
+}
 case class Jail(name: String, group: Int, image: Image) extends Cell {
     override def onPlayerEntered(enteredPlayer: Int): String = {
         println("\nplayer entered jail")
@@ -124,6 +146,10 @@ case class Jail(name: String, group: Int, image: Image) extends Cell {
     override def toString: String = {
         name
     }
+}
+object Jail{
+    implicit val jailWrites = Json.writes[Jail]
+    implicit val jailReads = Json.reads[Jail]
 }
 
 case class FreiParken(name: String, group: Int, image: Image) extends Cell {
@@ -136,6 +162,10 @@ case class FreiParken(name: String, group: Int, image: Image) extends Cell {
         name
     }
 }
+object FreiParken{
+    implicit val freeParkingWrites = Json.writes[FreiParken]
+    implicit val freeParkingReads = Json.reads[FreiParken]
+}
 
 case class Zusatzsteuer(name: String, group: Int, image: Image) extends Cell {
     override def onPlayerEntered(enteredPlayer: Int): String = {
@@ -146,4 +176,8 @@ case class Zusatzsteuer(name: String, group: Int, image: Image) extends Cell {
     override def toString: String = {
         name
     }
+}
+object Zusatzsteuer{
+    implicit val zusatzWrites = Json.writes[Zusatzsteuer]
+    implicit val zusatzReads = Json.reads[Zusatzsteuer]
 }
