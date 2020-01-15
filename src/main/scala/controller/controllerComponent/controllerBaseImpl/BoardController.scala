@@ -12,7 +12,7 @@ class BoardController(gameController: GameController) {
     def createBoard : Vector[Cell] = {
         // group 0 go, etc, group 1 water,electricity, group 2 railroads,
         var board: Vector[Cell] = Vector()
-        board = board :+ CellFactory("Los", "Go", 0, 0, 0, 0, 0, mortgage = false, "file:images/Go.png")
+        board = board :+ CellFactory("Los", "Go", 0, 0, 0, 0, 0, mortgage = false, image = "file:images/Go.png")
         board = board :+ CellFactory("Street", "Mediterranean Avenue", 3, 60, -1, 200, 0, mortgage = false, image = "file:images/MediterraneanAve.png")
         board = board :+ CellFactory("CommunityChest", "CommunityChest1", 0, 0, 0, 0, 0, mortgage = false, image = "file:images/Go.png") // todo
         board = board :+ CellFactory("Street", "Baltic Avenue", 3, 60, -1, 200, 0, mortgage = false, image = "file:images/BalticAve.png")
