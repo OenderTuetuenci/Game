@@ -1,15 +1,22 @@
 package controller.controllerComponent.controllerBaseImpl
 
+import Game.MonopolyModule
+import com.google.inject.{Guice, Inject}
+import com.google.inject.name.Names
 import model.playerComponent.Player
 import model.{playerComponent, _}
 
-class PlayerController(gameController: GameController) {
+class PlayerController (gameController: GameController) {
 
-    def createPlayers(playerNames: Vector[String], npcNames: Vector[String]): Vector[Player] = {
-        var players: Vector[Player] = Vector()
+    def createPlayers(playerNames: Vector[String], npcNames: Vector[String]): Vector[PlayerInterface] = {
+        val injector = Guice.createInjector(new MonopolyModule)
+        var players: Vector[PlayerInterface] = Vector()
         var i = 0
         for (name <- playerNames) {
-            players = players :+ playerComponent.Player(name, figure = gameController.playerFigures(i))
+            var player = injector.getInstance(classOf[PlayerInterface])
+            player = player.setName(name)
+            player = player.setFigure(gameController.playerFigures(i))
+            players = players :+ player
             i += 1
         }
         i = 0

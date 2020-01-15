@@ -10,7 +10,6 @@ case class Player @Inject()(@Named("name") name: String, @Named("position") posi
     override def toString: String = {
         "name: " + this.name + " pos: " + this.position + " money: " + this.money + " roundsInJail: " + this.jailCount + " rollForPosition: " + this.rollForPosition + " turnPosition: " + this.turnPosition
     }
-
     def move(x: Int): Player = this.copy(position = this.position + x)
 
     def moveBack(x: Int): Player = this.copy(position = this.position - x)
@@ -32,6 +31,8 @@ case class Player @Inject()(@Named("name") name: String, @Named("position") posi
     def setTurnPosition(x: Int): Player = this.copy(turnPosition = x)
 
     def setFigure(imgPath: String): Player = this.copy(figure = imgPath)
+
+    override def setName(x: String): Player = this.copy(name = x)
 }
 object Player{
     implicit val playerWrites = Json.writes[Player]

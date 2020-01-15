@@ -20,8 +20,7 @@ trait PlayerInterface {
   def moveToStart: Player
   def moveToJail: Player
   def setRollForPosition(x: Int): Player
-
+  def setName(name:String):Player
   def setTurnPosition(x: Int): Player
-
   def setFigure(figure: String): Player
 }

@@ -154,7 +154,7 @@ class Gui(controller: GameControllerInterface) extends Observer {
                                     controller.onSaveGame()
                                 }
                                 this.setId("miSaveGame")
-                                this.setDisable(true)
+                                //this.setDisable(true)
                             },
                             new MenuItem {
                                 text = "Load game"

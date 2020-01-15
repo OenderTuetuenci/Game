@@ -7,7 +7,7 @@ import controller.controllerComponent.controllerBaseImpl.GameController
 import model.DiceComponent.Dice
 import model.fileIOComponent._
 import model.playerComponent.Player
-import model.{ CardsInterface, DiceInterface, PlayerInterface}
+import model.{Cards, CardsInterface, DiceInterface, PlayerInterface}
 import net.codingwell.scalaguice.ScalaModule
 
 class MonopolyModule extends AbstractModule with ScalaModule {
@@ -31,7 +31,7 @@ class MonopolyModule extends AbstractModule with ScalaModule {
 
         bind[GameControllerInterface].to[GameController]
         bind[DiceInterface].to[Dice]
-        //bind[CardsInterface].to[Cards]
+        bind[CardsInterface].to[Cards]
         bind[PlayerInterface].to[Player]
         bind[FileIOInterface].to[fileIOJsonImpl.FileIO]
         //bind[FileIOInterface].to[fileIOJsonImpl.FileIO]

@@ -1,7 +1,7 @@
 package model.fileIOComponent.fileIOJsonImpl
 
 import controller.controllerComponent.GameControllerInterface
-import model.{Cell, PlayerInterface}
+import model.{Buyable, Cell, PlayerInterface}
 import model.fileIOComponent.FileIOInterface
 import model.playerComponent.Player
 import play.api.libs.json.{JsNumber, JsObject, JsValue, Json, Writes}
@@ -30,10 +30,23 @@ class FileIO extends FileIOInterface {
         )
     }
     implicit val cellWrites = new Writes[Cell] {
-        override def writes(cell: Cell):JsValue = Json.obj(
-            "name"->cell.name,
-            "gruop"->cell.group
-        )
+        override def writes(cell: Cell):JsValue =
+            cell match {
+                case cell:Buyable => Json.obj(
+                    "name"->cell.name,
+                    "group"->cell.group,
+                    "mortgage"->cell.mortgage,
+                    "price"->cell.price,
+                    "rent"->cell.rent,
+                    "owner"->cell.owner,
+                    "homecount"->cell.homecount,
+                    "image"->cell.image
+                )
+                case cell:Cell => Json.obj(
+                    "name"->cell.name,
+                    "group"->cell.group
+                )
+            }
     }
     def gameToJson(game: GameControllerInterface): JsObject = {
         Json.obj(
@@ -69,7 +82,7 @@ class FileIO extends FileIOInterface {
                 ),
                 "players"->Json.toJson(
                     for{
-                        i<-game.board.indices
+                        i<-game.players.indices
                     }yield {
                         Json.obj(
                             "player"->Json.toJson(game.players(i))
