@@ -1,9 +1,7 @@
 package controller.controllerComponent.controllerBaseImpl
 
 import Game.MonopolyModule
-import com.google.inject.{Guice, Inject}
-import com.google.inject.name.Names
-import model.playerComponent.Player
+import com.google.inject.{Guice}
 import model.{playerComponent, _}
 
 class PlayerController (gameController: GameController) {

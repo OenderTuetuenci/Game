@@ -13,77 +13,39 @@ import scala.io.Source
 class FileIO extends FileIOInterface {
 
     override def loadGame: (Int,Int,Int,Int,Int,Vector[Cell],Vector[PlayerInterface],Vector[String],Vector[String],Int) = {
-        var game: GameControllerInterface = null
         val source: String = Source.fromFile("game.json").getLines.mkString
         val json: JsValue = Json.parse(source)
         var chanceCards = Vector[String]()
         var communityChestCards = Vector[String]()
-        val dataChanceCards = (json \ "game" \ "chanceCards").get.toString().replace("\"card\":","")
-          .replace("[[","").replace("]]","").replace("\"","")
-          .replace("{","").replace("}","").split(",")
-        val dataCommunityChestCards = (json \ "game" \ "communityChestCards").get.toString().replace("\"card\":","")
-          .replace("[[","").replace("]]","").replace("\"","")
-          .replace("{","").replace("}","").split(",")
-        dataChanceCards.foreach(c=>chanceCards=chanceCards:+c)
-        dataCommunityChestCards.foreach(c=>communityChestCards=communityChestCards:+c)
+        for(index <- 0 until 11){
+            val card = (json \\"chancecard")(index).toString()
+            chanceCards = chanceCards :+ card
+        }
+        for(index <- 0 until 14){
+            val card = (json \\"communitycard")(index).toString()
+            communityChestCards = communityChestCards:+card
+        }
         val humanplayer = (json \ "game" \"humanPlayers").get.toString().toInt
         val npcplayer = (json \ "game" \"npcPlayers").get.toString().toInt
         var board = Vector[Cell]()
-        val dataBoard = (json \ "game" \ "board").get.toString().replace("\"card\":","")
-          .replace("[","").replace("]","").replace("\"cell\":",";")
-          .replace("{","").replace("\"","").replace("}","")
-          .replace(",","").split(";")
-        for(i<-1 until dataBoard.length){
-            val t = dataBoard(i).replace("name:","").replace("group:",";")
-              .replace("mortgage:",";").replace("price:",";").replace("rent:",";")
-              .replace("owner:",";").replace("homecount:",";").replace("image:",";").split(";")
-            t(0) match {
-                case "Go" => board = board :+ CellFactory("Los", "Go", 0, 0, 0, 0, 0, mortgage = false, image = "file:images/Go.png)")
-                case "Mediterranean Avenue" =>board = board :+ CellFactory("Street", "Mediterranean Avenue", 3, 60,  t(5).toInt, t(4).toInt, t(6).toInt, mortgage = t(2).toBoolean, image = "file:images/MediterraneanAve.png")
-                case "CommunityChest1" =>board = board :+ CellFactory("CommunityChest", "CommunityChest1", 0, 0, 0, 0, 0, mortgage = false, image = "file:images/Go.png") // todo
-                case "Baltic Avenue" =>board = board :+ CellFactory("Street", "Baltic Avenue", 3, 60,  t(5).toInt, t(4).toInt, t(6).toInt, mortgage = t(2).toBoolean, image = "file:images/BalticAve.png")
-                case "IncomeTax" =>board = board :+ CellFactory("IncomeTax", "IncomeTax", 0, 0, 0, 0, 0, mortgage = false, image = "file:images/IncomeTax.png")
-                case "Reading Railroad" =>board = board :+ CellFactory("Street", "Reading Railroad", 2, 200,  t(5).toInt, t(4).toInt, t(6).toInt, mortgage = t(2).toBoolean, image = "file:images/ReadingRailroad.png")
-                case "Oriental Avenue" =>board = board :+ CellFactory("Street", "Oriental Avenue", 4, 100,  t(5).toInt, t(4).toInt, t(6).toInt, mortgage = t(2).toBoolean, image = "file:images/OrientalAve.png")
-                case "Eventcell1" =>board = board :+ CellFactory("Eventcell", "Eventcell1", 0, 0, 0, 0, 0, mortgage = false, image = "file:images/OrientalAve") // todo
-                case "Vermont Avenue" =>board = board :+ CellFactory("Street", "Vermont Avenue", 4, 100,  t(5).toInt, t(4).toInt, t(6).toInt, mortgage = t(2).toBoolean, image = "file:images/VermontAve.png")
-                case "Conneticut Avenue" =>board = board :+ CellFactory("Street", "Conneticut Avenue", 4, 120,  t(5).toInt, t(4).toInt, t(6).toInt, mortgage = t(2).toBoolean, image = "file:images/ConneticutAve.png")
-                case "Visit Jail" =>board = board :+ CellFactory("Jail", "Visit Jail", 0, 0, 0, 0, 0, mortgage = false, image = "file:images/VisitJail.png")
-
-                case "St. Charles Place" =>board = board :+ CellFactory("Street", "St. Charles Place", 5, 140,  t(5).toInt, t(4).toInt, t(6).toInt, mortgage = t(2).toBoolean, image = "file:images/StCharlesPlace.png")
-                case "Electric Company" =>board = board :+ CellFactory("Street", "Electric Company", 1, 150,  t(5).toInt, t(4).toInt, t(6).toInt, mortgage = t(2).toBoolean, image = "file:images/ElectricCompany.png")
-                case "States Avenue" =>board = board :+ CellFactory("Street", "States Avenue", 5, 140,  t(5).toInt, t(4).toInt, t(6).toInt, mortgage = t(2).toBoolean, image = "file:images/StatesAve.png")
-                case "Virgina Avenue" =>board = board :+ CellFactory("Street", "Virgina Avenue", 5, 160,  t(5).toInt, t(4).toInt, t(6).toInt, mortgage = t(2).toBoolean, image = "file:images/VirginiaAve.png")
-                case "Pennsylvania Railroad" =>board = board :+ CellFactory("Street", "Pennsylvania Railroad", 2, 200,  t(5).toInt, t(4).toInt, t(6).toInt, mortgage = t(2).toBoolean, image = "file:images/PennsylvaniaRR.png")
-                case "St. James Place" =>board = board :+ CellFactory("Street", "St. James Place", 6, 180,  t(5).toInt, t(4).toInt, t(6).toInt, mortgage = t(2).toBoolean, image = "file:images/StJamesPlace.png")
-                case "CommunityChest2" =>board = board :+ CellFactory("CommunityChest", "CommunityChest2", 0, 0, 0, 0, 0, mortgage = false, image = "file:images/OrientalAve") // todo
-                case "Tennessee Avenue" =>board = board :+ CellFactory("Street", "Tennessee Avenue", 6, 180,  t(5).toInt, t(4).toInt, t(6).toInt, mortgage = t(2).toBoolean, image = "file:images/TennesseeAve.png")
-                case "New York Avenue" =>board = board :+ CellFactory("Street", "New York Avenue", 6, 200,  t(5).toInt, t(4).toInt, t(6).toInt, mortgage = t(2).toBoolean, image = "file:images/NewYorkAve.png")
-                case "Free parking" =>board = board :+ CellFactory("FreeParking", "Free parking", 0, 0, 0, 0, 0, mortgage = false, image = "file:images/ParkFree.png")
-
-                case "Kentucky Avenue" =>board = board :+ CellFactory("Street", "Kentucky Avenue", 7, 220,  t(5).toInt, t(4).toInt, t(6).toInt, mortgage = t(2).toBoolean, image = "file:images/KentuckyAve.png")
-                case "Eventcell2" =>board = board :+ CellFactory("Eventcell", "Eventcell2", 0, 0, 0, 0, 0, mortgage = false, image = "file:images/OrientalAve") // todo
-                case "Indiana Avenue" =>board = board :+ CellFactory("Street", "Indiana Avenue", 7, 220,  t(5).toInt, t(4).toInt, t(6).toInt, mortgage = t(2).toBoolean, image = "file:images/IndianaAve.png")
-                case "Illinois Avenue" =>board = board :+ CellFactory("Street", "Illinois Avenue", 7, 240,  t(5).toInt, t(4).toInt, t(6).toInt, mortgage = t(2).toBoolean, image = "file:images/IllinoisAve.png")
-                case "B & O Railroad" =>board = board :+ CellFactory("Street", "B & O Railroad", 2, 200,  t(5).toInt, t(4).toInt, t(6).toInt, mortgage = t(2).toBoolean, image = "file:images/BnORailroad.png")
-                case "Atlantic Avenue" =>board = board :+ CellFactory("Street", "Atlantic Avenue", 8, 260,  t(5).toInt, t(4).toInt, t(6).toInt, mortgage = t(2).toBoolean, image = "file:images/AtlanticAve.png")
-                case "Ventnor Avenue" =>board = board :+ CellFactory("Street", "Ventnor Avenue", 8, 260,  t(5).toInt, t(4).toInt, t(6).toInt, mortgage = t(2).toBoolean, image = "file:images/VentnorAve.png")
-                case "Water Works" =>board = board :+ CellFactory("Street", "Water Works", 1, 150, t(5).toInt, t(4).toInt, t(6).toInt, mortgage = t(2).toBoolean, image = "file:images/WaterWorks.png")
-                case "Marvin Gardens" =>board = board :+ CellFactory("Street", "Marvin Gardens", 8, 280,  t(5).toInt, t(4).toInt, t(6).toInt, mortgage = t(2).toBoolean, image = "file:images/MarvinGardens.png")
-                case "Go to jail" =>board = board :+ CellFactory("GoToJail", "Go to jail", 0, 0, 0, 0, 0, mortgage = false, image = "file:images/Jail.png")
-
-                case "Pacific Avenue" =>board = board :+ CellFactory("Street", "Pacific Avenue", 9, 300,  t(5).toInt, t(4).toInt, t(6).toInt, mortgage = t(2).toBoolean, image = "file:images/PacificAve.png")
-                case "North Carolina Avenue" =>board = board :+ CellFactory("Street", "North Carolina Avenue", 9, 300,  t(5).toInt, t(4).toInt, t(6).toInt, mortgage = t(2).toBoolean, image = "file:images/NoCarolinaAve.png")
-                case "CommunityChest3" =>board = board :+ CellFactory("CommunityChest", "CommunityChest3", 0, 0, 0, 0, 0, mortgage = false, image = "file:images/OrientalAve") // todo
-                case "Pennsylvania Avenue" =>board = board :+ CellFactory("Street", "Pennsylvania Avenue", 9, 320,  t(5).toInt, t(4).toInt, t(6).toInt, mortgage = t(2).toBoolean, image = "file:images/PennsylvaniaAve.png")
-                case "Short Line Railroad" =>board = board :+ CellFactory("Street", "Short Line Railroad", 2, 200,  t(5).toInt, t(4).toInt, t(6).toInt, mortgage = t(2).toBoolean, image = "file:images/ShortLineRR.png")
-                case "Eventcell3" =>board = board :+ CellFactory("Eventcell", "Eventcell3", 0, 0, 0, 0, 0, mortgage = false, image = "file:images/OrientalAve") // todo
-                case "Park place" =>board = board :+ CellFactory("Street", "Park place", 10, 350,  t(5).toInt, t(4).toInt, t(6).toInt, mortgage = t(2).toBoolean, image = "file:images/ParkPlace.png")
-                case "Luxuary Tax" =>board = board :+ CellFactory("AdditionalTax", "Luxuary Tax", 0, 0, 0, 0, 0, mortgage = false, image = "file:images/LuxuaryTax.png")
-                case "Broadwalk" =>board = board :+ CellFactory("Street", "Broadwalk", 10, 400,  t(5).toInt, t(4).toInt, t(6).toInt, mortgage = t(2).toBoolean, image = "file:images/Broadwalk.png")
-                case _ =>
+        for(index <- 0 until 40){
+            val cell = (json\\"cell")(index)
+            val kind = (cell\"kind").as[String]
+            val name = (cell\"name").as[String]
+            val group = (cell\"group").as[Int]
+            var mortgage = false
+            var price = 0
+            var rent = 0
+            var owner = -1
+            var homecount = 0
+            if(kind == "buyable"){
+                mortgage = (cell\"mortgage").as[Boolean]
+                price = (cell\"price").as[Int]
+                rent = (cell\"rent").as[Int]
+                owner = (cell\"owner").as[Int]
+                homecount = (cell\"homecount").as[Int]
             }
-        }
+            }
         var player = Vector[PlayerInterface]()
         val dataPlayer = (json \ "game" \ "players").get.toString().replace("\"card\":","")
           .replace("[","").replace("]","").replace("\"player\":",";")
@@ -123,6 +85,7 @@ class FileIO extends FileIOInterface {
         override def writes(cell: Cell):JsValue =
             cell match {
                 case cell:Buyable => Json.obj(
+                    "kind"->"buyable",
                     "name"->cell.name,
                     "group"->cell.group,
                     "mortgage"->cell.mortgage,
@@ -133,6 +96,7 @@ class FileIO extends FileIOInterface {
                     "image"->cell.image
                 )
                 case cell:Cell => Json.obj(
+                    "kind"->"cell",
                     "name"->cell.name,
                     "group"->cell.group
                 )
@@ -146,7 +110,7 @@ class FileIO extends FileIOInterface {
                         i<-game.chanceCards.indices
                     }yield {
                         Json.obj(
-                            "card"->Json.toJson(game.chanceCards(i))
+                            "chancecard"->Json.toJson(game.chanceCards(i))
                         )
                     }
                 ),
@@ -155,7 +119,7 @@ class FileIO extends FileIOInterface {
                         i<-game.communityChestCards.indices
                     }yield {
                         Json.obj(
-                            "card"->Json.toJson(game.communityChestCards(i))
+                            "communitycard"->Json.toJson(game.communityChestCards(i))
                         )
                     }
                 ),

@@ -1,74 +1,74 @@
 {
   "game" : {
     "chanceCards" : [ [ {
-      "card" : "file:images/Pay15Chance.png"
+      "chancecard" : "file:images/Collect150Chance.png"
     }, {
-      "card" : "file:images/GoToStCharlesPlaceChance.png"
+      "chancecard" : "file:images/JailFreeCardChance.png"
     }, {
-      "card" : "file:images/GoBack3SpacesChance.png"
+      "chancecard" : "file:images/GoToJailChance.png"
     }, {
-      "card" : "file:images/GoToJailChance.png"
+      "chancecard" : "file:images/GoBack3SpacesChance.png"
     }, {
-      "card" : "file:images/JailFreeCardChance.png"
+      "chancecard" : "file:images/GoToBroadwalkChance.png"
     }, {
-      "card" : "file:images/Collect50Chance.png"
+      "chancecard" : "file:images/GoToReadingChance.png"
     }, {
-      "card" : "file:images/GoToNextUtilityThrowDicePay10TimesChance.png"
+      "chancecard" : "file:images/Collect50Chance.png"
     }, {
-      "card" : "file:images/GoToIllinoisAveChance.png"
+      "chancecard" : "file:images/GoToNextUtilityThrowDicePay10TimesChance.png"
     }, {
-      "card" : "file:images/PayEachPlayer50Chance.png"
+      "chancecard" : "file:images/GoToStCharlesPlaceChance.png"
     }, {
-      "card" : "file:images/GoToBroadwalkChance.png"
+      "chancecard" : "file:images/Pay15Chance.png"
     }, {
-      "card" : "file:images/GoToReadingChance.png"
+      "chancecard" : "file:images/GoToIllinoisAveChance.png"
     }, {
-      "card" : "file:images/Pay25ForHouse100ForHotelChance.png"
+      "chancecard" : "file:images/PayEachPlayer50Chance.png"
     }, {
-      "card" : "file:images/Collect150Chance.png"
+      "chancecard" : "file:images/Pay25ForHouse100ForHotelChance.png"
     } ] ],
     "communityChestCards" : [ [ {
-      "card" : "file:images/PayHostpital100Chest.png"
+      "communitycard" : "file:images/Collect100Chest2.png"
     }, {
-      "card" : "file:images/JailFreeCardChest.png"
+      "communitycard" : "file:images/Receive25Chest.png"
     }, {
-      "card" : "file:images/Collect100Chest.png"
+      "communitycard" : "file:images/Pay150Chest.png"
     }, {
-      "card" : "file:images/Collect50FromEveryPlayerChest.png"
+      "communitycard" : "file:images/JailFreeCardChest.png"
     }, {
-      "card" : "file:images/GoToJailChest.png"
+      "communitycard" : "file:images/Collect100Chest.png"
     }, {
-      "card" : "file:images/Pay150Chest.png"
+      "communitycard" : "file:images/GoToJailChest.png"
     }, {
-      "card" : "file:images/Pay50Chest.png"
+      "communitycard" : "file:images/GoToNextRailroadPayTwiceChest.png"
     }, {
-      "card" : "file:images/Collect200Chest.png"
+      "communitycard" : "file:images/Collect45Chest.png"
     }, {
-      "card" : "file:images/Receive25Chest.png"
+      "communitycard" : "file:images/Collect50FromEveryPlayerChest.png"
     }, {
-      "card" : "file:images/Collect45Chest.png"
+      "communitycard" : "file:images/Pay40ForHouse155ForHotelChest.png"
     }, {
-      "card" : "file:images/Collect10Chest.png"
+      "communitycard" : "file:images/IncomeTaxChest.png"
     }, {
-      "card" : "file:images/IncomeTaxChest.png"
+      "communitycard" : "file:images/Collect200Chest.png"
     }, {
-      "card" : "file:images/GoToNextRailroadPayTwiceChest.png"
+      "communitycard" : "file:images/Pay50Chest.png"
     }, {
-      "card" : "file:images/Collect100Chest2.png"
+      "communitycard" : "file:images/Inherit100Chest.png"
     }, {
-      "card" : "file:images/Inherit100Chest.png"
-    }, {
-      "card" : "file:images/Pay40ForHouse155ForHotelChest.png"
+      "communitycard" : "file:images/Collect10Chest.png"
     } ] ],
     "humanPlayers" : 2,
     "npcPlayers" : 0,
     "board" : [ {
       "cell" : {
+        "kind" : "cell",
         "name" : "Go",
         "group" : 0
       }
     }, {
       "cell" : {
+        "kind" : "buyable",
         "name" : "Mediterranean Avenue",
         "group" : 3,
         "mortgage" : false,
@@ -80,27 +80,31 @@
       }
     }, {
       "cell" : {
+        "kind" : "cell",
         "name" : "CommunityChest1",
         "group" : 0
       }
     }, {
       "cell" : {
+        "kind" : "buyable",
         "name" : "Baltic Avenue",
         "group" : 3,
         "mortgage" : false,
         "price" : 60,
         "rent" : 200,
-        "owner" : -1,
+        "owner" : 0,
         "homecount" : 0,
         "image" : "file:images/BalticAve.png"
       }
     }, {
       "cell" : {
+        "kind" : "cell",
         "name" : "IncomeTax",
         "group" : 0
       }
     }, {
       "cell" : {
+        "kind" : "buyable",
         "name" : "Reading Railroad",
         "group" : 2,
         "mortgage" : false,
@@ -112,6 +116,7 @@
       }
     }, {
       "cell" : {
+        "kind" : "buyable",
         "name" : "Oriental Avenue",
         "group" : 4,
         "mortgage" : false,
@@ -123,11 +128,13 @@
       }
     }, {
       "cell" : {
+        "kind" : "cell",
         "name" : "Eventcell1",
         "group" : 0
       }
     }, {
       "cell" : {
+        "kind" : "buyable",
         "name" : "Vermont Avenue",
         "group" : 4,
         "mortgage" : false,
@@ -139,33 +146,37 @@
       }
     }, {
       "cell" : {
+        "kind" : "buyable",
         "name" : "Conneticut Avenue",
         "group" : 4,
         "mortgage" : false,
         "price" : 120,
         "rent" : 200,
-        "owner" : 0,
+        "owner" : -1,
         "homecount" : 0,
         "image" : "file:images/ConneticutAve.png"
       }
     }, {
       "cell" : {
+        "kind" : "cell",
         "name" : "Visit Jail",
         "group" : 0
       }
     }, {
       "cell" : {
+        "kind" : "buyable",
         "name" : "St. Charles Place",
         "group" : 5,
         "mortgage" : false,
         "price" : 140,
         "rent" : 200,
-        "owner" : -1,
+        "owner" : 1,
         "homecount" : 0,
         "image" : "file:images/StCharlesPlace.png"
       }
     }, {
       "cell" : {
+        "kind" : "buyable",
         "name" : "Electric Company",
         "group" : 1,
         "mortgage" : false,
@@ -177,6 +188,7 @@
       }
     }, {
       "cell" : {
+        "kind" : "buyable",
         "name" : "States Avenue",
         "group" : 5,
         "mortgage" : false,
@@ -188,6 +200,7 @@
       }
     }, {
       "cell" : {
+        "kind" : "buyable",
         "name" : "Virgina Avenue",
         "group" : 5,
         "mortgage" : false,
@@ -199,6 +212,7 @@
       }
     }, {
       "cell" : {
+        "kind" : "buyable",
         "name" : "Pennsylvania Railroad",
         "group" : 2,
         "mortgage" : false,
@@ -210,6 +224,7 @@
       }
     }, {
       "cell" : {
+        "kind" : "buyable",
         "name" : "St. James Place",
         "group" : 6,
         "mortgage" : false,
@@ -221,11 +236,13 @@
       }
     }, {
       "cell" : {
+        "kind" : "cell",
         "name" : "CommunityChest2",
         "group" : 0
       }
     }, {
       "cell" : {
+        "kind" : "buyable",
         "name" : "Tennessee Avenue",
         "group" : 6,
         "mortgage" : false,
@@ -237,6 +254,7 @@
       }
     }, {
       "cell" : {
+        "kind" : "buyable",
         "name" : "New York Avenue",
         "group" : 6,
         "mortgage" : false,
@@ -248,11 +266,13 @@
       }
     }, {
       "cell" : {
+        "kind" : "cell",
         "name" : "Free parking",
         "group" : 0
       }
     }, {
       "cell" : {
+        "kind" : "buyable",
         "name" : "Kentucky Avenue",
         "group" : 7,
         "mortgage" : false,
@@ -264,11 +284,13 @@
       }
     }, {
       "cell" : {
+        "kind" : "cell",
         "name" : "Eventcell2",
         "group" : 0
       }
     }, {
       "cell" : {
+        "kind" : "buyable",
         "name" : "Indiana Avenue",
         "group" : 7,
         "mortgage" : false,
@@ -280,6 +302,7 @@
       }
     }, {
       "cell" : {
+        "kind" : "buyable",
         "name" : "Illinois Avenue",
         "group" : 7,
         "mortgage" : false,
@@ -291,6 +314,7 @@
       }
     }, {
       "cell" : {
+        "kind" : "buyable",
         "name" : "B & O Railroad",
         "group" : 2,
         "mortgage" : false,
@@ -302,6 +326,7 @@
       }
     }, {
       "cell" : {
+        "kind" : "buyable",
         "name" : "Atlantic Avenue",
         "group" : 8,
         "mortgage" : false,
@@ -313,6 +338,7 @@
       }
     }, {
       "cell" : {
+        "kind" : "buyable",
         "name" : "Ventnor Avenue",
         "group" : 8,
         "mortgage" : false,
@@ -324,6 +350,7 @@
       }
     }, {
       "cell" : {
+        "kind" : "buyable",
         "name" : "Water Works",
         "group" : 1,
         "mortgage" : false,
@@ -335,6 +362,7 @@
       }
     }, {
       "cell" : {
+        "kind" : "buyable",
         "name" : "Marvin Gardens",
         "group" : 8,
         "mortgage" : false,
@@ -346,11 +374,13 @@
       }
     }, {
       "cell" : {
+        "kind" : "cell",
         "name" : "Go to jail",
         "group" : 0
       }
     }, {
       "cell" : {
+        "kind" : "buyable",
         "name" : "Pacific Avenue",
         "group" : 9,
         "mortgage" : false,
@@ -362,6 +392,7 @@
       }
     }, {
       "cell" : {
+        "kind" : "buyable",
         "name" : "North Carolina Avenue",
         "group" : 9,
         "mortgage" : false,
@@ -373,11 +404,13 @@
       }
     }, {
       "cell" : {
+        "kind" : "cell",
         "name" : "CommunityChest3",
         "group" : 0
       }
     }, {
       "cell" : {
+        "kind" : "buyable",
         "name" : "Pennsylvania Avenue",
         "group" : 9,
         "mortgage" : false,
@@ -389,6 +422,7 @@
       }
     }, {
       "cell" : {
+        "kind" : "buyable",
         "name" : "Short Line Railroad",
         "group" : 2,
         "mortgage" : false,
@@ -400,11 +434,13 @@
       }
     }, {
       "cell" : {
+        "kind" : "cell",
         "name" : "Eventcell3",
         "group" : 0
       }
     }, {
       "cell" : {
+        "kind" : "buyable",
         "name" : "Park place",
         "group" : 10,
         "mortgage" : false,
@@ -416,11 +452,13 @@
       }
     }, {
       "cell" : {
+        "kind" : "cell",
         "name" : "Luxuary Tax",
         "group" : 0
       }
     }, {
       "cell" : {
+        "kind" : "buyable",
         "name" : "Broadwalk",
         "group" : 10,
         "mortgage" : false,
@@ -434,27 +472,27 @@
     "players" : [ {
       "player" : {
         "name" : "a",
-        "position" : 9,
-        "money" : 880,
+        "position" : 3,
+        "money" : 940,
         "jailCount" : 0,
         "turnPosition" : 0,
-        "rollForPosition" : 11,
+        "rollForPosition" : 9,
         "figure" : "file:images/Fingerhut.jpg"
       }
     }, {
       "player" : {
         "name" : "b",
-        "position" : 20,
-        "money" : 1000,
+        "position" : 17,
+        "money" : 860,
         "jailCount" : 0,
         "turnPosition" : 1,
-        "rollForPosition" : 9,
+        "rollForPosition" : 4,
         "figure" : "file:images/Hat.jpg"
       }
     } ],
-    "round" : 2,
-    "paschCount" : 2,
+    "round" : 3,
+    "paschCount" : 0,
     "collectedTax" : 0,
-    "currentPlayer" : 1
+    "currentPlayer" : 0
   }
 }

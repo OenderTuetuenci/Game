@@ -1,7 +1,7 @@
 package controller.controllerComponent.controllerBaseImpl
 
 import Game.MonopolyModule
-import com.google.inject.Guice
+import com.google.inject.{Guice, Inject}
 import controller.controllerComponent.GameControllerInterface
 import model._
 import model.fileIOComponent.FileIOInterface
@@ -10,11 +10,8 @@ import scalafx.application.JFXApp.PrimaryStage
 import scalafx.scene.image.{Image, ImageView}
 import util.UndoManager
 
-class GameController extends GameControllerInterface {
+class GameController @Inject() (val fileIo:FileIOInterface, val cards:CardsInterface, val dice:DiceInterface) extends GameControllerInterface {
     val injector = Guice.createInjector(new MonopolyModule)
-    val fileIo = injector.getInstance(classOf[FileIOInterface])
-    val cards = injector.getInstance(classOf[CardsInterface])
-    val dice = injector.getInstance(classOf[DiceInterface])
     val undoManager = new UndoManager
     val playerController = new PlayerController(this)
     val boardController = new BoardController(this)
@@ -557,6 +554,4 @@ class GameController extends GameControllerInterface {
             "rollDice"
         }
     }
-
-
 }
