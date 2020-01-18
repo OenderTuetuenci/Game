@@ -1,13 +1,14 @@
 package model.fileIOComponent.fileIOXmlImpl
 
 import controller.controllerComponent.GameControllerInterface
-import model.{Cell, PlayerInterface, Street}
+import model.{Cell, CommunityChest, Eventcell, FreiParken, GoToJail, IncomeTax, Jail, Los, PlayerInterface, Street, Zusatzsteuer}
 import model.fileIOComponent.FileIOInterface
+import model.playerComponent.Player
 
 import scala.xml.{Elem, PrettyPrinter}
 
 class FileIO extends FileIOInterface {
-    override def saveGame(game: GameControllerInterface) = {
+    override def saveGame(game: GameControllerInterface):Unit = {
         import java.io._
         val pw = new PrintWriter(new File("game.xml"))
         val prettyPrinter = new PrettyPrinter(120, 4)
@@ -17,7 +18,57 @@ class FileIO extends FileIOInterface {
     }
 
     override def loadGame: (Int,Int,Int,Int,Int,Vector[Cell],Vector[PlayerInterface],Vector[String],Vector[String],Int) = {
-        null
+        val file = scala.xml.XML.loadFile("game.xml")
+        var chanceCards = Vector[String]()
+        val chanceCardNodes = file\\"chanceCard"
+        for(card <-chanceCardNodes){
+            chanceCards = chanceCards :+ card.text.trim
+        }
+        var communityCards = Vector[String]()
+        val communityNodes = (file\\"communityCard")
+        for(card <-communityNodes){
+            communityCards = communityCards :+ card.text.trim
+        }
+        val humanPlayers = (file\\"humanPlayers").text.trim.toInt
+        val npcPlayers = (file\\"npcPlayers").text.trim.toInt
+        var board = Vector[Cell]()
+        val cellNodes = (file\\"cell")
+        for(cell<-cellNodes){
+            val kind = (cell\"@kind").text.trim
+            val name = (cell\"name").text.trim
+            val group = (cell\"group").text.trim.toInt
+            var mortgage = false
+            var price = 0
+            var rent = 0
+            var owner = -1
+            var homecount = 0
+            val image = (cell\"image").text.trim
+            if(kind == "Street"){
+                mortgage = (cell\"mortgage").text.trim.toBoolean
+                price = (cell\"price").text.trim.toInt
+                rent = (cell\"rent").text.trim.toInt
+                owner = (cell\"owner").text.trim.toInt
+                homecount = (cell\"homeCount").text.trim.toInt
+            }
+            board = board :+ CellFactory(kind,name,group,price,owner,rent,homecount,mortgage = mortgage,image)
+        }
+        var players = Vector[PlayerInterface]()
+        val playerNodes = (file\\"player")
+        for(player<-playerNodes){
+            val name = (player \ "name").text.trim
+            val position = (player \ "position").text.trim.toInt
+            val money = (player \ "money").text.trim.toInt
+            val jailCount = (player \ "jailCount").text.trim.toInt
+            val turnPosition = (player \ "turnPosition").text.trim.toInt
+            val rollForPosition = (player \ "rollForPosition").text.trim.toInt
+            val figure = (player \ "figure").text.trim
+            players = players :+ Player(name,position,money,jailCount,turnPosition,rollForPosition,figure)
+        }
+        val round = (file\\"round").text.trim.toInt
+        val paschCount = (file \\ "paschCount").text.trim.toInt
+        val collectedTax = (file\\ "collectedTax").text.trim.toInt
+        val currentPlayer = (file\\ "currentPlayer").text.trim.toInt
+        (humanPlayers,npcPlayers,round,paschCount,collectedTax,board,players,chanceCards,communityCards,currentPlayer)
     }
     def gameToXml(game: GameControllerInterface)={
         <game>
@@ -25,14 +76,14 @@ class FileIO extends FileIOInterface {
                 {
                     for{
                         i<-0 until game.chanceCards.length
-                    }yield cardToXml(game.chanceCards(i),i)
+                    }yield chanceCardToXml(game.chanceCards(i),i)
                 }
             </chanceCards>
             <communityChestCards length ={game.communityChestCards.length.toString}>
                 {
                 for{
                     i<-0 until game.communityChestCards.length
-                }yield cardToXml(game.communityChestCards(i),i)
+                }yield communityCardToXml(game.communityChestCards(i),i)
                 }
             </communityChestCards>
             <humanPlayers>{game.humanPlayers}</humanPlayers>
@@ -56,10 +107,15 @@ class FileIO extends FileIOInterface {
             <currentPlayer>{game.currentPlayer}</currentPlayer>
         </game>
     }
-    def cardToXml(str: String,x:Int):Elem={
-        <card number ={x.toString}>
+    def chanceCardToXml(str: String,x:Int):Elem={
+        <chanceCard number ={x.toString}>
             {str}
-        </card>
+        </chanceCard>
+    }
+    def communityCardToXml(str: String,x:Int):Elem={
+        <communityCard number ={x.toString}>
+            {str}
+        </communityCard>
     }
     def cellToXml(cell: Cell, x: Int):Elem={
         cell match {
@@ -73,11 +129,46 @@ class FileIO extends FileIOInterface {
                                     <homeCount>{cell.homecount}</homeCount>
                                     <image>{cell.image}</image>
                                 </cell>
-            case cell:Cell => <cell number ={x.toString} kind ={"Cell"}>
+            case cell:Los => <cell number ={x.toString} kind ={"Go"}>
                                     <name>{cell.name}</name>
-                                    <name>{cell.group}</name>
+                                    <group>{cell.group}</group>
                                     <image>{cell.image}</image>
                                 </cell>
+            case cell:CommunityChest => <cell number ={x.toString} kind ={"CommunityChest"}>
+                <name>{cell.name}</name>
+                <group>{cell.group}</group>
+                <image>{cell.image}</image>
+            </cell>
+            case cell:IncomeTax => <cell number ={x.toString} kind ={"IncomeTax"}>
+                <name>{cell.name}</name>
+                <group>{cell.group}</group>
+                <image>{cell.image}</image>
+            </cell>
+            case cell:Eventcell => <cell number ={x.toString} kind ={"Eventcell"}>
+                <name>{cell.name}</name>
+                <group>{cell.group}</group>
+                <image>{cell.image}</image>
+            </cell>
+            case cell:Jail => <cell number ={x.toString} kind ={"Jail"}>
+                <name>{cell.name}</name>
+                <group>{cell.group}</group>
+                <image>{cell.image}</image>
+            </cell>
+            case cell:FreiParken => <cell number ={x.toString} kind ={"FreeParking"}>
+                <name>{cell.name}</name>
+                <group>{cell.group}</group>
+                <image>{cell.image}</image>
+            </cell>
+            case cell:GoToJail => <cell number ={x.toString} kind ={"GoToJail"}>
+                <name>{cell.name}</name>
+                <group>{cell.group}</group>
+                <image>{cell.image}</image>
+            </cell>
+            case cell:Zusatzsteuer => <cell number ={x.toString} kind ={"AdditionalTax"}>
+                <name>{cell.name}</name>
+                <group>{cell.group}</group>
+                <image>{cell.image}</image>
+            </cell>
         }
 
     }
@@ -92,5 +183,19 @@ class FileIO extends FileIOInterface {
             <figure>{player.figure}</figure>
         </player>
     }
-
+    object CellFactory {
+        def apply(kind: String, name: String, group: Int, price: Int, owner: Int, rent: Int, home: Int, mortgage: Boolean,
+                  image: String): Cell = kind match {
+            case "Go" => Los(name, group, image)
+            case "Street" => Street(name, group, price, owner, rent, home, mortgage, image)
+            case "CommunityChest" => CommunityChest(name, group,image)
+            case "IncomeTax" => IncomeTax(name, group, image)
+            case "Eventcell" => Eventcell(name, group,image)
+            case "Jail" => Jail(name, group, image)
+            case "FreeParking" => FreiParken(name, group, image)
+            case "GoToJail" => GoToJail(name, group, image)
+            case "AdditionalTax" => Zusatzsteuer(name, group, image)
+            case _ => throw new UnsupportedOperationException
+        }
+    }
 }

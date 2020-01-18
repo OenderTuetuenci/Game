@@ -1,0 +1,401 @@
+<game>
+    <chanceCards length="11">
+        <chanceCard number="0"> file:images/Pay15Chance.png </chanceCard>
+        <chanceCard number="1"> file:images/GoToStCharlesPlaceChance.png </chanceCard>
+        <chanceCard number="2"> file:images/GoBack3SpacesChance.png </chanceCard>
+        <chanceCard number="3"> file:images/GoToBroadwalkChance.png </chanceCard>
+        <chanceCard number="4"> file:images/GoToJailChance.png </chanceCard>
+        <chanceCard number="5"> file:images/GoToReadingChance.png </chanceCard>
+        <chanceCard number="6"> file:images/PayEachPlayer50Chance.png </chanceCard>
+        <chanceCard number="7"> file:images/GoToIllinoisAveChance.png </chanceCard>
+        <chanceCard number="8"> file:images/Pay25ForHouse100ForHotelChance.png </chanceCard>
+        <chanceCard number="9"> file:images/JailFreeCardChance.png </chanceCard>
+        <chanceCard number="10"> file:images/Collect150Chance.png </chanceCard>
+    </chanceCards>
+    <communityChestCards length="16">
+        <communityCard number="0"> file:images/Collect100Chest.png </communityCard>
+        <communityCard number="1"> file:images/GoToJailChest.png </communityCard>
+        <communityCard number="2"> file:images/Collect200Chest.png </communityCard>
+        <communityCard number="3"> file:images/GoToNextRailroadPayTwiceChest.png </communityCard>
+        <communityCard number="4"> file:images/Receive25Chest.png </communityCard>
+        <communityCard number="5"> file:images/Pay40ForHouse155ForHotelChest.png </communityCard>
+        <communityCard number="6"> file:images/Collect10Chest.png </communityCard>
+        <communityCard number="7"> file:images/Collect50FromEveryPlayerChest.png </communityCard>
+        <communityCard number="8"> file:images/IncomeTaxChest.png </communityCard>
+        <communityCard number="9"> file:images/Pay50Chest.png </communityCard>
+        <communityCard number="10"> file:images/Collect45Chest.png </communityCard>
+        <communityCard number="11"> file:images/PayHostpital100Chest.png </communityCard>
+        <communityCard number="12"> file:images/JailFreeCardChest.png </communityCard>
+        <communityCard number="13"> file:images/Pay150Chest.png </communityCard>
+        <communityCard number="14"> file:images/Inherit100Chest.png </communityCard>
+        <communityCard number="15"> file:images/Collect100Chest2.png </communityCard>
+    </communityChestCards>
+    <humanPlayers>2</humanPlayers>
+    <npcPlayers>0</npcPlayers>
+    <board length="40">
+        <cell number="0" kind="Go">
+            <name>Go</name>
+            <group>0</group>
+            <image>file:images/Go.png</image>
+        </cell>
+        <cell number="1" kind="Street">
+            <name>Mediterranean Avenue</name>
+            <group>3</group>
+            <mortgage>false</mortgage>
+            <price>60</price>
+            <rent>200</rent>
+            <owner>-1</owner>
+            <homeCount>0</homeCount>
+            <image>file:images/MediterraneanAve.png</image>
+        </cell>
+        <cell number="2" kind="CommunityChest">
+            <name>CommunityChest1</name>
+            <group>0</group>
+            <image>file:images/Go.png</image>
+        </cell>
+        <cell number="3" kind="Street">
+            <name>Baltic Avenue</name>
+            <group>3</group>
+            <mortgage>false</mortgage>
+            <price>60</price>
+            <rent>200</rent>
+            <owner>-1</owner>
+            <homeCount>0</homeCount>
+            <image>file:images/BalticAve.png</image>
+        </cell>
+        <cell number="4" kind="IncomeTax">
+            <name>IncomeTax</name>
+            <group>0</group>
+            <image>file:images/IncomeTax.png</image>
+        </cell>
+        <cell number="5" kind="Street">
+            <name>Reading Railroad</name>
+            <group>2</group>
+            <mortgage>false</mortgage>
+            <price>200</price>
+            <rent>200</rent>
+            <owner>-1</owner>
+            <homeCount>0</homeCount>
+            <image>file:images/ReadingRailroad.png</image>
+        </cell>
+        <cell number="6" kind="Street">
+            <name>Oriental Avenue</name>
+            <group>4</group>
+            <mortgage>false</mortgage>
+            <price>100</price>
+            <rent>200</rent>
+            <owner>1</owner>
+            <homeCount>0</homeCount>
+            <image>file:images/OrientalAve.png</image>
+        </cell>
+        <cell number="7" kind="Eventcell">
+            <name>Eventcell1</name>
+            <group>0</group>
+            <image>file:images/OrientalAve</image>
+        </cell>
+        <cell number="8" kind="Street">
+            <name>Vermont Avenue</name>
+            <group>4</group>
+            <mortgage>false</mortgage>
+            <price>100</price>
+            <rent>200</rent>
+            <owner>-1</owner>
+            <homeCount>0</homeCount>
+            <image>file:images/VermontAve.png</image>
+        </cell>
+        <cell number="9" kind="Street">
+            <name>Conneticut Avenue</name>
+            <group>4</group>
+            <mortgage>false</mortgage>
+            <price>120</price>
+            <rent>200</rent>
+            <owner>-1</owner>
+            <homeCount>0</homeCount>
+            <image>file:images/ConneticutAve.png</image>
+        </cell>
+        <cell number="10" kind="Jail">
+            <name>Visit Jail</name>
+            <group>0</group>
+            <image>file:images/VisitJail.png</image>
+        </cell>
+        <cell number="11" kind="Street">
+            <name>St. Charles Place</name>
+            <group>5</group>
+            <mortgage>false</mortgage>
+            <price>140</price>
+            <rent>200</rent>
+            <owner>-1</owner>
+            <homeCount>0</homeCount>
+            <image>file:images/StCharlesPlace.png</image>
+        </cell>
+        <cell number="12" kind="Street">
+            <name>Electric Company</name>
+            <group>1</group>
+            <mortgage>false</mortgage>
+            <price>150</price>
+            <rent>200</rent>
+            <owner>-1</owner>
+            <homeCount>0</homeCount>
+            <image>file:images/ElectricCompany.png</image>
+        </cell>
+        <cell number="13" kind="Street">
+            <name>States Avenue</name>
+            <group>5</group>
+            <mortgage>false</mortgage>
+            <price>140</price>
+            <rent>200</rent>
+            <owner>-1</owner>
+            <homeCount>0</homeCount>
+            <image>file:images/StatesAve.png</image>
+        </cell>
+        <cell number="14" kind="Street">
+            <name>Virgina Avenue</name>
+            <group>5</group>
+            <mortgage>false</mortgage>
+            <price>160</price>
+            <rent>200</rent>
+            <owner>-1</owner>
+            <homeCount>0</homeCount>
+            <image>file:images/VirginiaAve.png</image>
+        </cell>
+        <cell number="15" kind="Street">
+            <name>Pennsylvania Railroad</name>
+            <group>2</group>
+            <mortgage>false</mortgage>
+            <price>200</price>
+            <rent>200</rent>
+            <owner>1</owner>
+            <homeCount>0</homeCount>
+            <image>file:images/PennsylvaniaRR.png</image>
+        </cell>
+        <cell number="16" kind="Street">
+            <name>St. James Place</name>
+            <group>6</group>
+            <mortgage>false</mortgage>
+            <price>180</price>
+            <rent>200</rent>
+            <owner>-1</owner>
+            <homeCount>0</homeCount>
+            <image>file:images/StJamesPlace.png</image>
+        </cell>
+        <cell number="17" kind="CommunityChest">
+            <name>CommunityChest2</name>
+            <group>0</group>
+            <image>file:images/OrientalAve</image>
+        </cell>
+        <cell number="18" kind="Street">
+            <name>Tennessee Avenue</name>
+            <group>6</group>
+            <mortgage>false</mortgage>
+            <price>180</price>
+            <rent>200</rent>
+            <owner>-1</owner>
+            <homeCount>0</homeCount>
+            <image>file:images/TennesseeAve.png</image>
+        </cell>
+        <cell number="19" kind="Street">
+            <name>New York Avenue</name>
+            <group>6</group>
+            <mortgage>false</mortgage>
+            <price>200</price>
+            <rent>200</rent>
+            <owner>-1</owner>
+            <homeCount>0</homeCount>
+            <image>file:images/NewYorkAve.png</image>
+        </cell>
+        <cell number="20" kind="FreeParking">
+            <name>Free parking</name>
+            <group>0</group>
+            <image>file:images/ParkFree.png</image>
+        </cell>
+        <cell number="21" kind="Street">
+            <name>Kentucky Avenue</name>
+            <group>7</group>
+            <mortgage>false</mortgage>
+            <price>220</price>
+            <rent>200</rent>
+            <owner>-1</owner>
+            <homeCount>0</homeCount>
+            <image>file:images/KentuckyAve.png</image>
+        </cell>
+        <cell number="22" kind="Eventcell">
+            <name>Eventcell2</name>
+            <group>0</group>
+            <image>file:images/OrientalAve</image>
+        </cell>
+        <cell number="23" kind="Street">
+            <name>Indiana Avenue</name>
+            <group>7</group>
+            <mortgage>false</mortgage>
+            <price>220</price>
+            <rent>200</rent>
+            <owner>1</owner>
+            <homeCount>0</homeCount>
+            <image>file:images/IndianaAve.png</image>
+        </cell>
+        <cell number="24" kind="Street">
+            <name>Illinois Avenue</name>
+            <group>7</group>
+            <mortgage>false</mortgage>
+            <price>240</price>
+            <rent>200</rent>
+            <owner>-1</owner>
+            <homeCount>0</homeCount>
+            <image>file:images/IllinoisAve.png</image>
+        </cell>
+        <cell number="25" kind="Street">
+            <name>B &amp; O Railroad</name>
+            <group>2</group>
+            <mortgage>false</mortgage>
+            <price>200</price>
+            <rent>200</rent>
+            <owner>-1</owner>
+            <homeCount>0</homeCount>
+            <image>file:images/BnORailroad.png</image>
+        </cell>
+        <cell number="26" kind="Street">
+            <name>Atlantic Avenue</name>
+            <group>8</group>
+            <mortgage>false</mortgage>
+            <price>260</price>
+            <rent>500</rent>
+            <owner>1</owner>
+            <homeCount>0</homeCount>
+            <image>file:images/AtlanticAve.png</image>
+        </cell>
+        <cell number="27" kind="Street">
+            <name>Ventnor Avenue</name>
+            <group>8</group>
+            <mortgage>false</mortgage>
+            <price>260</price>
+            <rent>800</rent>
+            <owner>0</owner>
+            <homeCount>0</homeCount>
+            <image>file:images/VentnorAve.png</image>
+        </cell>
+        <cell number="28" kind="Street">
+            <name>Water Works</name>
+            <group>1</group>
+            <mortgage>false</mortgage>
+            <price>150</price>
+            <rent>200</rent>
+            <owner>-1</owner>
+            <homeCount>0</homeCount>
+            <image>file:images/WaterWorks.png</image>
+        </cell>
+        <cell number="29" kind="Street">
+            <name>Marvin Gardens</name>
+            <group>8</group>
+            <mortgage>false</mortgage>
+            <price>280</price>
+            <rent>2500</rent>
+            <owner>-1</owner>
+            <homeCount>0</homeCount>
+            <image>file:images/MarvinGardens.png</image>
+        </cell>
+        <cell number="30" kind="GoToJail">
+            <name>Go to jail</name>
+            <group>0</group>
+            <image>file:images/Jail.png</image>
+        </cell>
+        <cell number="31" kind="Street">
+            <name>Pacific Avenue</name>
+            <group>9</group>
+            <mortgage>false</mortgage>
+            <price>300</price>
+            <rent>200</rent>
+            <owner>-1</owner>
+            <homeCount>0</homeCount>
+            <image>file:images/PacificAve.png</image>
+        </cell>
+        <cell number="32" kind="Street">
+            <name>North Carolina Avenue</name>
+            <group>9</group>
+            <mortgage>false</mortgage>
+            <price>300</price>
+            <rent>200</rent>
+            <owner>-1</owner>
+            <homeCount>0</homeCount>
+            <image>file:images/NoCarolinaAve.png</image>
+        </cell>
+        <cell number="33" kind="CommunityChest">
+            <name>CommunityChest3</name>
+            <group>0</group>
+            <image>file:images/OrientalAve</image>
+        </cell>
+        <cell number="34" kind="Street">
+            <name>Pennsylvania Avenue</name>
+            <group>9</group>
+            <mortgage>false</mortgage>
+            <price>320</price>
+            <rent>200</rent>
+            <owner>-1</owner>
+            <homeCount>0</homeCount>
+            <image>file:images/PennsylvaniaAve.png</image>
+        </cell>
+        <cell number="35" kind="Street">
+            <name>Short Line Railroad</name>
+            <group>2</group>
+            <mortgage>false</mortgage>
+            <price>200</price>
+            <rent>200</rent>
+            <owner>-1</owner>
+            <homeCount>0</homeCount>
+            <image>file:images/ShortLineRR.png</image>
+        </cell>
+        <cell number="36" kind="Eventcell">
+            <name>Eventcell3</name>
+            <group>0</group>
+            <image>file:images/OrientalAve</image>
+        </cell>
+        <cell number="37" kind="Street">
+            <name>Park place</name>
+            <group>10</group>
+            <mortgage>false</mortgage>
+            <price>350</price>
+            <rent>200</rent>
+            <owner>-1</owner>
+            <homeCount>0</homeCount>
+            <image>file:images/ParkPlace.png</image>
+        </cell>
+        <cell number="38" kind="AdditionalTax">
+            <name>Luxuary Tax</name>
+            <group>0</group>
+            <image>file:images/LuxuaryTax.png</image>
+        </cell>
+        <cell number="39" kind="Street">
+            <name>Broadwalk</name>
+            <group>10</group>
+            <mortgage>false</mortgage>
+            <price>400</price>
+            <rent>200</rent>
+            <owner>-1</owner>
+            <homeCount>0</homeCount>
+            <image>file:images/Broadwalk.png</image>
+        </cell>
+    </board>
+    <players length="2">
+        <player number="0">
+            <name>a</name>
+            <position>27</position>
+            <money>540</money>
+            <jailCount>0</jailCount>
+            <turnPosition>0</turnPosition>
+            <rollForPosition>6</rollForPosition>
+            <figure>file:images/Fingerhut.jpg</figure>
+        </player>
+        <player number="1">
+            <name>b</name>
+            <position>26</position>
+            <money>420</money>
+            <jailCount>0</jailCount>
+            <turnPosition>1</turnPosition>
+            <rollForPosition>3</rollForPosition>
+            <figure>file:images/Hat.jpg</figure>
+        </player>
+    </players>
+    <round>5</round>
+    <paschCount>0</paschCount>
+    <collectedTax>0</collectedTax>
+    <currentPlayer>1</currentPlayer>
+</game>

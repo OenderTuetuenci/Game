@@ -38,7 +38,7 @@ class FileIO extends FileIOInterface {
             var rent = 0
             var owner = -1
             var homecount = 0
-            var image = (cell\"image").as[String]
+            val image = (cell\"image").as[String]
             if(kind == "Street"){
                 mortgage = (cell\"mortgage").as[Boolean]
                 price = (cell\"price").as[Int]
