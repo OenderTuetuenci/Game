@@ -54,7 +54,7 @@ object Street{
     implicit val streetReads = Json.reads[Street]
 }
 
-case class Eventcell(name: String, group: Int) extends Cell {
+case class Eventcell(name: String, group: Int,image:String) extends Cell {
     override def onPlayerEntered(enteredPlayer: Int): String = {
         println("\nplayer entered an event")
         "\nplayer entered an event"
@@ -73,7 +73,7 @@ object Eventcell{
     implicit val eventCellReads = Json.reads[Eventcell]
 }
 
-case class CommunityChest(name: String, group: Int) extends Cell {
+case class CommunityChest(name: String, group: Int,image:String) extends Cell {
     override def onPlayerEntered(enteredPlayer: Int): String = {
         println("\nplayer entered CommunityChest")
         "\nplayer entered CommunityChest"

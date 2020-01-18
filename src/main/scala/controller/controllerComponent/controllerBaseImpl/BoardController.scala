@@ -128,15 +128,15 @@ class BoardController(gameController: GameController) {
     object CellFactory {
         def apply(kind: String, name: String, group: Int, price: Int, owner: Int, rent: Int, home: Int, mortgage: Boolean,
                   image: String): Cell = kind match {
-            case "Go" => Los(name, group, image: String)
-            case "Street" => Street(name, group, price, owner, rent, home, mortgage, image: String)
-            case "CommunityChest" => CommunityChest(name, group)
-            case "IncomeTax" => IncomeTax(name, group, image: String)
-            case "Eventcell" => Eventcell(name, group)
-            case "Jail" => Jail(name, group, image: String)
-            case "FreeParking" => FreiParken(name, group, image: String)
-            case "GoToJail" => GoToJail(name, group, image: String)
-            case "AdditionalTax" => Zusatzsteuer(name, group, image: String)
+            case "Go" => Los(name, group, image)
+            case "Street" => Street(name, group, price, owner, rent, home, mortgage, image)
+            case "CommunityChest" => CommunityChest(name, group,image)
+            case "IncomeTax" => IncomeTax(name, group, image)
+            case "Eventcell" => Eventcell(name, group,image)
+            case "Jail" => Jail(name, group, image)
+            case "FreeParking" => FreiParken(name, group, image)
+            case "GoToJail" => GoToJail(name, group, image)
+            case "AdditionalTax" => Zusatzsteuer(name, group, image)
             case _ => throw new UnsupportedOperationException
         }
     }

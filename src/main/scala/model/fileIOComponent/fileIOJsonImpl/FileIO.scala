@@ -38,30 +38,34 @@ class FileIO extends FileIOInterface {
             var rent = 0
             var owner = -1
             var homecount = 0
-            if(kind == "buyable"){
+            var image = (cell\"image").as[String]
+            if(kind == "Street"){
                 mortgage = (cell\"mortgage").as[Boolean]
                 price = (cell\"price").as[Int]
                 rent = (cell\"rent").as[Int]
                 owner = (cell\"owner").as[Int]
                 homecount = (cell\"homecount").as[Int]
             }
+            board = board :+ CellFactory(kind,name,group,price,owner,rent,homecount,mortgage = mortgage,image)
             }
-        var player = Vector[PlayerInterface]()
-        val dataPlayer = (json \ "game" \ "players").get.toString().replace("\"card\":","")
-          .replace("[","").replace("]","").replace("\"player\":",";")
-          .replace("{","").replace("\"","").replace("}","")
-          .replace(",","").split(";")
-        for(i<-1 until dataPlayer.length){
-            val t = dataPlayer(i).replace("name:","").replace("money:",";")
-              .replace("jailCount:",";").replace("turnPosition:",";").replace("rollForPosition:",";")
-              .replace("figure:",";").replace("position:",";").split(";")
-            player = player :+ Player(t(0),t(1).toInt,t(2).toInt,t(3).toInt,t(4).toInt,t(5).toInt,t(6))
+        var players = Vector[PlayerInterface]()
+        val playerCount = (json\"game"\"humanPlayers").get.toString().toInt
+        for(index <- 0 until playerCount){
+            val player = (json\\"player")(index)
+            val name = (player \ "name").as[String]
+            val position = (player \ "position").as[Int]
+            val money = (player \ "money").as[Int]
+            val jailCount = (player \ "jailCount").as[Int]
+            val turnPosition = (player \ "turnPosition").as[Int]
+            val rollForPosition = (player \ "rollForPosition").as[Int]
+            val figure = (player \ "figure").as[String]
+            players = players :+ Player(name,position,money,jailCount,turnPosition,rollForPosition,figure)
         }
         val round = (json \ "game" \ "round").get.toString.toInt
         val paschCount = (json \ "game" \ "paschCount").get.toString.toInt
         val collectedTax = (json \ "game" \ "collectedTax").get.toString.toInt
         val currentPlayer = (json \ "game" \ "currentPlayer").get.toString.toInt
-        (humanplayer,npcplayer,round,paschCount,collectedTax,board,player,chanceCards,communityChestCards,currentPlayer)
+        (humanplayer,npcplayer,round,paschCount,collectedTax,board,players,chanceCards,communityChestCards,currentPlayer)
     }
 
     override def saveGame(game:GameControllerInterface): Unit = {
@@ -84,8 +88,8 @@ class FileIO extends FileIOInterface {
     implicit val cellWrites = new Writes[Cell] {
         override def writes(cell: Cell):JsValue =
             cell match {
-                case cell:Buyable => Json.obj(
-                    "kind"->"buyable",
+                case cell:Street => Json.obj(
+                    "kind"->"Street",
                     "name"->cell.name,
                     "group"->cell.group,
                     "mortgage"->cell.mortgage,
@@ -95,10 +99,53 @@ class FileIO extends FileIOInterface {
                     "homecount"->cell.homecount,
                     "image"->cell.image
                 )
-                case cell:Cell => Json.obj(
-                    "kind"->"cell",
+                case cell:Eventcell => Json.obj(
+                    "kind"->"Eventcell",
                     "name"->cell.name,
-                    "group"->cell.group
+                    "group"->cell.group,
+                    "image"->cell.image
+                )
+                case cell:CommunityChest => Json.obj(
+                    "kind"->"CommunityChest",
+                    "name"->cell.name,
+                    "group"->cell.group,
+                    "image"->cell.image
+                )
+                case cell:Los => Json.obj(
+                    "kind"->"Go",
+                    "name"->cell.name,
+                    "group"->cell.group,
+                    "image"->cell.image
+                )
+                case cell:IncomeTax => Json.obj(
+                    "kind"->"IncomeTax",
+                    "name"->cell.name,
+                    "group"->cell.group,
+                    "image"->cell.image
+                )
+                case cell:GoToJail => Json.obj(
+                    "kind"->"GoToJail",
+                    "name"->cell.name,
+                    "group"->cell.group,
+                    "image"->cell.image
+                )
+                case cell:Jail => Json.obj(
+                    "kind"->"Jail",
+                    "name"->cell.name,
+                    "group"->cell.group,
+                    "image"->cell.image
+                )
+                case cell:FreiParken=>Json.obj(
+                    "kind"->"FreeParking",
+                    "name"->cell.name,
+                    "group"->cell.group,
+                    "image"->cell.image
+                )
+                case cell:Zusatzsteuer=>Json.obj(
+                    "kind"->"AdditionalTax",
+                    "name"->cell.name,
+                    "group"->cell.group,
+                    "image"->cell.image
                 )
             }
     }
@@ -153,15 +200,15 @@ class FileIO extends FileIOInterface {
     object CellFactory {
         def apply(kind: String, name: String, group: Int, price: Int, owner: Int, rent: Int, home: Int, mortgage: Boolean,
                   image: String): Cell = kind match {
-            case "Los" => Los(name, group, image: String)
-            case "Street" => Street(name, group, price, owner, rent, home, mortgage, image: String)
-            case "CommunityChest" => CommunityChest(name, group)
-            case "IncomeTax" => IncomeTax(name, group, image: String)
-            case "Eventcell" => Eventcell(name, group)
-            case "Jail" => Jail(name, group, image: String)
-            case "FreeParking" => FreiParken(name, group, image: String)
-            case "GoToJail" => GoToJail(name, group, image: String)
-            case "AdditionalTax" => Zusatzsteuer(name, group, image: String)
+            case "Go" => Los(name, group, image)
+            case "Street" => Street(name, group, price, owner, rent, home, mortgage, image)
+            case "CommunityChest" => CommunityChest(name, group,image)
+            case "IncomeTax" => IncomeTax(name, group, image)
+            case "Eventcell" => Eventcell(name, group,image)
+            case "Jail" => Jail(name, group, image)
+            case "FreeParking" => FreiParken(name, group, image)
+            case "GoToJail" => GoToJail(name, group, image)
+            case "AdditionalTax" => Zusatzsteuer(name, group, image)
             case _ => throw new UnsupportedOperationException
         }
     }
