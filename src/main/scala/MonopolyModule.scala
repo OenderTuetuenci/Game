@@ -33,7 +33,7 @@ class MonopolyModule extends AbstractModule with ScalaModule {
         bind[DiceInterface].to[Dice]
         bind[CardsInterface].to[Cards]
         bind[PlayerInterface].to[Player]
-        bind[FileIOInterface].to[fileIOJsonImpl.FileIO]
         //bind[FileIOInterface].to[fileIOJsonImpl.FileIO]
+        bind[FileIOInterface].to[fileIOXmlImpl.FileIO]
     }
 }

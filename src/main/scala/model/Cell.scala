@@ -5,6 +5,7 @@ import play.api.libs.json._
 trait Cell {
     val name: String
     val group: Int
+    val image:String
     def onPlayerEntered(enteredPlayer: Int): String
 }
 
