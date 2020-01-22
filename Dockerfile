@@ -9,6 +9,6 @@ RUN \
   apt-get update && \
   apt-get install -y sbt libxrender1 libxtst6 libxi6
 
-WORKDIR /Sources
-ADD . /Sources
-CMD sbt run
+WORKDIR /game
+ADD . /game
+CMD sbt test
