@@ -1,18 +1,16 @@
 package model.fileIOComponent.fileIOJsonImpl
 
-import Game.MonopolyModule
-import com.google.inject.Guice
-import controller.controllerComponent.GameControllerInterface
-import model.{Buyable, Cards, CardsInterface, Cell, CommunityChest, Eventcell, FreiParken, GoToJail, IncomeTax, Jail, Los, PlayerInterface, Street, Zusatzsteuer}
+import controller.controllerComponent.ControllerInterface
 import model.fileIOComponent.FileIOInterface
 import model.playerComponent.Player
-import play.api.libs.json.{JsNumber, JsObject, JsValue, Json, Writes}
+import model._
+import play.api.libs.json._
 
 import scala.io.Source
 
 class FileIO extends FileIOInterface {
 
-    override def loadGame: (Int,Int,Int,Int,Int,Vector[Cell],Vector[PlayerInterface],Vector[String],Vector[String],Int) = {
+    override def loadGame: (Int, Int, Int, Int, Int, Vector[Cell], Vector[PlayerInterface], Vector[String], Vector[String], Int) = {
         val source: String = Source.fromFile("game.json").getLines.mkString
         val json: JsValue = Json.parse(source)
         var chanceCards = Vector[String]()
@@ -68,12 +66,13 @@ class FileIO extends FileIOInterface {
         (humanplayer,npcplayer,round,paschCount,collectedTax,board,players,chanceCards,communityChestCards,currentPlayer)
     }
 
-    override def saveGame(game:GameControllerInterface): Unit = {
+    override def saveGame(game: ControllerInterface): Unit = {
         import java.io._
         val pw = new PrintWriter(new File("game.json"))
         pw.write(Json.prettyPrint(gameToJson(game)))
         pw.close
     }
+
     implicit val playerWrites = new Writes[PlayerInterface] {
         override def writes(player: PlayerInterface):JsValue = Json.obj(
             "name" -> player.name,
@@ -149,15 +148,16 @@ class FileIO extends FileIOInterface {
                 )
             }
     }
-    def gameToJson(game: GameControllerInterface): JsObject = {
+
+    def gameToJson(game: ControllerInterface): JsObject = {
         Json.obj(
             "game" -> Json.obj(
-                "chanceCards"-> Json.arr(
-                    for{
-                        i<-game.chanceCards.indices
-                    }yield {
+                "chanceCards" -> Json.arr(
+                    for {
+                        i <- game.chanceCards.indices
+                    } yield {
                         Json.obj(
-                            "chancecard"->Json.toJson(game.chanceCards(i))
+                            "chancecard" -> Json.toJson(game.chanceCards(i))
                         )
                     }
                 ),

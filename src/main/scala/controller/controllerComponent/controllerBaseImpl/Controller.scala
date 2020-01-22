@@ -2,7 +2,7 @@ package controller.controllerComponent.controllerBaseImpl
 
 import Game.MonopolyModule
 import com.google.inject.{Guice, Inject}
-import controller.controllerComponent.GameControllerInterface
+import controller.controllerComponent.ControllerInterface
 import model._
 import model.fileIOComponent.FileIOInterface
 import model.playerComponent.Player
@@ -10,11 +10,9 @@ import scalafx.application.JFXApp.PrimaryStage
 import scalafx.scene.image.{Image, ImageView}
 import util.UndoManager
 
-class GameController @Inject() (val fileIo:FileIOInterface, val cards:CardsInterface, val dice:DiceInterface) extends GameControllerInterface {
+class Controller @Inject()(val fileIo: FileIOInterface, val cards: CardsInterface, val dice: DiceInterface) extends ControllerInterface {
     val injector = Guice.createInjector(new MonopolyModule)
     val undoManager = new UndoManager
-    val playerController = new PlayerController(this)
-    val boardController = new BoardController(this)
     var humanPlayers = 0
     var npcPlayers = 0
     var board: Vector[Cell] = Vector[Cell]()
@@ -94,8 +92,8 @@ class GameController @Inject() (val fileIo:FileIOInterface, val cards:CardsInter
     var tmpCollectedTax = collectedTax
 
     def createGame(playerNames: Vector[String], npcNames: Vector[String]): Unit = {
-        players = playerController.createPlayers(playerNames, npcNames)
-        board = boardController.createBoard
+        players = createPlayers(playerNames, npcNames)
+        board = createBoard
         humanPlayers = playerNames.length
         npcPlayers = npcNames.length
     }
@@ -109,35 +107,29 @@ class GameController @Inject() (val fileIo:FileIOInterface, val cards:CardsInter
                 winner = i
             }
         }
-        //(playerwithmoney == 1, winner)
         playerwithmoney == 1
     }
 
-    def payRent: Unit = {
-        val updated = playerController.payRent(board(players(currentPlayer).position).asInstanceOf[Buyable])
-        players = updated._2
-        board = updated._1
+    def payRent(field: Buyable) = {
+        //miete abziehen
+        players = players.updated(currentPlayer, players(currentPlayer).decMoney(field.rent))
+        players = players.updated(field.owner, players(field.owner).incMoney(field.rent))
+        printFun(payRentEvent(players(currentPlayer), players(field.owner)))
+        // schauen ob player ins minus gekommen ist
+        checkPlayerDept(field.owner)
     }
 
     def payTax = {
         ;
     }
 
-
     def payElse = {
         ;
     }
 
-    def buy: Unit = {
-        val updated = playerController.buy(board(players(currentPlayer).position).asInstanceOf[Buyable])
-        board = updated._1
-        players = updated._2
-    }
-
     def buyHome: Unit = {
-        val updated = boardController.buyHome(board(players(currentPlayer).position).asInstanceOf[Street])
-        board = updated._1
-        players = updated._2
+        players = players.updated(currentPlayer, players(currentPlayer).decMoney(200))
+        board = board.updated(players(currentPlayer).position, board(players(currentPlayer).position).asInstanceOf[Street].buyHome(1))
     }
 
     def printFun(e: PrintEvent): Unit = {
@@ -176,10 +168,6 @@ class GameController @Inject() (val fileIo:FileIOInterface, val cards:CardsInter
         notifyObservers(OpenInformationDialogEvent())
     }
 
-    def auction: Unit = {
-        notifyObservers(OpenAuctionDialogEvent(board(players(currentPlayer).position).asInstanceOf[Buyable]))
-    }
-
     def onSaveGame() = {
         tmpHumanPlayers = humanPlayers
         tmpNpcPlayers = npcPlayers
@@ -189,14 +177,10 @@ class GameController @Inject() (val fileIo:FileIOInterface, val cards:CardsInter
         tmpCurrentPlayer = currentPlayer
         tmpCollectedTax = collectedTax
         fileIo.saveGame(this)
-
-        // lblRollDice.gettext
-        // lblResultdice gettext
-        // get buttons roll dice and end turn disable/enable
-        // maybe also get eventlog
     }
 
     def onLoadGame() = {
+        notifyObservers(ClearGuiElementsEvent())
         val updated = fileIo.loadGame
         humanPlayers = updated._1
         npcPlayers = updated._2
@@ -209,6 +193,7 @@ class GameController @Inject() (val fileIo:FileIOInterface, val cards:CardsInter
         chanceCards = updated._8
         communityChestCards = updated._9
         //todo update gui once
+
         // clear board (houses,ownersofStreets,playerfigurese)
         // readd (...)
         // updatePlayerList,updateLabels,ClearEventlist
@@ -258,7 +243,7 @@ class GameController @Inject() (val fileIo:FileIOInterface, val cards:CardsInter
                     paschCount += 1
                     if (players(currentPlayer).jailCount > 0) {
                         players = players.updated(currentPlayer, players(currentPlayer).resetJailCount)
-                        notifyObservers(OpenPlayerFreeDialog())
+                        notifyObservers(OpenPlayerFreeDialog(players(currentPlayer)))
                     }
                 } else {
                     // Disable rollbutton if no pasch and enable endturn button
@@ -279,7 +264,7 @@ class GameController @Inject() (val fileIo:FileIOInterface, val cards:CardsInter
                     endTurnButton.setDisable(false)
                 } else {
                     // nur wenn player nicht im jail
-                    if (players(currentPlayer).jailCount == 0) players = playerController.movePlayer(roll1 + roll2)
+                    if (players(currentPlayer).jailCount == 0) players = movePlayer(roll1 + roll2)
                 }
         }
         notifyObservers(UpdateListViewPlayersEvent())
@@ -326,7 +311,7 @@ class GameController @Inject() (val fileIo:FileIOInterface, val cards:CardsInter
             if (players(currentPlayer).jailCount >= 4) {
                 // player is free again notifyObservers(OpenInJailDialogEvent())
                 players = players.updated(currentPlayer, players(currentPlayer).resetJailCount)
-                notifyObservers(OpenPlayerFreeDialog())
+                notifyObservers(OpenPlayerFreeDialog(players(currentPlayer)))
             }
             // wenn spieler im jail jaildialog oeffnen
             if (players(currentPlayer).jailCount > 0) notifyObservers(OpenInJailDialogEvent())
@@ -369,15 +354,10 @@ class GameController @Inject() (val fileIo:FileIOInterface, val cards:CardsInter
         }
 
         def rollForPositionsState = {
-            println("rollforposstate")
             for (i <- 0 until humanPlayers + npcPlayers) {
                 // jeden einmal wuerfeln lassen
                 currentPlayer = i
-                HumanOrNPCStrategy.execute("rollForPosition") match {
-                    case (roll1: Int, roll2: Int, pasch: Boolean) => println(roll1, roll2, pasch)
-                        //ergebnis speichern für jeden spieler
-                        players = players.updated(i, players(i).setRollForPosition(roll1 + roll2))
-                }
+                HumanOrNPCStrategy.execute("rollForPosition")
             }
             //nach reihenfolge sortieren
             players = players.sortBy(-_.rollForPosition) // - für reversed
@@ -462,8 +442,8 @@ class GameController @Inject() (val fileIo:FileIOInterface, val cards:CardsInter
 
         def createBoardAndPlayersState = {
             println("createboardandplayersState")
-            players = playerController.createPlayers(playerNames, npcNames)
-            board = boardController.createBoard
+            players = createPlayers(playerNames, npcNames)
+            board = createBoard
             for (i <- 0 until humanPlayers + npcPlayers) {
                 currentPlayer = i
                 val stackpane = currentStage.scene().lookup("#stackpane").asInstanceOf[javafx.scene.layout.StackPane]
@@ -485,9 +465,10 @@ class GameController @Inject() (val fileIo:FileIOInterface, val cards:CardsInter
             rollDiceButton.setDisable(true) //.asInstanceOf[javafx.scene.control.Button]
             val endTurnButton = currentStage.scene().lookup("#endTurn") //.asInstanceOf[javafx.scene.control.Button]
             endTurnButton.setDisable(true)
-            notifyObservers(openGameOverDialogEvent())
             val lblPlayerTurn = currentStage.scene().lookup("#lblPlayerTurn").asInstanceOf[javafx.scene.text.Text]
             lblPlayerTurn.setText("Game Over")
+            notifyObservers(openGameOverDialogEvent())
+
         }
 
         def initGameState: Unit = {
@@ -509,11 +490,9 @@ class GameController @Inject() (val fileIo:FileIOInterface, val cards:CardsInter
             npcNames = Vector[String]()
             round = 1
             answer = ""
-            // delete everything on the board and board
-            val stackpane = currentStage.scene().lookup("#stackpane").asInstanceOf[javafx.scene.layout.StackPane]
-            stackpane.getChildren().removeAll()
         }
 
+        notifyObservers(ClearGuiElementsEvent())
     }
 
     object HumanOrNPCStrategy {
@@ -525,10 +504,8 @@ class GameController @Inject() (val fileIo:FileIOInterface, val cards:CardsInter
                 case "turnInJail" => turnInJail
                 case "rollForPosition" =>
                     notifyObservers(OpenRollForPosDialogEvent(players(currentPlayer)))
-                    playerController.wuerfeln
                 case "rollDice" =>
-                    //notifyObservers(OpenRollDiceDialogEvent(controller.players(controller.currentPlayer)))
-                    playerController.wuerfeln
+                    wuerfeln
                 case _ =>
             }
         }
@@ -546,12 +523,238 @@ class GameController @Inject() (val fileIo:FileIOInterface, val cards:CardsInter
         }
 
         def pay: Unit = {
-            payRent
+            payRent(board(players(currentPlayer).position).asInstanceOf[Buyable])
         }
 
         def turnInJail: String = {
             //controller.notifyObservers(OpenInJailDialogEvent(controller.currentStage, controller.players(controller.currentPlayer)))
             "rollDice"
         }
+    }
+
+    // todo for boardcontroller
+    def newOwner(playerNr: Int, cell: Cell): Cell = {
+        val updated = cell.asInstanceOf[Buyable].setOwner(playerNr)
+        updated
+    }
+
+    def createBoard: Vector[Cell] = {
+        // group 0 go, etc, group 1 water,electricity, group 2 railroads,
+        var board: Vector[Cell] = Vector()
+        board = board :+ CellFactory("Go", "Go", 0, 0, 0, 0, 0, mortgage = false, image = "file:images/Go.png")
+        board = board :+ CellFactory("Street", "Mediterranean Avenue", 3, 60, -1, 200, 0, mortgage = false, image = "file:images/MediterraneanAve.png")
+        board = board :+ CellFactory("CommunityChest", "CommunityChest1", 0, 0, 0, 0, 0, mortgage = false, image = "file:images/Go.png") // todo
+        board = board :+ CellFactory("Street", "Baltic Avenue", 3, 60, -1, 200, 0, mortgage = false, image = "file:images/BalticAve.png")
+        board = board :+ CellFactory("IncomeTax", "IncomeTax", 0, 0, 0, 0, 0, mortgage = false, image = "file:images/IncomeTax.png")
+        board = board :+ CellFactory("Street", "Reading Railroad", 2, 200, -1, 200, 0, mortgage = false, image = "file:images/ReadingRailroad.png")
+        board = board :+ CellFactory("Street", "Oriental Avenue", 4, 100, -1, 200, 0, mortgage = false, image = "file:images/OrientalAve.png")
+        board = board :+ CellFactory("Eventcell", "Eventcell1", 0, 0, 0, 0, 0, mortgage = false, image = "file:images/OrientalAve") // todo
+        board = board :+ CellFactory("Street", "Vermont Avenue", 4, 100, -1, 200, 0, mortgage = false, image = "file:images/VermontAve.png")
+        board = board :+ CellFactory("Street", "Conneticut Avenue", 4, 120, -1, 200, 0, mortgage = false, image = "file:images/ConneticutAve.png")
+        board = board :+ CellFactory("Jail", "Visit Jail", 0, 0, 0, 0, 0, mortgage = false, image = "file:images/VisitJail.png")
+
+        board = board :+ CellFactory("Street", "St. Charles Place", 5, 140, -1, 200, 0, mortgage = false, image = "file:images/StCharlesPlace.png")
+        board = board :+ CellFactory("Street", "Electric Company", 1, 150, -1, 200, 0, mortgage = false, image = "file:images/ElectricCompany.png")
+        board = board :+ CellFactory("Street", "States Avenue", 5, 140, -1, 200, 0, mortgage = false, image = "file:images/StatesAve.png")
+        board = board :+ CellFactory("Street", "Virgina Avenue", 5, 160, -1, 200, 0, mortgage = false, image = "file:images/VirginiaAve.png")
+        board = board :+ CellFactory("Street", "Pennsylvania Railroad", 2, 200, -1, 200, 0, mortgage = false, image = "file:images/PennsylvaniaRR.png")
+        board = board :+ CellFactory("Street", "St. James Place", 6, 180, -1, 200, 0, mortgage = false, image = "file:images/StJamesPlace.png")
+        board = board :+ CellFactory("CommunityChest", "CommunityChest2", 0, 0, 0, 0, 0, mortgage = false, image = "file:images/OrientalAve") // todo
+        board = board :+ CellFactory("Street", "Tennessee Avenue", 6, 180, -1, 200, 0, mortgage = false, image = "file:images/TennesseeAve.png")
+        board = board :+ CellFactory("Street", "New York Avenue", 6, 200, -1, 200, 0, mortgage = false, image = "file:images/NewYorkAve.png")
+        board = board :+ CellFactory("FreeParking", "Free parking", 0, 0, 0, 0, 0, mortgage = false, image = "file:images/ParkFree.png")
+
+        board = board :+ CellFactory("Street", "Kentucky Avenue", 7, 220, -1, 200, 0, mortgage = false, image = "file:images/KentuckyAve.png")
+        board = board :+ CellFactory("Eventcell", "Eventcell2", 0, 0, 0, 0, 0, mortgage = false, image = "file:images/OrientalAve") // todo
+        board = board :+ CellFactory("Street", "Indiana Avenue", 7, 220, -1, 200, 0, mortgage = false, image = "file:images/IndianaAve.png")
+        board = board :+ CellFactory("Street", "Illinois Avenue", 7, 240, -1, 200, 0, mortgage = false, image = "file:images/IllinoisAve.png")
+        board = board :+ CellFactory("Street", "B & O Railroad", 2, 200, -1, 200, 0, mortgage = false, image = "file:images/BnORailroad.png")
+        board = board :+ CellFactory("Street", "Atlantic Avenue", 8, 260, -1, 500, 0, mortgage = false, image = "file:images/AtlanticAve.png")
+        board = board :+ CellFactory("Street", "Ventnor Avenue", 8, 260, -1, 800, 0, mortgage = false, image = "file:images/VentnorAve.png")
+        board = board :+ CellFactory("Street", "Water Works", 1, 150, -1, 200, 0, mortgage = false, image = "file:images/WaterWorks.png")
+        board = board :+ CellFactory("Street", "Marvin Gardens", 8, 280, -1, 2500, 0, mortgage = false, image = "file:images/MarvinGardens.png")
+        board = board :+ CellFactory("GoToJail", "Go to jail", 0, 0, 0, 0, 0, mortgage = false, image = "file:images/Jail.png")
+
+        board = board :+ CellFactory("Street", "Pacific Avenue", 9, 300, -1, 200, 0, mortgage = false, image = "file:images/PacificAve.png")
+        board = board :+ CellFactory("Street", "North Carolina Avenue", 9, 300, -1, 200, 0, mortgage = false, image = "file:images/NoCarolinaAve.png")
+        board = board :+ CellFactory("CommunityChest", "CommunityChest3", 0, 0, 0, 0, 0, mortgage = false, image = "file:images/OrientalAve") // todo
+        board = board :+ CellFactory("Street", "Pennsylvania Avenue", 9, 320, -1, 200, 0, mortgage = false, image = "file:images/PennsylvaniaAve.png")
+        board = board :+ CellFactory("Street", "Short Line Railroad", 2, 200, -1, 200, 0, mortgage = false, image = "file:images/ShortLineRR.png")
+        board = board :+ CellFactory("Eventcell", "Eventcell3", 0, 0, 0, 0, 0, mortgage = false, image = "file:images/OrientalAve") // todo
+        board = board :+ CellFactory("Street", "Park place", 10, 350, -1, 200, 0, mortgage = false, image = "file:images/ParkPlace.png")
+        board = board :+ CellFactory("AdditionalTax", "Luxuary Tax", 0, 0, 0, 0, 0, mortgage = false, image = "file:images/LuxuaryTax.png")
+        board = board :+ CellFactory("Street", "Broadwalk", 10, 400, -1, 200, 0, mortgage = false, image = "file:images/Broadwalk.png")
+        board
+        // todo create xml or json from board
+        // then add xml/json parser
+    }
+
+    def activateStart(field: Los): Unit = {
+        field.onPlayerEntered(currentPlayer)
+        notifyObservers(OpenPlayerEnteredGoDialog(field))
+    }
+
+    def activateStreet(field: Buyable): Unit = {
+        if (field.owner == -1 && field.owner != currentPlayer) notifyObservers(OpenBuyableFieldDialog(field))
+        else notifyObservers(OpenPayRentDialog(field))
+
+    }
+
+    def activateIncomeTax(field: IncomeTax): Unit = {
+        field.onPlayerEntered(currentPlayer)
+        notifyObservers(OpenIncomeTaxDialog(field))
+    }
+
+    def activateVisitJail(field: Jail): Unit = {
+        field.onPlayerEntered(currentPlayer)
+        notifyObservers(OpenVisitJailDialog(field))
+    }
+
+    def activateFreiParken(field: FreiParken): Unit = {
+        field.onPlayerEntered(currentPlayer)
+        notifyObservers(OpenParkFreeDialog(field))
+
+    }
+
+    def activateLuxuaryTax(field: Zusatzsteuer): Unit = {
+        field.onPlayerEntered(currentPlayer)
+        notifyObservers(OpenLuxuaryTaxDialog(field))
+
+    }
+
+    def activateChance(field: Eventcell): Unit = {
+        field.onPlayerEntered(currentPlayer)
+        notifyObservers(OpenChanceDialog())
+    }
+
+    def activateCommunityChest(field: CommunityChest): Unit = {
+        field.onPlayerEntered(currentPlayer)
+        notifyObservers(OpenCommunityChestDialog())
+    }
+
+    def activateJail(field: GoToJail): Unit = {
+        field.onPlayerEntered(currentPlayer)
+        notifyObservers(openGoToJailDialog(field))
+        players = players.updated(currentPlayer, players(currentPlayer).moveToJail)
+        players = players.updated(currentPlayer, players(currentPlayer).incJailTime)
+        notifyObservers(MovePlayerFigureEvent(-350, 350)) // jailxy
+        val rollDiceBUtton = currentStage.scene().lookup("#rollDice") //.asInstanceOf[javafx.scene.control.Button]
+        rollDiceBUtton.setDisable(true)
+        val endTurnButton = currentStage.scene().lookup("#endTurn") //.asInstanceOf[javafx.scene.control.Button]
+        endTurnButton.setDisable(false)
+    }
+
+
+    object CellFactory {
+        def apply(kind: String, name: String, group: Int, price: Int, owner: Int, rent: Int, home: Int, mortgage: Boolean,
+                  image: String): Cell = kind match {
+            case "Go" => Los(name, group, image: String)
+            case "Street" => Street(name, group, price, owner, rent, home, mortgage, image: String)
+            case "CommunityChest" => CommunityChest(name, group, image: String)
+            case "IncomeTax" => IncomeTax(name, group, image: String)
+            case "Eventcell" => Eventcell(name, group, image: String)
+            case "Jail" => Jail(name, group, image: String)
+            case "FreeParking" => FreiParken(name, group, image: String)
+            case "GoToJail" => GoToJail(name, group, image: String)
+            case "AdditionalTax" => Zusatzsteuer(name, group, image: String)
+            case _ => throw new UnsupportedOperationException
+        }
+    }
+
+    // todo playercontroller
+    def createPlayers(playerNames: Vector[String], npcNames: Vector[String]) = {
+        var players: Vector[PlayerInterface] = Vector()
+        var i = 0
+        for (name <- playerNames) {
+            var player = injector.getInstance(classOf[PlayerInterface])
+            player = player.setName(name)
+            player = player.setFigure(playerFigures(i))
+            players = players :+ player
+            i += 1
+        }
+        i = 0
+        for (name <- npcNames) {
+            ///////////////
+            // 1. verfügbare figur nehmen
+            // todo try figure if is empty take picture for more npc than playerfigures nein
+            //            var f1 = ""
+            //            try {
+            //                f1 = Some(gameController.remainingFiguresToPick.head).toString()
+            //            }
+            //            catch {
+            //                case e: Exception => f1 = "Hut"
+            //            }
+            //            print("fi" + f1)
+            //////////////////////
+            val figure = remainingFiguresToPick.head
+            val imgPath = figure match {
+                case "Hut" => "file:images/Hut.jpg"
+                case "Fingerhut" => "file:images/Fingerhut.jpg"
+                case "Schubkarre" => "file:images/Schubkarre.jpg"
+                case "Schuh" => "file:images/Schuh.jpg"
+                case "Hund" => "file:images/Hund.jpg"
+                case "Auto" => "file:images/Auto.jpg"
+                case "Bügeleisen" => "file:images/Buegeleisen.jpg"
+                case "Fingerhut" => "file:images/Fingerhut.jpg"
+                case "Schiff" => "file:images/Schiff.jpg"
+            }
+            // ausgewählte figur aus der auswahl nehmen
+            remainingFiguresToPick = remainingFiguresToPick.filterNot(elm => elm == figure)
+            players = players :+ playerComponent.Player(name, figure = imgPath)
+        }
+        players
+    }
+
+    def buy(field: Buyable) = {
+        players = players.updated(currentPlayer, players(currentPlayer).decMoney(field.price))
+        // spieler.besitz add streetnr
+        board = board.updated(players(currentPlayer).position, field.setOwner(currentPlayer))
+        printFun(buyStreetEvent(players(currentPlayer), field))
+    }
+
+    def wuerfeln: (Int, Int, Boolean) = {
+        val roll1 = dice.roll
+        val roll2 = dice.roll
+        var pasch = false
+        if (dice.checkPash(roll1, roll2)) {
+            pasch = true
+        }
+        notifyObservers(UpdateGuiDiceLabelEvent(roll1, roll2, pasch))
+        (roll1, roll2, pasch)
+    }
+
+    def movePlayer(sumDiceThrow: Int): Vector[PlayerInterface] = {
+        // spieler bewegen
+        players = players.updated(currentPlayer, players(currentPlayer).move(sumDiceThrow))
+        println("sumDiceThrow = " + sumDiceThrow)
+        // schauen ob über los gegangen todo wenn spieler auf jail kommt und pasch gewuerfelt hat
+        if (players(currentPlayer).position >= 40) {
+            printFun(playerWentOverGoEvent(players(currentPlayer)))
+            if (!(players(currentPlayer).position == 0)) // falls spieler nicht auf los sonst 2 dialoge
+                notifyObservers(OpenPlayerPassedGoDialog())
+            players = players.updated(currentPlayer, players(currentPlayer).moveBack(40))
+        }
+        ////////////MoveplayerAfterRollDice////////////////
+        notifyObservers(MovePlayerFigureEvent(
+            fieldCoordsX(players(currentPlayer).position),
+            fieldCoordsY(players(currentPlayer).position)))
+
+        // neue position ausgeben
+        printFun(playerMoveEvent(players(currentPlayer)))
+        // aktion fuer betretetenes feld ausloesen
+        val field = board(players(currentPlayer).position)
+        field match {
+            case e: Buyable => activateStreet(e.asInstanceOf[Buyable])
+            case e: Los => activateStart(e.asInstanceOf[Los])
+            case e: Eventcell => activateChance(e.asInstanceOf[Eventcell])
+            case e: CommunityChest => activateCommunityChest(e.asInstanceOf[CommunityChest])
+            case e: Jail => activateVisitJail(e.asInstanceOf[Jail])
+            case e: IncomeTax => activateIncomeTax(e.asInstanceOf[IncomeTax])
+            case e: FreiParken => activateFreiParken(e.asInstanceOf[FreiParken])
+            case e: GoToJail => activateJail(e.asInstanceOf[GoToJail])
+            case e: Zusatzsteuer => activateLuxuaryTax(e.asInstanceOf[Zusatzsteuer])
+            case _ => throw new UnsupportedOperationException
+        }
+        players
     }
 }

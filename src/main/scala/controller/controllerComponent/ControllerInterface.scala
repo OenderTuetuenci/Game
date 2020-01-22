@@ -1,17 +1,14 @@
 package controller.controllerComponent
 
-import controller.controllerComponent.controllerBaseImpl.{BoardController, PlayerController}
 import model._
 import scalafx.application.JFXApp.PrimaryStage
 import util.{Observable, UndoManager}
 
-trait GameControllerInterface extends Observable {
+trait ControllerInterface extends Observable {
     val cards: CardsInterface
     val chanceCardsList: List[String]
     val communityChestCardsList: List[String]
     val dice: DiceInterface
-    val playerController: PlayerController
-    val boardController: BoardController
     val undoManager: UndoManager
     var chanceCards: Vector[String]
     var communityChestCards: Vector[String]
@@ -43,11 +40,11 @@ trait GameControllerInterface extends Observable {
 
     def checkGameOver(): Boolean
 
-    def payRent: Unit
+    def payRent(field: Buyable): Unit
 
-    def buy: Unit
+    def payTax: Unit
 
-    def auction: Unit
+    def payElse: Unit
 
     def buyHome: Unit
 
@@ -70,4 +67,38 @@ trait GameControllerInterface extends Observable {
     def onEndTurn(): Unit
 
     def checkPlayerDept(ownerIdx: Int): Unit
+
+    // from boardcontroller
+
+    def newOwner(playerNr: Int, cell: Cell): Cell
+
+    def createBoard: Vector[Cell]
+
+    def activateStart(field: Los): Unit
+
+    def activateStreet(field: Buyable): Unit
+
+    def activateIncomeTax(field: IncomeTax): Unit
+
+    def activateVisitJail(field: Jail): Unit
+
+    def activateFreiParken(field: FreiParken): Unit
+
+    def activateLuxuaryTax(field: Zusatzsteuer): Unit
+
+    def activateChance(field: Eventcell): Unit
+
+    def activateCommunityChest(field: CommunityChest): Unit
+
+    def activateJail(field: GoToJail): Unit
+
+    // from playercontroller
+
+    def createPlayers(playerNames: Vector[String], npcNames: Vector[String]): Vector[PlayerInterface]
+
+    def buy(field: Buyable): Unit
+
+    def wuerfeln: (Int, Int, Boolean)
+
+    def movePlayer(sumDiceThrow: Int): Vector[PlayerInterface]
 }

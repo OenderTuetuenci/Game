@@ -2,8 +2,8 @@ package Game
 
 import com.google.inject.AbstractModule
 import com.google.inject.name.Names
-import controller.controllerComponent.GameControllerInterface
-import controller.controllerComponent.controllerBaseImpl.GameController
+import controller.controllerComponent.ControllerInterface
+import controller.controllerComponent.controllerBaseImpl.Controller
 import model.DiceComponent.Dice
 import model.fileIOComponent._
 import model.playerComponent.Player
@@ -29,7 +29,7 @@ class MonopolyModule extends AbstractModule with ScalaModule {
         bindConstant().annotatedWith(Names.named("rollForPosition")).to(defaultRollForPosition)
         bindConstant().annotatedWith(Names.named("figure")).to(defaultFigure)
 
-        bind[GameControllerInterface].to[GameController]
+        bind[ControllerInterface].to[Controller]
         bind[DiceInterface].to[Dice]
         bind[CardsInterface].to[Cards]
         bind[PlayerInterface].to[Player]

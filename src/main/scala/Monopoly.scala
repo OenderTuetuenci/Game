@@ -1,7 +1,7 @@
 package Game
 
 import com.google.inject.Guice
-import controller.controllerComponent.GameControllerInterface
+import controller.controllerComponent.ControllerInterface
 import model.OpenMainWindowEvent
 import view.{Gui, Tui}
 //// todo undo pattern spieleranzahl namen wie viele spieler und bots im beforegamestartsstate
@@ -31,9 +31,8 @@ import scala.language.implicitConversions
 // dialogs: https://github.com/scalafx/scalafx/blob/master/scalafx-demos/src/main/scala/scalafx/controls/DialogsDemo.scala
 object Monopoly extends JFXApp {
     val injector = Guice.createInjector(new MonopolyModule)
-    val gameController = injector.getInstance(classOf[GameControllerInterface])
-    val gui = new Gui(gameController)
-    val tui = new Tui(gameController)
-
-    gameController.notifyObservers(OpenMainWindowEvent())
+    val controller = injector.getInstance(classOf[ControllerInterface])
+    val gui = new Gui(controller)
+    val tui = new Tui(controller)
+    controller.notifyObservers(OpenMainWindowEvent())
 }

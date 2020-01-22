@@ -1,6 +1,6 @@
 package view
 
-import controller.controllerComponent.GameControllerInterface
+import controller.controllerComponent.ControllerInterface
 import model._
 import scalafx.Includes.{handle, _}
 import scalafx.application.JFXApp.PrimaryStage
@@ -17,15 +17,16 @@ import scalafx.scene.paint.Color.{Black, PaleGreen, SeaGreen}
 import scalafx.scene.paint.{Color, LinearGradient, Stops}
 import scalafx.scene.text.Text
 import scalafx.scene.{Cursor, Scene}
+import scalafx.stage.StageStyle
 import util.Observer
 
 import scala.io.StdIn._
 import scala.language.implicitConversions
 
-class Gui(controller: GameControllerInterface) extends Observer {
+class Gui(controller: ControllerInterface) extends Observer {
     controller.add(this)
 
-    def getController: GameControllerInterface = controller
+    def getController: ControllerInterface = controller
 
     override def update(e: PrintEvent): Any = {
         e match {
@@ -101,18 +102,19 @@ class Gui(controller: GameControllerInterface) extends Observer {
         listviewPlayers.getItems.clear
         val listviewEventLog = controller.currentStage.scene().lookup("#lvEventLog").asInstanceOf[javafx.scene.control.ListView[String]]
         listviewEventLog.getItems.clear
+        // delete everything on the board
+        val stackpane = controller.currentStage.scene().lookup("#stackpane").asInstanceOf[javafx.scene.layout.StackPane]
+        stackpane.getChildren().removeAll()
     }
 
     def movePlayerFigure(e: MovePlayerFigureEvent) = {
-        // todo get scale and board position
         val stackpane = controller.currentStage.scene().lookup("#stackpane").asInstanceOf[javafx.scene.layout.StackPane]
-        //grausam...
-        //        val vboxStackpane = stackpane.getChildren().filtered(_.getId == "#vboxStackpane").get(0)
-        //        print("bounds:" + vboxStackpane)
+        // todo get scale and board position
+        //val vboxStackpane = stackpane.getChildren().filtered(_.getId == "#vboxStackpane").get(0)
+        //print("bounds:" + vboxStackpane)
         val figure = stackpane.getChildren().filtered(_.getId == "#player" + controller.currentPlayer)
         figure.get(0).setTranslateX(e.x)
         figure.get(0).setTranslateY(e.y + 70)
-        println("moveplayer x y " + e.x + e.y)
     }
 
     // todo moveplayerfiguer
@@ -167,12 +169,6 @@ class Gui(controller: GameControllerInterface) extends Observer {
 
                         )
                         this.setId("menuGame")
-                    },
-                    new Menu("Board size") {
-                        items = List(
-                            new MenuItem("400 x 400 px"),
-                            new MenuItem("800 x 800 px"),
-                        )
                     },
                     new Menu("Help") {
                         items = List(
@@ -259,7 +255,7 @@ class Gui(controller: GameControllerInterface) extends Observer {
                                 stops = Stops(PaleGreen, SeaGreen))
                         },
                         // todo listview[player]
-                        //  onclick expand view to see streets of 1 player......
+                        // todo onclick expand view to see streets of 1 player......
                         new ListView[String] {
                             this.setId("lvPlayers")
                             orientation = Orientation.Vertical
@@ -324,6 +320,7 @@ class Gui(controller: GameControllerInterface) extends Observer {
         controller.currentStage.setY(bounds.getMinY)
         controller.currentStage.setWidth(bounds.getWidth)
         controller.currentStage.setHeight(bounds.getHeight)
+        controller.currentStage.initStyle(StageStyle.Undecorated)
 
     }
 
@@ -382,7 +379,6 @@ class Gui(controller: GameControllerInterface) extends Observer {
         if (controller.players(controller.currentPlayer).name != controller.players(playerIdx).name) {
             if (controller.board.filter(x => x.group != 0 && x.asInstanceOf[Buyable].owner == playerIdx).nonEmpty) btnTrade.setVisible(true)
         }
-
         // Properties of selected player
         val lvSelectedPlayer = new ListView[String] {
             this.setId("lvSelectedPlayer")
@@ -457,6 +453,7 @@ class Gui(controller: GameControllerInterface) extends Observer {
             else if (dialogButton == sellButton) Result("sell")
             else null
 
+        dialog.initStyle(StageStyle.Undecorated)
         val result = dialog.showAndWait()
 
 
@@ -568,7 +565,7 @@ class Gui(controller: GameControllerInterface) extends Observer {
         dialog.resultConverter = dialogButton =>
             if (dialogButton == tradeButton) Result("accept")
             else null
-
+        dialog.initStyle(StageStyle.Undecorated)
         val result = dialog.showAndWait()
 
         result match {
@@ -651,6 +648,7 @@ class Gui(controller: GameControllerInterface) extends Observer {
             if (dialogButton == okButtonType) Result(tfPlayerCount.text(), tfNpcCount.text())
             else null
 
+        dialog.initStyle(StageStyle.Undecorated)
         val result = dialog.showAndWait()
 
         result match {
@@ -699,13 +697,14 @@ class Gui(controller: GameControllerInterface) extends Observer {
             else if (dialogButton == auctionButton) Result("auction")
             else Result("auction")
 
+        dialog.initStyle(StageStyle.Undecorated)
         val result = dialog.showAndWait()
 
         result match {
             case Some(Result("buy")) =>
-                controller.buy
+                controller.buy(e.field)
             case Some(Result("auction")) =>
-                controller.auction
+                controller.notifyObservers(OpenAuctionDialogEvent(e.field))
             case None => "Dialog returned: None"
         }
     }
@@ -730,9 +729,10 @@ class Gui(controller: GameControllerInterface) extends Observer {
         }
         dialog.dialogPane().content = grid
 
+        dialog.initStyle(StageStyle.Undecorated)
         dialog.showAndWait()
 
-        controller.payRent
+        controller.payRent(e.field)
         controller.checkPlayerDept(e.field.owner)
     }
 
@@ -830,6 +830,8 @@ class Gui(controller: GameControllerInterface) extends Observer {
             else null
         // Request focus on the username field by default.
         Platform.runLater(tfPlayerName.requestFocus())
+
+        dialog.initStyle(StageStyle.Undecorated)
         val result = dialog.showAndWait()
 
         result match {
@@ -853,6 +855,7 @@ class Gui(controller: GameControllerInterface) extends Observer {
             case None => "Dialog returned: None"
         }
     }
+
 
     def auctionDialog(e: OpenAuctionDialogEvent): Unit = {
         case class Result(option: String)
@@ -1046,6 +1049,8 @@ class Gui(controller: GameControllerInterface) extends Observer {
         } else if (bidders(playerIdx).money < auctionValue + 100) {
             bid100Button.setDisable(true)
         }
+
+        dialog.initStyle(StageStyle.Undecorated)
         val result = dialog.showAndWait()
 
         result match {
@@ -1070,26 +1075,73 @@ class Gui(controller: GameControllerInterface) extends Observer {
         }
     }
 
-
     def rollForPosDialog(e: OpenRollForPosDialogEvent): Unit = {
-        new Alert(AlertType.Information) {
-            title = "Roll for starting positions"
-            headerText = "Player " + e.player.name
-            contentText = "Roll dices!"
-        }.showAndWait()
+        case class Result(option: String)
+
+        val dialog = new Dialog[Result]() {
+            headerText = "Player " + e.player.name + " roll for starting position"
+        }
+
+        val image = new ImageView(new Image(e.player.figure))
+
+        val lblDiceResult = new Text {
+            text = "Rolled: "
+            style = "-fx-font-size: 20pt"
+            fill = new LinearGradient(
+                endX = 0,
+                stops = Stops(PaleGreen, SeaGreen))
+        }
+
+        val buttonTypeCancel = new ButtonType("Close", ButtonData.CancelClose)
+        dialog.dialogPane().buttonTypes = Seq(buttonTypeCancel)
+        // init buttons
+        val btnCancel = dialog.dialogPane().lookupButton(buttonTypeCancel)
+        btnCancel.setDisable(true)
+        val rollDiceButton = new Button {
+            text = "Roll dice"
+        }
+        val diceThrow = controller.wuerfeln
+        rollDiceButton.onAction = handle {
+            lblDiceResult.setText("Rolled: " + (diceThrow._1 + diceThrow._2))
+            btnCancel.setDisable(false)
+            rollDiceButton.setDisable(true)
+        }
+
+        val vbox = new VBox(image, rollDiceButton, lblDiceResult)
+
+        vbox.padding = Insets(50, 100, 20, 20)
+
+        dialog.dialogPane().content = vbox
+        dialog.resultConverter = dialogButton => {
+            if (dialogButton == buttonTypeCancel) Result("Close")
+            else null
+        }
+
+        dialog.initStyle(StageStyle.Undecorated)
+        val result = dialog.showAndWait()
+
+        result match {
+            case Some(Result("Close")) => {
+                controller.players = controller.players.updated(controller.currentPlayer,
+                    controller.players(controller.currentPlayer).setRollForPosition(diceThrow._1 + diceThrow._2))
+            }
+        }
     }
+
 
     def rollDiceDialog(e: OpenRollDiceDialogEvent): Unit = {
         new Alert(AlertType.Information) {
             title = "Roll dice"
             headerText = "Player " + e.player.name
             contentText = "Roll dices!"
+            initStyle(StageStyle.Undecorated)
+
         }.showAndWait()
     }
 
     def informationDialog(e: OpenInformationDialogEvent): Unit = {
         new Alert(AlertType.Information) {
-            title = "Information Dialog"
+            title = "Monopoly SE"
             headerText = "Look, an Information Dialog."
             contentText = "I have a great message for you!"
         }.showAndWait()
@@ -1112,22 +1164,26 @@ class Gui(controller: GameControllerInterface) extends Observer {
 
     def gameOverDialog(e: openGameOverDialogEvent): Unit = {
         val alert = new Alert(AlertType.Confirmation) {
-            title = "Game Over"
-            headerText = "Winner is"
-            contentText = "todo winner"
+
+        }
+        for (player <- controller.players) {
+            if (player.money > 0) {
+                alert.contentText = "Game over, Winner is " + player.name
+                alert.graphic = new ImageView(new Image(player.figure))
+            }
         }
 
+        alert.initStyle(StageStyle.Undecorated)
         alert.showAndWait()
     }
 
     def playerFreeDialog(e: OpenPlayerFreeDialog): Unit = {
         // todo
         val alert = new Alert(AlertType.Confirmation) {
-            title = "Player is free"
-            headerText = "Look, a Confirmation Dialog."
-            contentText = "Ok"
+            headerText = e.player.name + "  is free again."
+            graphic = new ImageView(new Image(e.player.figure))
         }
-
+        alert.initStyle(StageStyle.Undecorated)
         val result = alert.showAndWait()
 
         result match {
@@ -1139,11 +1195,11 @@ class Gui(controller: GameControllerInterface) extends Observer {
     def goToJailPaschDialog(e: openGoToJailPaschDialog): Unit = {
         // todo
         val alert = new Alert(AlertType.Confirmation) {
-            title = "Go to jail"
             headerText = controller.paschCount + " Pasch gewuerfelt"
-            contentText = "Ok"
+            contentText = "Go to jail"
+            graphic = new ImageView(new Image("file:images/inJail.png"))
         }
-
+        alert.initStyle(StageStyle.Undecorated)
         val result = alert.showAndWait()
 
         result match {
@@ -1173,6 +1229,7 @@ class Gui(controller: GameControllerInterface) extends Observer {
             add(image, 0, 0)
         }
         dialog.dialogPane().content = grid
+        dialog.initStyle(StageStyle.Undecorated)
         dialog.showAndWait()
         controller.players = controller.players.updated(controller.currentPlayer, controller.players(controller.currentPlayer).incMoney(400))
     }
@@ -1207,6 +1264,7 @@ class Gui(controller: GameControllerInterface) extends Observer {
             add(image, 0, 0)
         }
         dialog.dialogPane().content = grid
+        dialog.initStyle(StageStyle.Undecorated)
         dialog.showAndWait()
 
         drawnCard match {
@@ -1262,6 +1320,7 @@ class Gui(controller: GameControllerInterface) extends Observer {
             add(image, 2, 0)
         }
         dialog.dialogPane().content = grid
+        dialog.initStyle(StageStyle.Undecorated)
         dialog.showAndWait()
         println("drawnCard" + drawnCard)
         drawnCard match {
@@ -1299,6 +1358,7 @@ class Gui(controller: GameControllerInterface) extends Observer {
             add(image, 2, 0)
         }
         dialog.dialogPane().content = grid
+        dialog.initStyle(StageStyle.Undecorated)
         dialog.showAndWait()
         // todo result
     }
@@ -1322,6 +1382,7 @@ class Gui(controller: GameControllerInterface) extends Observer {
             add(image, 0, 0)
         }
         dialog.dialogPane().content = grid
+        dialog.initStyle(StageStyle.Undecorated)
         dialog.showAndWait()
     }
 
@@ -1336,7 +1397,7 @@ class Gui(controller: GameControllerInterface) extends Observer {
 
         dialog.dialogPane().buttonTypes = Seq(okButton)
 
-        val image = controller.currentStage.scene().lookup("#player" + controller.currentPlayer).asInstanceOf[ImageView]
+        val image = new ImageView(new Image(controller.players(controller.currentPlayer).figure))
 
         val grid = new GridPane() {
             hgap = 10
@@ -1345,6 +1406,7 @@ class Gui(controller: GameControllerInterface) extends Observer {
             add(image, 0, 0)
         }
         dialog.dialogPane().content = grid
+        dialog.initStyle(StageStyle.Undecorated)
         dialog.showAndWait()
         // todo result
     }
@@ -1368,6 +1430,7 @@ class Gui(controller: GameControllerInterface) extends Observer {
             add(image, 2, 0)
         }
         dialog.dialogPane().content = grid
+        dialog.initStyle(StageStyle.Undecorated)
         dialog.showAndWait()
     }
 
@@ -1390,6 +1453,7 @@ class Gui(controller: GameControllerInterface) extends Observer {
             add(image, 2, 0)
         }
         dialog.dialogPane().content = grid
+        dialog.initStyle(StageStyle.Undecorated)
         dialog.showAndWait()
         controller.players = controller.players.updated(controller.currentPlayer, controller.players(controller.currentPlayer).incMoney(200))
     }
@@ -1413,6 +1477,7 @@ class Gui(controller: GameControllerInterface) extends Observer {
             add(image, 2, 0)
         }
         dialog.dialogPane().content = grid
+        dialog.initStyle(StageStyle.Undecorated)
         dialog.showAndWait()
     }
 
@@ -1438,6 +1503,7 @@ class Gui(controller: GameControllerInterface) extends Observer {
             add(image, 2, 0)
         }
         dialog.dialogPane().content = grid
+        dialog.initStyle(StageStyle.Undecorated)
         dialog.showAndWait()
         if (controller.collectedTax > 0) {
             controller.players = controller.players.updated(controller.currentPlayer, controller.players(controller.currentPlayer).incMoney(controller.collectedTax))
@@ -1464,6 +1530,7 @@ class Gui(controller: GameControllerInterface) extends Observer {
             add(image, 2, 0)
         }
         dialog.dialogPane().content = grid
+        dialog.initStyle(StageStyle.Undecorated)
         dialog.showAndWait()
         controller.players = controller.players.updated(controller.currentPlayer, controller.players(controller.currentPlayer).decMoney(75))
         controller.collectedTax += 75
@@ -1500,7 +1567,7 @@ class Gui(controller: GameControllerInterface) extends Observer {
             if (dialogButton == pay10PercentButton) Result("pay10percent")
             else if (dialogButton == pay200Button) Result("pay200")
             else null
-
+        dialog.initStyle(StageStyle.Undecorated)
         val result = dialog.showAndWait()
 
         result match {

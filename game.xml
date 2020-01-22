@@ -1,34 +1,35 @@
 <game>
-    <chanceCards length="11">
-        <chanceCard number="0"> file:images/Pay15Chance.png </chanceCard>
-        <chanceCard number="1"> file:images/GoToStCharlesPlaceChance.png </chanceCard>
-        <chanceCard number="2"> file:images/GoBack3SpacesChance.png </chanceCard>
-        <chanceCard number="3"> file:images/GoToBroadwalkChance.png </chanceCard>
-        <chanceCard number="4"> file:images/GoToJailChance.png </chanceCard>
-        <chanceCard number="5"> file:images/GoToReadingChance.png </chanceCard>
-        <chanceCard number="6"> file:images/PayEachPlayer50Chance.png </chanceCard>
-        <chanceCard number="7"> file:images/GoToIllinoisAveChance.png </chanceCard>
-        <chanceCard number="8"> file:images/Pay25ForHouse100ForHotelChance.png </chanceCard>
-        <chanceCard number="9"> file:images/JailFreeCardChance.png </chanceCard>
-        <chanceCard number="10"> file:images/Collect150Chance.png </chanceCard>
+    <chanceCards length="12">
+        <chanceCard number="0">file:images/GoToIllinoisAveChance.png</chanceCard>
+        <chanceCard number="1">file:images/Pay25ForHouse100ForHotelChance.png</chanceCard>
+        <chanceCard number="2">file:images/Collect50Chance.png</chanceCard>
+        <chanceCard number="3">file:images/PayEachPlayer50Chance.png</chanceCard>
+        <chanceCard number="4">file:images/GoBack3SpacesChance.png</chanceCard>
+        <chanceCard number="5">file:images/GoToStCharlesPlaceChance.png</chanceCard>
+        <chanceCard number="6">file:images/Pay15Chance.png</chanceCard>
+        <chanceCard number="7">file:images/GoToBroadwalkChance.png</chanceCard>
+        <chanceCard number="8">file:images/GoToReadingChance.png</chanceCard>
+        <chanceCard number="9">file:images/Collect150Chance.png</chanceCard>
+        <chanceCard number="10">file:images/GoToJailChance.png</chanceCard>
+        <chanceCard number="11">file:images/JailFreeCardChance.png</chanceCard>
     </chanceCards>
     <communityChestCards length="16">
-        <communityCard number="0"> file:images/Collect100Chest.png </communityCard>
-        <communityCard number="1"> file:images/GoToJailChest.png </communityCard>
-        <communityCard number="2"> file:images/Collect200Chest.png </communityCard>
-        <communityCard number="3"> file:images/GoToNextRailroadPayTwiceChest.png </communityCard>
-        <communityCard number="4"> file:images/Receive25Chest.png </communityCard>
-        <communityCard number="5"> file:images/Pay40ForHouse155ForHotelChest.png </communityCard>
-        <communityCard number="6"> file:images/Collect10Chest.png </communityCard>
-        <communityCard number="7"> file:images/Collect50FromEveryPlayerChest.png </communityCard>
-        <communityCard number="8"> file:images/IncomeTaxChest.png </communityCard>
-        <communityCard number="9"> file:images/Pay50Chest.png </communityCard>
-        <communityCard number="10"> file:images/Collect45Chest.png </communityCard>
-        <communityCard number="11"> file:images/PayHostpital100Chest.png </communityCard>
-        <communityCard number="12"> file:images/JailFreeCardChest.png </communityCard>
-        <communityCard number="13"> file:images/Pay150Chest.png </communityCard>
-        <communityCard number="14"> file:images/Inherit100Chest.png </communityCard>
-        <communityCard number="15"> file:images/Collect100Chest2.png </communityCard>
+        <communityCard number="0">file:images/Pay150Chest.png</communityCard>
+        <communityCard number="1">file:images/Collect45Chest.png</communityCard>
+        <communityCard number="2">file:images/GoToNextRailroadPayTwiceChest.png</communityCard>
+        <communityCard number="3">file:images/IncomeTaxChest.png</communityCard>
+        <communityCard number="4">file:images/Collect100Chest2.png</communityCard>
+        <communityCard number="5">file:images/Collect10Chest.png</communityCard>
+        <communityCard number="6">file:images/Pay50Chest.png</communityCard>
+        <communityCard number="7">file:images/Collect100Chest.png</communityCard>
+        <communityCard number="8">file:images/PayHostpital100Chest.png</communityCard>
+        <communityCard number="9">file:images/Collect200Chest.png</communityCard>
+        <communityCard number="10">file:images/Receive25Chest.png</communityCard>
+        <communityCard number="11">file:images/JailFreeCardChest.png</communityCard>
+        <communityCard number="12">file:images/Pay40ForHouse155ForHotelChest.png</communityCard>
+        <communityCard number="13">file:images/Collect50FromEveryPlayerChest.png</communityCard>
+        <communityCard number="14">file:images/GoToJailChest.png</communityCard>
+        <communityCard number="15">file:images/Inherit100Chest.png</communityCard>
     </communityChestCards>
     <humanPlayers>2</humanPlayers>
     <npcPlayers>0</npcPlayers>
@@ -84,7 +85,7 @@
             <mortgage>false</mortgage>
             <price>100</price>
             <rent>200</rent>
-            <owner>1</owner>
+            <owner>0</owner>
             <homeCount>0</homeCount>
             <image>file:images/OrientalAve.png</image>
         </cell>
@@ -164,7 +165,7 @@
             <mortgage>false</mortgage>
             <price>200</price>
             <rent>200</rent>
-            <owner>1</owner>
+            <owner>-1</owner>
             <homeCount>0</homeCount>
             <image>file:images/PennsylvaniaRR.png</image>
         </cell>
@@ -174,7 +175,7 @@
             <mortgage>false</mortgage>
             <price>180</price>
             <rent>200</rent>
-            <owner>-1</owner>
+            <owner>1</owner>
             <homeCount>0</homeCount>
             <image>file:images/StJamesPlace.png</image>
         </cell>
@@ -229,7 +230,7 @@
             <mortgage>false</mortgage>
             <price>220</price>
             <rent>200</rent>
-            <owner>1</owner>
+            <owner>-1</owner>
             <homeCount>0</homeCount>
             <image>file:images/IndianaAve.png</image>
         </cell>
@@ -259,7 +260,7 @@
             <mortgage>false</mortgage>
             <price>260</price>
             <rent>500</rent>
-            <owner>1</owner>
+            <owner>-1</owner>
             <homeCount>0</homeCount>
             <image>file:images/AtlanticAve.png</image>
         </cell>
@@ -269,7 +270,7 @@
             <mortgage>false</mortgage>
             <price>260</price>
             <rent>800</rent>
-            <owner>0</owner>
+            <owner>-1</owner>
             <homeCount>0</homeCount>
             <image>file:images/VentnorAve.png</image>
         </cell>
@@ -376,26 +377,26 @@
     </board>
     <players length="2">
         <player number="0">
-            <name>a</name>
-            <position>27</position>
-            <money>540</money>
+            <name>b</name>
+            <position>16</position>
+            <money>700</money>
             <jailCount>0</jailCount>
             <turnPosition>0</turnPosition>
-            <rollForPosition>6</rollForPosition>
-            <figure>file:images/Fingerhut.jpg</figure>
-        </player>
-        <player number="1">
-            <name>b</name>
-            <position>26</position>
-            <money>420</money>
-            <jailCount>0</jailCount>
-            <turnPosition>1</turnPosition>
-            <rollForPosition>3</rollForPosition>
+            <rollForPosition>11</rollForPosition>
             <figure>file:images/Hat.jpg</figure>
         </player>
+        <player number="1">
+            <name>a</name>
+            <position>16</position>
+            <money>1020</money>
+            <jailCount>0</jailCount>
+            <turnPosition>1</turnPosition>
+            <rollForPosition>10</rollForPosition>
+            <figure>file:images/Fingerhut.jpg</figure>
+        </player>
     </players>
-    <round>5</round>
+    <round>3</round>
     <paschCount>0</paschCount>
     <collectedTax>0</collectedTax>
-    <currentPlayer>1</currentPlayer>
+    <currentPlayer>0</currentPlayer>
 </game>
