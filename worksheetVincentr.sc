@@ -35,43 +35,34 @@ object TimerDemo {
 }
 
 
-//println("hallo")
-//
-//class Wuerfel(val augen:Int){
-//
-//}
-//
-//
-//
-//42.toBinaryString
-//42.toHexString
-//scala.math.sqrt(9)
-//val b = 5
-//
-//val s = "Önder Tütünci"
-//s.indexOf("P")
-//val t = s.splitAt(5)
-//
-///////////////////////////////
-//val c = 2
-//val d = 1
-//
-//
-//val a = if (c > d) "yo" else "no" // expression
-//
-//if (1 > 2) print(1)
-//else print(2)//statement
-//
-//val b = if (c < d) {
-//  "a"
-//} else if (c > d) {
-//  "b"
-//}
-//
-//
-//print(a, b)
-//
-/////
+println("hallo")
+
+class Wuerfel(val augen:Int){
+
+}
+42.toBinaryString
+42.toHexString
+scala.math.sqrt(9)
+val b = 5
+val s = "Önder Tütünci"
+s.indexOf("P")
+val t = s.splitAt(5)
+/////////////////////////////
+val c = 2
+val d = 1
+val a = if (c > d) "yo" else "no" // expression
+if (1 > 2) print(1)
+else print(2)//statement
+val b = if (c < d) {
+  "a"
+} else if (c > d) {
+  "b"
+}
+
+
+print(a, b)
+
+///
 //
 //val f = (x:Double,y:Double) => x * y
 //f(2,3)
