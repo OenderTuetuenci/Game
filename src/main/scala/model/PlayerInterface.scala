@@ -10,6 +10,7 @@ trait PlayerInterface {
   val turnPosition:Int
   val rollForPosition: Int
   val figure: String
+    val isNpc: Boolean
   def toString :String
   def move(x: Int): Player
   def moveBack(x: Int): Player

@@ -6,10 +6,12 @@ import model.PlayerInterface
 import play.api.libs.json.Json
 
 case class Player @Inject()(@Named("name") name: String, @Named("position") position: Int = 0, @Named("money") money: Int = 2000, @Named("jailCount") jailCount: Int = 0,
-                            @Named("turnPosition") turnPosition: Int = 0, @Named("rollForPosition") rollForPosition: Int = 0, @Named("figure") figure: String) extends PlayerInterface {
+                            @Named("turnPosition") turnPosition: Int = 0, @Named("rollForPosition") rollForPosition: Int = 0, @Named("figure") figure: String
+                            , @Named("isNpc") isNpc: Boolean = false) extends PlayerInterface {
     override def toString: String = {
         "name: " + this.name + " pos: " + this.position + " money: " + this.money + " roundsInJail: " + this.jailCount + " rollForPosition: " + this.rollForPosition + " turnPosition: " + this.turnPosition
     }
+
     def move(x: Int): Player = this.copy(position = this.position + x)
 
     def moveBack(x: Int): Player = this.copy(position = this.position - x)

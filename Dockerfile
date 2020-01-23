@@ -7,8 +7,7 @@ RUN \
   dpkg -i sbt-$SBT_VERSION.deb && \
   rm sbt-$SBT_VERSION.deb && \
   apt-get update && \
-  apt-get install -y sbt libxrender1 libxtst6 libxi6
-
+  apt-get install -y sbt libxrender1 libxtst6 libxi6 libgl1-mesa-glx
 WORKDIR /game
 ADD . /game
-CMD sbt test
+CMD sbt run

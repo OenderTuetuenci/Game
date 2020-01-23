@@ -5,17 +5,6 @@ import controller.controllerComponent.ControllerInterface
 import model.OpenMainWindowEvent
 import view.{Gui, Tui}
 //// todo undo pattern spieleranzahl namen wie viele spieler und bots im beforegamestartsstate
-////todo option and try wo exceptions kommen koennen oder none
-////
-//object Monopoly {
-//  val gameController = new GameController
-//  val tui = new Tui(gameController)
-//
-//  def main(args: Array[String]) = gameController.run()
-//}
-//
-
-//// todo if player.gameover -> remove player
 // todo currentPlayer = players(isturn)
 import scalafx.application.JFXApp
 

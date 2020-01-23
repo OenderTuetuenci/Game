@@ -21,7 +21,6 @@ trait ControllerInterface extends Observable {
     var playerFigures: Vector[String]
     var npcNames: Vector[String]
     var round: Int
-    var answer: String
     var currentStage: PrimaryStage
     var currentPlayer: Int
     var paschCount: Int
@@ -47,8 +46,6 @@ trait ControllerInterface extends Observable {
     def payElse: Unit
 
     def buyHome: Unit
-
-    def printFun(e: PrintEvent): Unit
 
     def onQuit(): Unit
 

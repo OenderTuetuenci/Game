@@ -18,7 +18,7 @@ class MonopolyModule extends AbstractModule with ScalaModule {
     val defaultTurnPosition: Int = 0
     val defaultRollForPosition: Int = 0
     val defaultFigure = ""
-
+    val defaultIsNpc: Boolean = false
 
     override def configure(): Unit = {
         bindConstant().annotatedWith(Names.named("name")).to(defaultName)
@@ -28,6 +28,7 @@ class MonopolyModule extends AbstractModule with ScalaModule {
         bindConstant().annotatedWith(Names.named("turnPosition")).to(defaultTurnPosition)
         bindConstant().annotatedWith(Names.named("rollForPosition")).to(defaultRollForPosition)
         bindConstant().annotatedWith(Names.named("figure")).to(defaultFigure)
+        bindConstant().annotatedWith(Names.named("isNpc")).to(defaultIsNpc)
 
         bind[ControllerInterface].to[Controller]
         bind[DiceInterface].to[Dice]

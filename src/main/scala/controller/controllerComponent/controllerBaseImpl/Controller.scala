@@ -64,7 +64,6 @@ class Controller @Inject()(val fileIo: FileIOInterface, val cards: CardsInterfac
     var playerFigures: Vector[String] = Vector[String]()
     var npcNames: Vector[String] = Vector[String]()
     var round = 1
-    var answer = ""
     var currentStage = new PrimaryStage()
     var currentPlayer = 0 // aktueller spieler
     var paschCount = 0
@@ -100,11 +99,9 @@ class Controller @Inject()(val fileIo: FileIOInterface, val cards: CardsInterfac
 
     def checkGameOver(): Boolean = {
         var playerwithmoney = 0
-        var winner = 0
         for (i <- players.indices) {
             if (players(i).money > 0) {
                 playerwithmoney += 1
-                winner = i
             }
         }
         playerwithmoney == 1
@@ -114,7 +111,7 @@ class Controller @Inject()(val fileIo: FileIOInterface, val cards: CardsInterfac
         //miete abziehen
         players = players.updated(currentPlayer, players(currentPlayer).decMoney(field.rent))
         players = players.updated(field.owner, players(field.owner).incMoney(field.rent))
-        printFun(payRentEvent(players(currentPlayer), players(field.owner)))
+        notifyObservers(payRentEventTui(players(currentPlayer), players(field.owner)))
         // schauen ob player ins minus gekommen ist
         checkPlayerDept(field.owner)
     }
@@ -130,10 +127,7 @@ class Controller @Inject()(val fileIo: FileIOInterface, val cards: CardsInterfac
     def buyHome: Unit = {
         players = players.updated(currentPlayer, players(currentPlayer).decMoney(200))
         board = board.updated(players(currentPlayer).position, board(players(currentPlayer).position).asInstanceOf[Street].buyHome(1))
-    }
-
-    def printFun(e: PrintEvent): Unit = {
-        notifyObservers(e)
+        notifyObservers(buyHouseEventTui(players(currentPlayer), board(players(currentPlayer).position).asInstanceOf[Street]))
     }
 
     def checkPlayerDept(ownerIdx: Int) = {
@@ -142,7 +136,8 @@ class Controller @Inject()(val fileIo: FileIOInterface, val cards: CardsInterfac
             endTurnButton.setText("End turn")
         }
         else {
-            notifyObservers(OpenPlayerDeptDialog(ownerIdx))
+            notifyObservers(playerHasDeptEventTui(players(currentPlayer), ownerIdx))
+            HumanOrNPCStrategy.execute("playerHasDept")
             //Disable roll button turn endturn button to declare bankrupt
             val rollDiceBUtton = currentStage.scene().lookup("#rollDice") //.asInstanceOf[javafx.scene.control.Button]
             rollDiceBUtton.setDisable(false)
@@ -169,6 +164,7 @@ class Controller @Inject()(val fileIo: FileIOInterface, val cards: CardsInterfac
     }
 
     def onSaveGame() = {
+        notifyObservers(GameSavedEventTui())
         tmpHumanPlayers = humanPlayers
         tmpNpcPlayers = npcPlayers
         tmpBoard = board
@@ -181,6 +177,7 @@ class Controller @Inject()(val fileIo: FileIOInterface, val cards: CardsInterfac
 
     def onLoadGame() = {
         notifyObservers(ClearGuiElementsEvent())
+        notifyObservers(GameLoadedEventTui())
         val updated = fileIo.loadGame
         humanPlayers = updated._1
         npcPlayers = updated._2
@@ -207,33 +204,12 @@ class Controller @Inject()(val fileIo: FileIOInterface, val cards: CardsInterfac
 
     def runNewGame() = {
         notifyObservers(ClearGuiElementsEvent())
+        notifyObservers(NewGameStartedTui())
         notifyObservers(UpdateListViewPlayersEvent())
         GameStates.handle(getPlayersEvent())
         GameStates.handle(createBoardAndPlayersEvent())
-        notifyObservers(printEverythingEvent())
-        notifyObservers(displayRollForPositionsEvent())
         GameStates.handle(rollForPositionsEvent())
-        // Enable roll and disable endturn button
-        val rollDiceButton = currentStage.scene().lookup("#rollDice") //.asInstanceOf[javafx.scene.control.Button]
-        rollDiceButton.setDisable(false)
-        val endTurnButton = currentStage.scene().lookup("#endTurn") //.asInstanceOf[javafx.scene.control.Button]
-        endTurnButton.setDisable(true)
-        // enable save and load buttons
-        //       todo use .getChildren().filtered(_.getId == "#player" + controller.currentPlayer)
-        //       todo val menubar = currentStage.scene().lookup("#menubar").asInstanceOf[javafx.scene.control.MenuBar]
-        //
-        //        //println(menubar.getMenus().filtered(_ => ))
-        //        val miSaveGame = currentStage.scene().lookup("#miSaveGame").asInstanceOf[MenuItem]
-        //        miSaveGame.setDisable(false)
-        //        val miLoadGame = currentStage.scene().lookup("#miLoadGame").asInstanceOf[MenuItem]
-        //        miLoadGame.setDisable(false)
-
-        //        do {
-
-        //            GameStates.handle(checkGameOverEvent())
-        //        } while (!gameOver)
-        //        GameStates.handle(gameOverEvent())
-        //GameStates.handle(InitGameEvent())
+        GameStates.handle(StartFirstRoundEvent())
     }
 
     def onRollDice() = {
@@ -243,6 +219,7 @@ class Controller @Inject()(val fileIo: FileIOInterface, val cards: CardsInterfac
                     paschCount += 1
                     if (players(currentPlayer).jailCount > 0) {
                         players = players.updated(currentPlayer, players(currentPlayer).resetJailCount)
+                        notifyObservers(playerIsFreeEventTui(players(currentPlayer)))
                         notifyObservers(OpenPlayerFreeDialog(players(currentPlayer)))
                     }
                 } else {
@@ -275,6 +252,7 @@ class Controller @Inject()(val fileIo: FileIOInterface, val cards: CardsInterfac
         var gameOver = false
         val endTurnButton = currentStage.scene().lookup("#endTurn").asInstanceOf[javafx.scene.control.Button]
         if (endTurnButton.getText == "Declare Bankrupt") {
+            notifyObservers(brokeEventTui(players(currentPlayer)))
             endTurnButton.setText("End turn")
             if (checkGameOver) {
                 GameStates.handle(gameOverEvent())
@@ -292,7 +270,7 @@ class Controller @Inject()(val fileIo: FileIOInterface, val cards: CardsInterfac
                     currentPlayer = 0 // erster spieler ist wieder dran
                     round += 1
                     //start next round
-                    notifyObservers(newRoundEvent(round))
+                    notifyObservers(newRoundEventTui(round))
                 }
             } while (players(currentPlayer).money < 0)
 
@@ -311,11 +289,18 @@ class Controller @Inject()(val fileIo: FileIOInterface, val cards: CardsInterfac
             if (players(currentPlayer).jailCount >= 4) {
                 // player is free again notifyObservers(OpenInJailDialogEvent())
                 players = players.updated(currentPlayer, players(currentPlayer).resetJailCount)
+                notifyObservers(playerIsFreeEventTui(players(currentPlayer)))
                 notifyObservers(OpenPlayerFreeDialog(players(currentPlayer)))
             }
             // wenn spieler im jail jaildialog oeffnen
-            if (players(currentPlayer).jailCount > 0) notifyObservers(OpenInJailDialogEvent())
-            else notifyObservers(OpenNormalTurnDialogEvent(players(currentPlayer)))
+            if (players(currentPlayer).jailCount > 0) {
+                notifyObservers(playerInJailEventTui(players(currentPlayer)))
+                notifyObservers(OpenInJailDialogEvent())
+            }
+            else {
+                notifyObservers(normalTurnEventTui(players(currentPlayer)))
+                HumanOrNPCStrategy.execute("normalTurn")
+            }
             notifyObservers(UpdateListViewPlayersEvent())
             rollDiceBUtton.requestFocus() // zum durchentern
         }
@@ -331,9 +316,46 @@ class Controller @Inject()(val fileIo: FileIOInterface, val cards: CardsInterfac
                 case e: getPlayersEvent => runState = getPlayersState(e)
                 case e: rollForPositionsEvent => runState = rollForPositionsState
                 case e: createBoardAndPlayersEvent => runState = createBoardAndPlayersState
+                case e: StartFirstRoundEvent => runState = startFirstRound
                 case e: gameOverEvent => runState = gameOverState
+
             }
             runState
+        }
+
+        def startFirstRound() = {
+            val lblPlayerTurn = currentStage.scene().lookup("#lblPlayerTurn").asInstanceOf[javafx.scene.text.Text]
+            lblPlayerTurn.setText("It is " + players(currentPlayer).name + "´s turn")
+            val lblDiceResult = currentStage.scene().lookup("#lblDiceResult").asInstanceOf[javafx.scene.text.Text]
+            lblDiceResult.setText("Result dice roll: ")
+            val rollDiceBUtton = currentStage.scene().lookup("#rollDice") //.asInstanceOf[javafx.scene.control.Button]
+            rollDiceBUtton.setDisable(false)
+            //currentStage.scene().lookup("#endTurn")setDisable(false)
+            // First round of the game starts here
+            notifyObservers(newRoundEventTui(round))
+            notifyObservers(normalTurnEventTui(players(currentPlayer)))
+            HumanOrNPCStrategy.execute("normalTurn")
+            // Enable roll and disable endturn button
+            val rollDiceButton = currentStage.scene().lookup("#rollDice") //.asInstanceOf[javafx.scene.control.Button]
+            rollDiceButton.setDisable(false)
+            val endTurnButton = currentStage.scene().lookup("#endTurn") //.asInstanceOf[javafx.scene.control.Button]
+            endTurnButton.setDisable(true)
+            // enable save and load buttons
+            //       todo use .getChildren().filtered(_.getId == "#player" + controller.currentPlayer)
+            //       todo val menubar = currentStage.scene().lookup("#menubar").asInstanceOf[javafx.scene.control.MenuBar]
+            //
+            //        //println(menubar.getMenus().filtered(_ => ))
+            //        val miSaveGame = currentStage.scene().lookup("#miSaveGame").asInstanceOf[MenuItem]
+            //        miSaveGame.setDisable(false)
+            //        val miLoadGame = currentStage.scene().lookup("#miLoadGame").asInstanceOf[MenuItem]
+            //        miLoadGame.setDisable(false)
+
+            //        do {
+
+            //            GameStates.handle(checkGameOverEvent())
+            //        } while (!gameOver)
+            //        GameStates.handle(gameOverEvent())
+            //GameStates.handle(InitGameEvent())
         }
 
         def getPlayersState(e: getPlayersEvent) = {
@@ -354,6 +376,7 @@ class Controller @Inject()(val fileIo: FileIOInterface, val cards: CardsInterfac
         }
 
         def rollForPositionsState = {
+            notifyObservers(displayRollForPositionsEventTui())
             for (i <- 0 until humanPlayers + npcPlayers) {
                 // jeden einmal wuerfeln lassen
                 currentPlayer = i
@@ -426,22 +449,10 @@ class Controller @Inject()(val fileIo: FileIOInterface, val cards: CardsInterfac
             //
             //
             //            // entgueltige reihenfolge festlegen
-            // todo hier ist spielinit ab jetzt eventbasiert
             notifyObservers(UpdateListViewPlayersEvent())
-            val lblPlayerTurn = currentStage.scene().lookup("#lblPlayerTurn").asInstanceOf[javafx.scene.text.Text]
-            lblPlayerTurn.setText("It is " + players(currentPlayer).name + "´s turn")
-            val lblDiceResult = currentStage.scene().lookup("#lblDiceResult").asInstanceOf[javafx.scene.text.Text]
-            lblDiceResult.setText("Result dice roll: ")
-            val rollDiceBUtton = currentStage.scene().lookup("#rollDice") //.asInstanceOf[javafx.scene.control.Button]
-            rollDiceBUtton.setDisable(false)
-            //currentStage.scene().lookup("#endTurn")setDisable(false)
-            // todo gamestart
-            notifyObservers(OpenNormalTurnDialogEvent(players(currentPlayer)))
-
         }
 
         def createBoardAndPlayersState = {
-            println("createboardandplayersState")
             players = createPlayers(playerNames, npcNames)
             board = createBoard
             for (i <- 0 until humanPlayers + npcPlayers) {
@@ -472,6 +483,8 @@ class Controller @Inject()(val fileIo: FileIOInterface, val cards: CardsInterfac
         }
 
         def initGameState: Unit = {
+            notifyObservers(ClearGuiElementsEvent())
+
             humanPlayers = 0
             npcPlayers = 0
             board = Vector[Cell]()
@@ -489,46 +502,43 @@ class Controller @Inject()(val fileIo: FileIOInterface, val cards: CardsInterfac
             playerFigures = Vector[String]()
             npcNames = Vector[String]()
             round = 1
-            answer = ""
         }
 
-        notifyObservers(ClearGuiElementsEvent())
     }
 
     object HumanOrNPCStrategy {
         def execute(option: String): Any = {
+            val isNpc = players(currentPlayer).isNpc
             option match {
-                case "pay" => pay
-                case "buy" => buy
-                case "buy home" => buyHome
-                case "turnInJail" => turnInJail
+                case "normalTurn" =>
+                    if (isNpc) onRollDice()
+                    else notifyObservers(OpenNormalTurnDialogEvent(players(currentPlayer)))
+                case "buyableStreet" =>
+                    val field = board(players(currentPlayer).position).asInstanceOf[Buyable]
+                    if (isNpc) {
+                        if (players(currentPlayer).money >= field.price) buy(field)
+                        // todo else auction
+                        onEndTurn()
+                    }
+                    else notifyObservers(OpenBuyableFieldDialog(field))
+                case "payRent" =>
+                    val field = board(players(currentPlayer).position).asInstanceOf[Buyable]
+                    if (isNpc) {
+                        payRent(field)
+                        checkPlayerDept(field.owner)
+                        onEndTurn()
+                    } else notifyObservers(OpenPayRentDialog(board(players(currentPlayer).position).asInstanceOf[Buyable]))
                 case "rollForPosition" =>
-                    notifyObservers(OpenRollForPosDialogEvent(players(currentPlayer)))
+                    if (isNpc) wuerfeln
+                    else notifyObservers(OpenRollForPosDialogEvent(players(currentPlayer)))
+                case "playerHasDept" =>
+                    val field = board(players(currentPlayer).position).asInstanceOf[Buyable]
+                    if (isNpc) onEndTurn() // npc geht direkt bankrott Todo npc verkaufen lassen bis im plus
+                    else notifyObservers(OpenPlayerDeptDialog(field.owner))
                 case "rollDice" =>
                     wuerfeln
                 case _ =>
             }
-        }
-
-        def buyHome: Unit = {
-            notifyObservers(askBuyHomeEvent())
-            if (answer == "yes")
-                buyHome
-        }
-
-        def buy: Unit = {
-            notifyObservers(askBuyEvent())
-            if (answer == "yes")
-                buy
-        }
-
-        def pay: Unit = {
-            payRent(board(players(currentPlayer).position).asInstanceOf[Buyable])
-        }
-
-        def turnInJail: String = {
-            //controller.notifyObservers(OpenInJailDialogEvent(controller.currentStage, controller.players(controller.currentPlayer)))
-            "rollDice"
         }
     }
 
@@ -595,8 +605,8 @@ class Controller @Inject()(val fileIo: FileIOInterface, val cards: CardsInterfac
     }
 
     def activateStreet(field: Buyable): Unit = {
-        if (field.owner == -1 && field.owner != currentPlayer) notifyObservers(OpenBuyableFieldDialog(field))
-        else notifyObservers(OpenPayRentDialog(field))
+        if (field.owner == -1 && field.owner != currentPlayer) HumanOrNPCStrategy.execute("buyableStreet")
+        else HumanOrNPCStrategy.execute("payRent")
 
     }
 
@@ -700,7 +710,7 @@ class Controller @Inject()(val fileIo: FileIOInterface, val cards: CardsInterfac
             }
             // ausgewählte figur aus der auswahl nehmen
             remainingFiguresToPick = remainingFiguresToPick.filterNot(elm => elm == figure)
-            players = players :+ playerComponent.Player(name, figure = imgPath)
+            players = players :+ playerComponent.Player(name, figure = imgPath, isNpc = true)
         }
         players
     }
@@ -709,7 +719,7 @@ class Controller @Inject()(val fileIo: FileIOInterface, val cards: CardsInterfac
         players = players.updated(currentPlayer, players(currentPlayer).decMoney(field.price))
         // spieler.besitz add streetnr
         board = board.updated(players(currentPlayer).position, field.setOwner(currentPlayer))
-        printFun(buyStreetEvent(players(currentPlayer), field))
+        notifyObservers(buyStreetEventTui(players(currentPlayer), field))
     }
 
     def wuerfeln: (Int, Int, Boolean) = {
@@ -719,6 +729,7 @@ class Controller @Inject()(val fileIo: FileIOInterface, val cards: CardsInterfac
         if (dice.checkPash(roll1, roll2)) {
             pasch = true
         }
+        notifyObservers(diceEventTui(players(currentPlayer), roll1, roll2, pasch))
         notifyObservers(UpdateGuiDiceLabelEvent(roll1, roll2, pasch))
         (roll1, roll2, pasch)
     }
@@ -729,7 +740,7 @@ class Controller @Inject()(val fileIo: FileIOInterface, val cards: CardsInterfac
         println("sumDiceThrow = " + sumDiceThrow)
         // schauen ob über los gegangen todo wenn spieler auf jail kommt und pasch gewuerfelt hat
         if (players(currentPlayer).position >= 40) {
-            printFun(playerWentOverGoEvent(players(currentPlayer)))
+            notifyObservers(playerWentOverGoEventTui(players(currentPlayer)))
             if (!(players(currentPlayer).position == 0)) // falls spieler nicht auf los sonst 2 dialoge
                 notifyObservers(OpenPlayerPassedGoDialog())
             players = players.updated(currentPlayer, players(currentPlayer).moveBack(40))
@@ -740,7 +751,7 @@ class Controller @Inject()(val fileIo: FileIOInterface, val cards: CardsInterfac
             fieldCoordsY(players(currentPlayer).position)))
 
         // neue position ausgeben
-        printFun(playerMoveEvent(players(currentPlayer)))
+        notifyObservers(playerMoveEventTui(players(currentPlayer), board(players(currentPlayer).position)))
         // aktion fuer betretetenes feld ausloesen
         val field = board(players(currentPlayer).position)
         field match {

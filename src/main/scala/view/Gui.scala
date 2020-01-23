@@ -20,7 +20,6 @@ import scalafx.scene.{Cursor, Scene}
 import scalafx.stage.StageStyle
 import util.Observer
 
-import scala.io.StdIn._
 import scala.language.implicitConversions
 
 class Gui(controller: ControllerInterface) extends Observer {
@@ -28,14 +27,13 @@ class Gui(controller: ControllerInterface) extends Observer {
 
     def getController: ControllerInterface = controller
 
-    override def update(e: PrintEvent): Any = {
+    override def update(e: Event): Any = {
         e match {
             //windows, dialogs
             case e: openGameOverDialogEvent => gameOverDialog(e)
             case e: OpenMainWindowEvent => mainWindow(e)
             case e: OpenGetPlayersDialogEvent => getPlayersDialog(e)
             case e: OpenGetNameDialogEvent => getPlayerNameDialog(e)
-            case e: OpenRollDiceDialogEvent => rollDiceDialog(e)
             case e: OpenRollForPosDialogEvent => rollForPosDialog(e)
             case e: OpenInformationDialogEvent => informationDialog(e)
             case e: OpenAuctionDialogEvent => auctionDialog(e)
@@ -61,18 +59,11 @@ class Gui(controller: ControllerInterface) extends Observer {
             case e: MovePlayerFigureEvent => movePlayerFigure(e)
             case e: ClearGuiElementsEvent => clearGuiElements
             case e: UpdateListViewPlayersEvent => updateListViewPlayers()
-            case e: PlacePlayersOnBoardEvent => placePlayersOnBoard()
+            case e: UpdateListViewEventLogEvent => updateListViewEventLog(e)
             case e: UpdateGuiDiceLabelEvent => updateGuiDiceLabel(e)
             case _ =>
 
-            //Input
-            case e: askUndoGetPlayersEvent => {
-                println("Undo?")
-                controller.answer = readLine()
-            }
-
         }
-        updateListViewEventLog(e.toString)
     }
 
     def updateGuiDiceLabel(e: UpdateGuiDiceLabelEvent) = {
@@ -80,20 +71,16 @@ class Gui(controller: ControllerInterface) extends Observer {
         lblDiceResult.setText(controller.players(controller.currentPlayer).name + " Rolled: " + e.roll1.toString + " " + e.roll2.toString + " paschCount: " + controller.paschCount)
     }
 
-    def placePlayersOnBoard() = {
-
-    }
-
     def updateListViewPlayers() = {
         val listviewSpieler = controller.currentStage.scene().lookup("#lvPlayers").asInstanceOf[javafx.scene.control.ListView[String]]
         listviewSpieler.getItems.clear()
         for (player <- controller.players)
-            listviewSpieler.getItems.add(player.toString)
+            listviewSpieler.getItems.add(player.name + " " + " Money: " + player.money)
     }
 
-    def updateListViewEventLog(str: String) = {
+    def updateListViewEventLog(e: UpdateListViewEventLogEvent) = {
         val listviewEventLog = controller.currentStage.scene().lookup("#lvEventLog").asInstanceOf[javafx.scene.control.ListView[String]]
-        listviewEventLog.getItems.add(str)
+        listviewEventLog.getItems.add(e.str)
         listviewEventLog.scrollTo(listviewEventLog.getItems.length)
     }
 
@@ -248,7 +235,7 @@ class Gui(controller: ControllerInterface) extends Observer {
                     vbox.setId("#vboxStackpane")
                     val box = new VBox(
                         new Text {
-                            text = "Players                                                                          "
+                            text = "Players"
                             style = "-fx-font-size: 20pt"
                             fill = new LinearGradient(
                                 endX = 0,
@@ -704,6 +691,7 @@ class Gui(controller: ControllerInterface) extends Observer {
             case Some(Result("buy")) =>
                 controller.buy(e.field)
             case Some(Result("auction")) =>
+                controller.notifyObservers(AuctionStartedEventTui(e.field))
                 controller.notifyObservers(OpenAuctionDialogEvent(e.field))
             case None => "Dialog returned: None"
         }
@@ -1071,6 +1059,7 @@ class Gui(controller: ControllerInterface) extends Observer {
                         }
                     }
                 }
+                controller.notifyObservers(AuctionEndedEventTui(bidders(bidders.indexWhere(_.name == nameValue(0))), e.field))
             }
         }
     }
@@ -1128,17 +1117,6 @@ class Gui(controller: ControllerInterface) extends Observer {
         }
     }
 
-
-    def rollDiceDialog(e: OpenRollDiceDialogEvent): Unit = {
-        new Alert(AlertType.Information) {
-            title = "Roll dice"
-            headerText = "Player " + e.player.name
-            contentText = "Roll dices!"
-            initStyle(StageStyle.Undecorated)
-
-        }.showAndWait()
-    }
-
     def informationDialog(e: OpenInformationDialogEvent): Unit = {
         new Alert(AlertType.Information) {
             title = "Monopoly SE"
@@ -1170,9 +1148,9 @@ class Gui(controller: ControllerInterface) extends Observer {
             if (player.money > 0) {
                 alert.contentText = "Game over, Winner is " + player.name
                 alert.graphic = new ImageView(new Image(player.figure))
+                controller.notifyObservers(gameFinishedEventTui(player))
             }
         }
-
         alert.initStyle(StageStyle.Undecorated)
         alert.showAndWait()
     }
@@ -1271,20 +1249,11 @@ class Gui(controller: ControllerInterface) extends Observer {
             case d if d == controller.chanceCardsList.head => {
                 // card 1 action here
             }
-            case d if d == controller.chanceCardsList(1).toString => println("one, a lonely number")
-            case d if d == controller.chanceCardsList(2).toString => println("one, a lonely number")
-            case d if d == controller.chanceCardsList(3).toString => println("one, a lonely number")
-            case d if d == controller.chanceCardsList(4).toString => println("one, a lonely number")
-            case d if d == controller.chanceCardsList(5).toString => println("one, a lonely number")
-            case d if d == controller.chanceCardsList(6).toString => println("one, a lonely number")
-            case d if d == controller.chanceCardsList(7).toString => println("one, a lonely number")
-            case d if d == controller.chanceCardsList(8).toString => println("one, a lonely number")
-            case d if d == controller.chanceCardsList(9).toString => println("one, a lonely number")
-            case d if d == controller.chanceCardsList(10).toString => println("one, a lonely number")
-            case d if d == controller.chanceCardsList(11).toString => println("one, a lonely number")
-            case d if d == controller.chanceCardsList(12).toString => println("one, a lonely number")
+            case d if d == controller.chanceCardsList(1) => {
+                // card 2 action here
+            }
+            case _ => // todo until action 13 .chanceCardsList(12)
 
-            case _ => throw new UnsupportedOperationException
         }
         //controller.players = controller.players.updated(controller.currentPlayer, controller.players(controller.currentPlayer).incMoney(400))
     }
