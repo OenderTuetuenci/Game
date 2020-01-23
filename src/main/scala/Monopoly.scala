@@ -4,7 +4,7 @@ import com.google.inject.Guice
 import controller.controllerComponent.ControllerInterface
 import model.OpenMainWindowEvent
 import view.{Gui, Tui}
-//// todo undo pattern spieleranzahl namen wie viele spieler und bots im beforegamestartsstate
+///// todo undo pattern spieleranzahl namen wie viele spieler und bots im beforegamestartsstate
 // todo currentPlayer = players(isturn)
 import scalafx.application.JFXApp
 
