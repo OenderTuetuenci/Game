@@ -382,13 +382,7 @@ class Controller @Inject()(val fileIo: FileIOInterface, val cards: CardsInterfac
             }
             for (i <- 0 until npcPlayers) {
                 npcNames = npcNames :+ "NPC " + (i + 1)
-                //todo
             }
-            //todo
-            // notifyObservers(askUndoGetPlayersEvent())
-            //      if (answer == "yes") {
-            //        undoManager.undoStep
-            //      }
         }
 
         def rollForPositionsState = {
@@ -563,7 +557,8 @@ class Controller @Inject()(val fileIo: FileIOInterface, val cards: CardsInterfac
                 payRent(field)
                 checkPlayerDept(field.owner)
                 onEndTurn()
-            } else notifyObservers(OpenPayRentDialog(board(players(currentPlayer).position).asInstanceOf[Buyable]))
+            } else notifyObservers(OpenPayRentDialog(
+                board(players(currentPlayer).position).asInstanceOf[Buyable]))
         }
 
         def rollForPositions(isNpc: Boolean) = {

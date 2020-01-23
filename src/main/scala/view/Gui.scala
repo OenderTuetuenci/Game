@@ -825,7 +825,6 @@ class Gui(controller: ControllerInterface) extends Observer {
 
         dialog.initStyle(StageStyle.Undecorated)
         val result = dialog.showAndWait()
-
         result match {
             case Some(Result("Back", "Back")) => controller.undoManager.undoStep
             case Some(Result(name, figure)) => {
