@@ -60,8 +60,6 @@ case class playerWentOnGoEventTui(player: PlayerInterface) extends Event
 
 case class UpdateGuiDiceLabelEvent(roll1: Int, roll2: Int, pasch: Boolean) extends Event
 
-case class ClearGuiElementsEvent() extends Event
-
 case class MovePlayerFigureEvent(x: Double, y: Double) extends Event
 
 case class OpenMainWindowEvent() extends Event

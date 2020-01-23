@@ -1,6 +1,7 @@
 package view
 
 import controller.controllerComponent.ControllerInterface
+import controller.controllerComponent.controllerBaseImpl.getPlayernameAndFigureCommand
 import model._
 import scalafx.Includes.{handle, _}
 import scalafx.application.JFXApp.PrimaryStage
@@ -57,7 +58,6 @@ class Gui(controller: ControllerInterface) extends Observer {
 
             // others
             case e: MovePlayerFigureEvent => movePlayerFigure(e)
-            case e: ClearGuiElementsEvent => clearGuiElements
             case e: UpdateListViewPlayersEvent => updateListViewPlayers()
             case e: UpdateListViewEventLogEvent => updateListViewEventLog(e)
             case e: UpdateGuiDiceLabelEvent => updateGuiDiceLabel(e)
@@ -84,16 +84,6 @@ class Gui(controller: ControllerInterface) extends Observer {
         listviewEventLog.scrollTo(listviewEventLog.getItems.length)
     }
 
-    def clearGuiElements() = {
-        val listviewPlayers = controller.currentStage.scene().lookup("#lvPlayers").asInstanceOf[javafx.scene.control.ListView[String]]
-        listviewPlayers.getItems.clear
-        val listviewEventLog = controller.currentStage.scene().lookup("#lvEventLog").asInstanceOf[javafx.scene.control.ListView[String]]
-        listviewEventLog.getItems.clear
-        // delete everything on the board
-        val stackpane = controller.currentStage.scene().lookup("#stackpane").asInstanceOf[javafx.scene.layout.StackPane]
-        stackpane.getChildren().removeAll()
-    }
-
     def movePlayerFigure(e: MovePlayerFigureEvent) = {
         val stackpane = controller.currentStage.scene().lookup("#stackpane").asInstanceOf[javafx.scene.layout.StackPane]
         // todo get scale and board position
@@ -101,7 +91,7 @@ class Gui(controller: ControllerInterface) extends Observer {
         //print("bounds:" + vboxStackpane)
         val figure = stackpane.getChildren().filtered(_.getId == "#player" + controller.currentPlayer)
         figure.get(0).setTranslateX(e.x)
-        figure.get(0).setTranslateY(e.y + 70)
+        figure.get(0).setTranslateY(e.y)
     }
 
     // todo moveplayerfiguer
@@ -185,8 +175,9 @@ class Gui(controller: ControllerInterface) extends Observer {
                 fill = Black
                 root = new VBox() {
                     padding = Insets(10)
-                    val pane = new StackPane()
-                    pane.setId("stackpane")
+                    val pane = new StackPane {
+                        this.setId("stackpane")
+                    }
                     val boardImage = new ImageView(new Image("file:images/BoardMonopolyDeluxe1992.png", 800, 800, false, true))
                     boardImage.setId("#boardImage")
                     val vbox = new VBox(
@@ -230,7 +221,7 @@ class Gui(controller: ControllerInterface) extends Observer {
                             padding = Insets(7)
                             this.setDisable(true)
                         },
-                        boardImage
+                        pane
                     )
                     vbox.setId("#vboxStackpane")
                     val box = new VBox(
@@ -290,9 +281,9 @@ class Gui(controller: ControllerInterface) extends Observer {
                             items = ObservableBuffer()
                         }
                     )
-                    pane.children = List(vbox)
+                    pane.children = boardImage
                     val box2 = new HBox()
-                    box2.children = Seq(pane, box)
+                    box2.children = Seq(vbox, box)
                     children = Seq(menubar, box2)
                 }
             }
@@ -485,9 +476,11 @@ class Gui(controller: ControllerInterface) extends Observer {
         dialog.dialogPane().buttonTypes = Seq(tradeButton, ButtonType.Cancel)
         val tfPlayerXMoney = new TextField() {
             promptText = "MoneyPlayerX"
+            text = "0"
         }
         val tfPlayerYMoney = new TextField() {
             promptText = "MoneyPlayerY"
+            text = "0"
         }
         // Properties of Player x
         val lvPlayer1 = new ListView[String] {
@@ -733,8 +726,10 @@ class Gui(controller: ControllerInterface) extends Observer {
             //graphic = new ImageView(this.getClass.getResource("login_icon.png").toString)
         }
         dialog.getDialogPane.setPrefSize(250, 400)
-        val startButtonType = new ButtonType("Start", ButtonData.OKDone)
-        dialog.dialogPane().buttonTypes = Seq(startButtonType, ButtonType.Cancel)
+        val buttonNextType = new ButtonType("Next", ButtonData.OKDone)
+        val buttonBackType = new ButtonType("Back", ButtonData.OKDone)
+
+        dialog.dialogPane().buttonTypes = Seq(buttonNextType, buttonBackType)
 
         val tfPlayerName = new TextField() {
             promptText = "Enter name"
@@ -750,7 +745,7 @@ class Gui(controller: ControllerInterface) extends Observer {
             case "Schubkarre" => "file:images/Schubkarre.jpg"
             case "Schuh" => "file:images/Schuh.jpg"
             case "Hund" => "file:images/Hund.jpg"
-            case "Auto" => "file:images/Auto.png"
+            case "Auto" => "file:images/Auto.jpg"
             case "Bügeleisen" => "file:images/Buegeleisen.jpg"
             case "Fingerhut" => "file:images/Fingerhut.jpg"
             case "Schiff" => "file:images/Schiff.jpg"
@@ -768,7 +763,7 @@ class Gui(controller: ControllerInterface) extends Observer {
                 case "Schubkarre" => "file:images/Schubkarre.jpg"
                 case "Schuh" => "file:images/Schuh.jpg"
                 case "Hund" => "file:images/Hund.jpg"
-                case "Auto" => "file:images/Auto.png"
+                case "Auto" => "file:images/Auto.jpg"
                 case "Bügeleisen" => "file:images/Buegeleisen.jpg"
                 case "Fingerhut" => "file:images/Fingerhut.jpg"
                 case "Schiff" => "file:images/Schiff.jpg"
@@ -796,7 +791,7 @@ class Gui(controller: ControllerInterface) extends Observer {
         val layoutBox = new VBox(
             hbox,
             hbox1,
-            image
+            image,
         )
 
         layoutBox.padding = Insets(10, 10, 10, 10)
@@ -804,17 +799,26 @@ class Gui(controller: ControllerInterface) extends Observer {
         dialog.dialogPane().content = layoutBox
 
         // Enable/Disable login button depending on whether a username was entered.
-        val startButton = dialog.dialogPane().lookupButton(startButtonType)
-        startButton.disable = true
+        val nextButton = dialog.dialogPane().lookupButton(buttonNextType)
+        val backButton = dialog.dialogPane().lookupButton(buttonBackType)
+        nextButton.disable = true
 
         // Do some validation (disable when username is empty).
         // TODO check if name is already in playernames !!
         tfPlayerName.text.onChange {
-            startButton.disable = tfPlayerName.text == "" || controller.playerNames.contains(tfPlayerName.text)
+            nextButton.disable = tfPlayerName.text == "" || controller.playerNames.contains(tfPlayerName.text)
         }
 
+        // init buttons
+        if (e.currPlayer == controller.humanPlayers - 1) nextButton.setAccessibleText("Start game")
+        else nextButton.setAccessibleText("Next player")
+
+        if (e.currPlayer > 0) backButton.setVisible(true)
+        else backButton.setVisible(false)
+
         dialog.resultConverter = dialogButton =>
-            if (dialogButton == startButtonType) Result(tfPlayerName.text(), comboBox.getSelectionModel.getSelectedItem.toString)
+            if (dialogButton == buttonNextType) Result(tfPlayerName.text(), comboBox.getSelectionModel.getSelectedItem.toString)
+            else if (dialogButton == buttonBackType) Result("Back", "Back")
             else null
         // Request focus on the username field by default.
         Platform.runLater(tfPlayerName.requestFocus())
@@ -823,7 +827,10 @@ class Gui(controller: ControllerInterface) extends Observer {
         val result = dialog.showAndWait()
 
         result match {
+            case Some(Result("Back", "Back")) => controller.undoManager.undoStep
             case Some(Result(name, figure)) => {
+                controller.undoManager.doStep(new getPlayernameAndFigureCommand(controller, controller.currentPlayer,
+                    controller.playerNames, controller.playerFigures, controller.remainingFiguresToPick))
                 controller.playerNames = controller.playerNames :+ name
                 val imgPath = figure match {
                     case "Hut" => "file:images/Hat.jpg"
@@ -831,7 +838,7 @@ class Gui(controller: ControllerInterface) extends Observer {
                     case "Schubkarre" => "file:images/Schubkarre.jpg"
                     case "Schuh" => "file:images/Schuh.jpg"
                     case "Hund" => "file:images/Hund.jpg"
-                    case "Auto" => "file:images/Auto.png"
+                    case "Auto" => "file:images/Auto.jpg"
                     case "Bügeleisen" => "file:images/Buegeleisen.jpg"
                     case "Fingerhut" => "file:images/Fingerhut.jpg"
                     case "Schiff" => "file:images/Schiff.jpg"
@@ -839,6 +846,7 @@ class Gui(controller: ControllerInterface) extends Observer {
                 // ausgewählte figur aus der auswahl nehmen
                 controller.remainingFiguresToPick = controller.remainingFiguresToPick.filterNot(elm => elm == figure)
                 controller.playerFigures = controller.playerFigures :+ imgPath
+
             }
             case None => "Dialog returned: None"
         }
@@ -1071,7 +1079,7 @@ class Gui(controller: ControllerInterface) extends Observer {
             headerText = "Player " + e.player.name + " roll for starting position"
         }
 
-        val image = new ImageView(new Image(e.player.figure))
+        val image = new ImageView(new Image(e.player.figure, 200, 200, true, true))
 
         val lblDiceResult = new Text {
             text = "Rolled: "

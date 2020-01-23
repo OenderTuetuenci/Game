@@ -148,12 +148,18 @@ class Controller @Inject()(val fileIo: FileIOInterface, val cards: CardsInterfac
 
     }
 
+    def clearGuiElements() = {
+        val listviewPlayers = currentStage.scene().lookup("#lvPlayers").asInstanceOf[javafx.scene.control.ListView[String]]
+        listviewPlayers.getItems.clear
+        val listviewEventLog = currentStage.scene().lookup("#lvEventLog").asInstanceOf[javafx.scene.control.ListView[String]]
+        listviewEventLog.getItems.clear
+        // delete everything on the board
+        val stackpane = currentStage.scene().lookup("#stackpane").asInstanceOf[javafx.scene.layout.StackPane]
+        stackpane.getChildren().clear()
+        val boardImage = new ImageView(new Image("file:images/BoardMonopolyDeluxe1992.png", 800, 800, false, true))
+        stackpane.getChildren().add(boardImage)
+    }
 
-    ///////////todo GUI  ///////////////////////////////////////////
-
-    // functions
-
-    // todo currentstage kann raus tui hat ehe controller
 
     def onQuit() = {
         notifyObservers(OpenConfirmationDialogEvent())
@@ -176,24 +182,32 @@ class Controller @Inject()(val fileIo: FileIOInterface, val cards: CardsInterfac
     }
 
     def onLoadGame() = {
-        notifyObservers(ClearGuiElementsEvent())
-        notifyObservers(GameLoadedEventTui())
+        GameStates.handle(InitGameEvent())
         val updated = fileIo.loadGame
         humanPlayers = updated._1
         npcPlayers = updated._2
         board = updated._6
         players = updated._7
         round = updated._3
-        currentPlayer = updated._10
         paschCount = updated._4
         collectedTax = updated._5
         chanceCards = updated._8
         communityChestCards = updated._9
-        //todo update gui once
+        for (i <- 0 until humanPlayers + npcPlayers) {
+            currentPlayer = i
+            val stackpane = currentStage.scene().lookup("#stackpane").asInstanceOf[javafx.scene.layout.StackPane]
+            val figure = new ImageView(new Image(players(i).figure, 50, 50, true, true))
+            figure.setId("#player" + i)
+            stackpane.getChildren().add(figure)
+            notifyObservers(MovePlayerFigureEvent(
+                fieldCoordsX(players(currentPlayer).position),
+                fieldCoordsY(players(currentPlayer).position)))
+        }
+        currentPlayer = updated._10
+        notifyObservers(GameLoadedEventTui())
+        notifyObservers(UpdateListViewPlayersEvent())
+        GameStates.handle(StartFirstRoundEvent())
 
-        // clear board (houses,ownersofStreets,playerfigurese)
-        // readd (...)
-        // updatePlayerList,updateLabels,ClearEventlist
 
     }
 
@@ -203,7 +217,7 @@ class Controller @Inject()(val fileIo: FileIOInterface, val cards: CardsInterfac
     }
 
     def runNewGame() = {
-        notifyObservers(ClearGuiElementsEvent())
+        clearGuiElements()
         notifyObservers(NewGameStartedTui())
         notifyObservers(UpdateListViewPlayersEvent())
         GameStates.handle(getPlayersEvent())
@@ -360,9 +374,11 @@ class Controller @Inject()(val fileIo: FileIOInterface, val cards: CardsInterfac
 
         def getPlayersState(e: getPlayersEvent) = {
             // spieler mit namen einlesensr
-            for (i <- 0 until humanPlayers) {
-                println("Enter name player" + (currentPlayer + 1) + ":")
-                notifyObservers(OpenGetNameDialogEvent(i)) // adds player in tui/gui... dialog
+            currentPlayer = 0
+            while (currentPlayer < humanPlayers) {
+                println("Enter name player " + (currentPlayer + 1) + ":")
+                notifyObservers(OpenGetNameDialogEvent(currentPlayer)) // adds player in tui/gui... dialog
+                currentPlayer += 1
             }
             for (i <- 0 until npcPlayers) {
                 npcNames = npcNames :+ "NPC " + (i + 1)
@@ -483,7 +499,7 @@ class Controller @Inject()(val fileIo: FileIOInterface, val cards: CardsInterfac
         }
 
         def initGameState: Unit = {
-            notifyObservers(ClearGuiElementsEvent())
+            clearGuiElements()
 
             humanPlayers = 0
             npcPlayers = 0
@@ -511,35 +527,60 @@ class Controller @Inject()(val fileIo: FileIOInterface, val cards: CardsInterfac
             val isNpc = players(currentPlayer).isNpc
             option match {
                 case "normalTurn" =>
-                    if (isNpc) onRollDice()
-                    else notifyObservers(OpenNormalTurnDialogEvent(players(currentPlayer)))
+                    normalTurn(isNpc)
                 case "buyableStreet" =>
-                    val field = board(players(currentPlayer).position).asInstanceOf[Buyable]
-                    if (isNpc) {
-                        if (players(currentPlayer).money >= field.price) buy(field)
-                        // todo else auction
-                        onEndTurn()
-                    }
-                    else notifyObservers(OpenBuyableFieldDialog(field))
+                    buyableStreet(isNpc)
                 case "payRent" =>
-                    val field = board(players(currentPlayer).position).asInstanceOf[Buyable]
-                    if (isNpc) {
-                        payRent(field)
-                        checkPlayerDept(field.owner)
-                        onEndTurn()
-                    } else notifyObservers(OpenPayRentDialog(board(players(currentPlayer).position).asInstanceOf[Buyable]))
+                    pay(isNpc)
                 case "rollForPosition" =>
-                    if (isNpc) wuerfeln
-                    else notifyObservers(OpenRollForPosDialogEvent(players(currentPlayer)))
+                    rollForPositions(isNpc)
                 case "playerHasDept" =>
-                    val field = board(players(currentPlayer).position).asInstanceOf[Buyable]
-                    if (isNpc) onEndTurn() // npc geht direkt bankrott Todo npc verkaufen lassen bis im plus
-                    else notifyObservers(OpenPlayerDeptDialog(field.owner))
+                    dept(isNpc)
                 case "rollDice" =>
-                    wuerfeln
+                    roll(isNpc)
                 case _ =>
             }
         }
+
+        def normalTurn(isNpc: Boolean) = {
+            if (isNpc) onRollDice()
+            else notifyObservers(OpenNormalTurnDialogEvent(players(currentPlayer)))
+        }
+
+        def buyableStreet(isNpc: Boolean) = {
+            val field = board(players(currentPlayer).position).asInstanceOf[Buyable]
+            if (isNpc) {
+                if (players(currentPlayer).money >= field.price) buy(field)
+                // todo else auction
+                onEndTurn()
+            }
+            else notifyObservers(OpenBuyableFieldDialog(field))
+        }
+
+        def pay(isNpc: Boolean) = {
+            val field = board(players(currentPlayer).position).asInstanceOf[Buyable]
+            if (isNpc) {
+                payRent(field)
+                checkPlayerDept(field.owner)
+                onEndTurn()
+            } else notifyObservers(OpenPayRentDialog(board(players(currentPlayer).position).asInstanceOf[Buyable]))
+        }
+
+        def rollForPositions(isNpc: Boolean) = {
+            if (isNpc) wuerfeln
+            else notifyObservers(OpenRollForPosDialogEvent(players(currentPlayer)))
+        }
+
+        def dept(isNpc: Boolean) = {
+            val field = board(players(currentPlayer).position).asInstanceOf[Buyable]
+            if (isNpc) onEndTurn() // npc geht direkt bankrott Todo npc verkaufen lassen bis im plus
+            else notifyObservers(OpenPlayerDeptDialog(field.owner))
+        }
+
+        def roll(isNpc: Boolean) = {
+            wuerfeln
+        }
+
     }
 
     // todo for boardcontroller
