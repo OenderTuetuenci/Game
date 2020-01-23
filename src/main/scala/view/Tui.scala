@@ -1,215 +1,132 @@
 package view
 
-import controller.Controller
+import controller.controllerComponent.ControllerInterface
 import model._
 import util.Observer
 
-import scala.io.StdIn._
+import scala.language.implicitConversions
 
-class Tui(controller: Controller) extends Observer {
+class Tui(controller: ControllerInterface) extends Observer {
     controller.add(this)
-    def getController : Controller = controller
-    override def update(e: Event):Boolean = {
-      var worked = false;
-      var string = "";
-        e match {
-          case e: brokeEvent => string = getBrokeEventString(e);worked = true
-          case e: gameOverEvent => string = getGameOverString(e);worked = true
-          case e: payRentEvent => string = getPayRentString(e);worked = true
-          case e: buyStreetEvent => string = getBuyStreetEventString(e);worked = true
-          case e: buyTrainstationEvent => string = getBuyTrainstationEventString(e);worked = true
-          case e: playerInJailEvent => string = getPlayerInJailString(e);worked = true
-          case e: normalTurnEvent => string = getNormalTurnString(e);worked = true
-          case e: diceEvent => string = getRollString(e);worked = true
-          case e: playerSellsStreetEvent => string = getPlayerSellsStreetString(e);worked = true
-          case e: playerUsesHyptohekOnStreetEvent => string = getPlayerUsesHypothekOnStreetString(e);worked = true
-          case e: playerPaysHyptohekOnStreetEvent => string = getPlayerPaysHypothekOnStreetString(e);worked = true
-          case e: playerUsesHyptohekOnTrainstationEvent => string = getPlayerUsesHypothekOnTrainstationString(e);worked = true
-          case e: playerPaysHyptohekOnTrainstationEvent => string = getPlayerPaysHypothekOnTrainstationString(e);worked = true
-          case e: playerSellsTrainstationEvent => string = getPlayerSellsTrainstationString(e);worked = true
-          case e: newRoundEvent => string = getNewRoundString(e);worked = true
-          case e: endRoundEvent => string = getEndRoundString(e);worked = true
-          case e: playerMoveToJail => string = getPlayerMoveToJailString(e);worked = true
-          case e: optionEvent => string = getOptionString(e);worked = true
-          case e: printEverythingEvent => string = getPlayerAndBoardToString;worked = true
-          case e: playerMoveEvent => string = getPlayerMovedString(e);worked = true
-          case e: playerIsFreeEvent => string = getPlayerIsFreeString(e);worked = true
-          case e: playerRemainsInJailEvent => string = getPlayerRemainsInJailString(e);worked = true
-          case e: playerWentOverGoEvent => string = getPlayerWentOverGoString(e);worked = true
-          case e: playerWentOnGoEvent => string = getPlayerWentOnGoString(e);worked = true
-          case e: streetOnHypothekEvent => string = getStreetOnHypothekString(e);worked = true
-          case e: playerHasDeptEvent => string = getPlayerHasDeptEventString(e);worked = true
-          case _ => worked = false
-        }
-            println(string)
-            worked
-    }
 
-    def getPlayerCount: Unit = {
-        print("How many players?: ") // todo how many npc
-        val playerCount = readInt()
-        val playerNames: Array[String] = Array.ofDim(playerCount)
-        // spieler mit namen einlesensr
-        for (i <- 0 until playerCount) {
-            println("Enter name player" + (i + 1) + ":")
-            playerNames(i) = readLine()
-        }
-        controller.createPlayers(playerCount, playerNames)
-    }
-    def getPlayerCount(count:Int,players:Array[String]): Unit ={
-        print("How many players?: ") // todo how many npc
-        val playerCount = count
-        val playerNames: Array[String] = players
-        controller.createPlayers(playerCount, playerNames)
-    }
-    def getPlayerAndBoardToString : String = {
-        val players = controller.players
-        val board = controller.board
+    def getController: ControllerInterface = controller
+
+    override def update(e: Event): Any = {
         var string = ""
-        string += "\nSpieler: "
-        for (player <- players) string += player.toString + "\n"
-        string += "\nSpielfeld:\n"
-        for (i <- board.indices) {
-            // spieler die noch in der runde sind raussuchen
-            var playersOnThisField = ""
-            for (player <- players) {
-                if (player.money > 0 && player.position == i) {
-                    playersOnThisField += player.name + " "
-                }
-            }
-            // felder anzeigen
-            board(i) match {
-                case s: Los => string += s.toString
-                case s: Eventcell => string += s.toString
-                case s: CommunityChest => string += s.toString
-                case s: IncomeTax => string += s.toString
-                case s: Jail => string += s.toString
-                case s: Elektrizitaetswerk => string += s.toString
-                case s: Wasserwerk => string += s.toString
-                case s: Zusatzsteuer => string += s.toString
-                case s: FreiParken => string += s.toString
-                case s: GoToJail => string += s.toString
-                case s: Street =>
-                    // besitzer des feldes suchen
-                    var owner = s.owner.toString
-                    if (s.owner != -1) owner = players(s.owner).name
-                    string += s.toString + " | Owner: " + owner
-                case s: Trainstation =>
-                    // besitzer des feldes suchen
-                    var owner = s.owner.toString
-                    if (s.owner != -1) owner = players(s.owner).name
-                    string += s.toString + " | Owner: " + owner
-                case s: Elektrizitaetswerk =>
-                    // besitzer des feldes suchen
-                    var owner = s.owner.toString
-                    if (s.owner != -1) owner = players(s.owner).name
-                    string += s.toString + " | Owner: " + owner
-                case s: Wasserwerk =>
-                    // besitzer des feldes suchen
-                    var owner = s.owner.toString
-                    if (s.owner != -1) owner = players(s.owner).name
-                    string += s.toString + " | Owner: " + owner
-            }
-            // spieler die sich auf dem aktuellen feld befinden werden angezeigt
-            if (playersOnThisField != "") string += " | players on this field: " + playersOnThisField
-            string += "\n"
+        e match {
+            //Output
+            case e: NewGameStartedTui => string = getNewGameStartedString(e)
+            case e: GameSavedEventTui => string = getGameWasSavedString(e)
+            case e: AuctionStartedEventTui => string = getAuctionStartedString(e)
+            case e: AuctionEndedEventTui => string = getAuctionEndedString(e)
+            case e: GameLoadedEventTui => string = getGameWasLoadedString(e)
+            case e: displayRollForPositionsEventTui => string = getRollForPositionsString(e)
+            case e: brokeEventTui => string = getBrokeEventString(e)
+            case e: gameFinishedEventTui => string = getFinishedString(e)
+            case e: payRentEventTui => string = getPayRentString(e)
+            case e: buyStreetEventTui => string = getBuyStreetEventString(e)
+            case e: playerInJailEventTui => string = getPlayerInJailString(e)
+            case e: normalTurnEventTui => string = getNormalTurnString(e)
+            case e: diceEventTui => string = getRollString(e)
+            case e: playerSellsStreetEventTui => string = getPlayerSellsStreetString(e)
+            case e: playerUsesHyptohekOnStreetEventTui => string = getPlayerUsesHypothekOnStreetString(e)
+            case e: playerPaysHyptohekOnStreetEventTui => string = getPlayerPaysHypothekOnStreetString(e)
+            case e: newRoundEventTui => string = getNewRoundString(e)
+            case e: playerMoveToJailTui => string = getPlayerMoveToJailString(e)
+            case e: playerMoveEventTui => string = getPlayerMovedString(e)
+            case e: playerIsFreeEventTui => string = getPlayerIsFreeString(e)
+            case e: playerRemainsInJailEventTui => string = getPlayerRemainsInJailString(e)
+            case e: playerWentOverGoEventTui => string = getPlayerWentOverGoString(e)
+            case e: playerWentOnGoEventTui => string = getPlayerWentOnGoString(e)
+            case e: streetOnHypothekEventTui => string = getStreetOnHypothekString(e)
+            case e: playerHasDeptEventTui => string = getPlayerHasDeptEventString(e)
+            case _ =>
         }
-        string
+        if (string != "") controller.notifyObservers(UpdateListViewEventLogEvent(string))
     }
 
-    def getRollString(e: diceEvent): String = {//SS
-        var string = "throwing Dice:\n"
-        string += "rolled :" + e.eyeCount1 + " " + e.eyeCount2 + "\n"
+    def getNewGameStartedString(e: NewGameStartedTui): String = "A new game started."
+
+    def getGameWasSavedString(e: GameSavedEventTui): String = "A game was saved."
+
+    def getGameWasLoadedString(e: GameLoadedEventTui): String = "A game was loaded."
+
+    def getAuctionStartedString(e: AuctionStartedEventTui): String = "Auction for " + e.field.name + " started."
+
+    def getAuctionEndedString(e: AuctionEndedEventTui): String = e.player.name + " won the auction for " + e.field.name
+
+    def getRollForPositionsString(e: displayRollForPositionsEventTui): String = "Players roll for positions."
+
+    def getRollString(e: diceEventTui): String = { //SS
+        var string = ""
+        string += e.player.name + " rolled "
         if (e.pasch)
-            string += "rolled pasch!"
+            string += " pasch"
+        string += ": " + (e.eyeCount1 + e.eyeCount2)
         string
     }
 
-    def getNormalTurnString(e: normalTurnEvent): String = {
-        val string = "Its " + e.player.name + " turn!\n"
+    def getNormalTurnString(e: normalTurnEventTui): String = {
+        val string = "Its " + e.player.name + "´s turn!"
         string
     }
 
-    def getPlayerInJailString(e: playerInJailEvent): String = {
-        var string = "\nIts " + e.player.name + " turn. he is in jail!\n"
-        string += "Jailcount: " + (e.player.jailCount + 1) + "\n"
+    def getPlayerInJailString(e: playerInJailEventTui): String = {
+        var string = "Its " + e.player.name + "´s turn. he is in jail!\n"
+        string += "Jailcount: " + (e.player.jailCount + 1)
         string
     }
 
-    def getPlayerIsFreeString(e: playerIsFreeEvent): String = e.player.name + " is free again!"
+    def getPlayerIsFreeString(e: playerIsFreeEventTui): String = e.player.name + " is free again!"
 
+    def getPlayerRemainsInJailString(e: playerRemainsInJailEventTui): String = e.player.name + " remains in jail"
 
-    def getPlayerRemainsInJailString(e: playerRemainsInJailEvent): String = e.player.name + " remains in jail"
+    def getStreetOnHypothekString(e: streetOnHypothekEventTui): String = e.street.name + " is on hypothek."
 
-
-    def getStreetOnHypothekString(e: streetOnHypothekEvent): String = e.street.name + " is on hypothek."
-
-    def getBuyStreetEventString(e: buyStreetEvent): String = {
-        var string = e.player.money + "\n"
-        if (e.player.money > e.street.price)
-            string += "bought " + e.street.name
-        else
-            string += "can´t afford street"
-        string
+    def getBuyStreetEventString(e: buyStreetEventTui): String = {
+        e.player.name + " bought " + e.street.name
     }
 
-    def getBuyTrainstationEventString(e: buyTrainstationEvent): String = {
-        var string = e.player.money + "\n"
-        if (e.player.money > e.street.price)
-            string += "bought " + e.street.name
-        else
-            string += "can´t afford street"
-        string
-    }
+    def getPayRentString(e: payRentEventTui): String = e.from.name + " pays rent to " + e.to.name
 
-    def getPayRentString(e: payRentEvent): String = e.from.name + " pays rent to " + e.to.name
+    def getPlayerWentOverGoString(e: playerWentOverGoEventTui): String = e.player.name + " went over go."
 
-    def getPlayerWentOverGoString(e: playerWentOverGoEvent): String = e.player.name + " went over go."
+    def getPlayerWentOnGoString(e: playerWentOnGoEventTui): String = e.player.name + " went on go and gets extra money."
 
-    def getPlayerWentOnGoString(e: playerWentOnGoEvent): String = e.player.name + " went on go and gets extra money."
+    def getFinishedString(e: gameFinishedEventTui): String = e.winner.name + " is the winner!!"
 
-    def getGameOverString(e: gameOverEvent): String = e.winner.name + " is the winner!!"
+    def getBrokeEventString(e: brokeEventTui): String = e.player.name + " is broke!!"
 
-    def getBrokeEventString(e: brokeEvent): String = e.player.name + " is broke!!"
-
-    def getPlayerUsesHypothekOnStreetString(e: playerUsesHyptohekOnStreetEvent): String = {
+    def getPlayerUsesHypothekOnStreetString(e: playerUsesHyptohekOnStreetEventTui): String = {
         e.player.name + " gets Hypothek for " + e.street.name + " new creditbalance: " + e.player.money
 
     }
 
-    def getPlayerPaysHypothekOnStreetString(e: playerPaysHyptohekOnStreetEvent): String = {
+    def getPlayerPaysHypothekOnStreetString(e: playerPaysHyptohekOnStreetEventTui): String = {
         e.player.name + " pays Hypothek for " + e.street.name + " new creditbalance: " + e.player.money
     }
 
-    def getPlayerSellsStreetString(e: playerSellsStreetEvent): String = {
+    def getPlayerSellsStreetString(e: playerSellsStreetEventTui): String = {
         var string = e.from.name + " sells " + e.street.name + "\n"
         string += "new creditbalance: " + e.from.money
         string
     }
 
-    def getPlayerUsesHypothekOnTrainstationString(e: playerUsesHyptohekOnTrainstationEvent): String = {
-        e.player.name + " pays Hypothek for " + e.street.name + " new creditbalance: " + e.player.money
-    }
+    def getNewRoundString(e: newRoundEventTui): String = "round " + e.round + " starts"
 
-    def getPlayerPaysHypothekOnTrainstationString(e: playerPaysHyptohekOnTrainstationEvent): String = {
-        e.player.name + " pays Hypothek for " + e.street.name + " new creditbalance: " + e.player.money
-    }
+    def getPlayerMoveToJailString(e: playerMoveToJailTui): String = e.player.name + " moved to Jail!"
 
-    def getPlayerSellsTrainstationString(e: playerSellsTrainstationEvent): String = {
-        var string = e.from.name + " sells " + e.street.name + "\n"
-        string += "new creditbalance: " + e.from.money
+    def getPlayerMovedString(e: playerMoveEventTui): String = e.player.name + " moved to " + e.field.name
+
+    def getPlayerHasDeptEventString(e: playerHasDeptEventTui): String = {
+        var string = e.player.name + " has " + e.player.money + " debts at "
+        if (e.ownerIdx == -1) string += "the bank"
+        else string += controller.players(e.ownerIdx).name
         string
     }
 
-    def getEndRoundString(e: endRoundEvent): String = "\n\n\nround " + e.round + " ends"
+    def getbuyHouseEventTui(e: buyHouseEventTui): String = {
+        e.player.money + " bought a house for " + e.street.name
+    }
 
-    def getNewRoundString(e: newRoundEvent): String = "\n\nround " + e.round + " starts"
-
-    def getPlayerMoveToJailString(e: playerMoveToJail): String = e.player.name + " moved to Jail!"
-
-    def getPlayerMovedString(e: playerMoveEvent): String = e.player.name + " moved to " + e.player.position
-
-    def getPlayerHasDeptEventString(e: playerHasDeptEvent): String = e.player.name + " is in minus: " + e.player.money
-
-    def getOptionString(e: optionEvent): String = "option: "+e.option
 }

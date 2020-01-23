@@ -1,4 +1,4 @@
-import model.{Dice, Player}
+import model.playerComponent.Player
 
 println("hallo")
 

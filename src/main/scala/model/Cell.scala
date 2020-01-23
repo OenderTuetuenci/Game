@@ -1,10 +1,29 @@
 package model
 
+import play.api.libs.json._
+
 trait Cell {
-    def onPlayerEntered(enteredPlayer: Int):String
+    val name: String
+    val group: Int
+    val image:String
+    def onPlayerEntered(enteredPlayer: Int): String
 }
 
-case class Street(name: String, group: Int, price: Int, owner: Int, rent: Int, home: Int, mortgage: Boolean) extends Cell{
+trait Buyable extends Cell {
+    val mortgage: Boolean
+    val price: Int
+    val rent: Int
+    val owner: Int
+    val homecount: Int
+    val image: String
+    def setOwner(x: Int): Buyable
+
+    def payMortgage(): Buyable
+
+    def getMortgage(): Buyable
+}
+
+case class Street(name: String, group: Int, price: Int, owner: Int, rent: Int, homecount: Int, mortgage: Boolean, image: String) extends Buyable {
     override def onPlayerEntered(enteredPlayer: Int): String = {
         println("\nplayer entered " + this.name + ". owner: " + this.owner)
         if (this.owner == -1) "buy"
@@ -12,28 +31,32 @@ case class Street(name: String, group: Int, price: Int, owner: Int, rent: Int, h
         else "pay"
     }
 
-    def setOwner(x: Int): Street = Street(name, group, price, x, rent, home, mortgage)
+    override def setOwner(x: Int): Buyable = Street(name, group, price, x, rent, homecount, mortgage, image)
 
-    def getMortgage: Street = Street(name, group, price, owner, rent, home, mortgage = true)
+    override def getMortgage: Buyable = Street(name, group, price, owner, rent, homecount, mortgage = true, image)
 
-    def payMortgage: Street = Street(name, group, price, owner, rent, home, mortgage = false)
+    override def payMortgage: Buyable = Street(name, group, price, owner, rent, homecount, mortgage = false, image)
 
     //Functions to buy or sell homes to increase rent
     def buyHome(x: Int): Street = {
-        val newRent = rent + (home * 200)
-        Street(name, group, price, owner, newRent, home + x, mortgage)
+        val newRent = rent + (homecount * 200)
+        Street(name, group, price, owner, newRent, homecount + x, mortgage, image)
     }
 
     def sellHome(x: Int): Street = {
         val newRent = rent - (x * 200)
-        Street(name, group, price, owner, newRent, home - x, mortgage)
+        Street(name, group, price, owner, newRent, homecount - x, mortgage, image)
     }
 
-    override def toString: String = name + " group: " + group + " price: " + price + " rent: " + rent + " homecount: " + home + " mortgage: " + mortgage
+    override def toString: String = name + " group: " + group + " price: " + price + " rent: " + rent + " homecount: " + homecount + " mortgage: " + mortgage
+}
+object Street{
+    implicit val streetWrites = Json.writes[Street]
+    implicit val streetReads = Json.reads[Street]
 }
 
-case class Eventcell(name: String) extends Cell{
-    def onPlayerEntered(enteredPlayer: Int): String = {
+case class Eventcell(name: String, group: Int,image:String) extends Cell {
+    override def onPlayerEntered(enteredPlayer: Int): String = {
         println("\nplayer entered an event")
         "\nplayer entered an event"
     }
@@ -41,11 +64,17 @@ case class Eventcell(name: String) extends Cell{
     def drawEventCard(): Unit = {
         println("draw a card")
     }
-    override def toString: String = name
+
+    override def toString: String = {
+        name
+    }
+}
+object Eventcell{
+    implicit val eventCellWrites = Json.writes[Eventcell]
+    implicit val eventCellReads = Json.reads[Eventcell]
 }
 
-
-case class CommunityChest(name: String) extends Cell{
+case class CommunityChest(name: String, group: Int,image:String) extends Cell {
     override def onPlayerEntered(enteredPlayer: Int): String = {
         println("\nplayer entered CommunityChest")
         "\nplayer entered CommunityChest"
@@ -59,51 +88,12 @@ case class CommunityChest(name: String) extends Cell{
         name
     }
 }
-
-case class IncomeTax(name: String) extends Cell{
-    override def onPlayerEntered(enteredPlayer: Int): String = {
-        println("\nplayer entered IncomeTax")
-        "\nplayer entered IncomeTax"
-    }
-
-    override def toString: String = {
-        name
-    }
+object CommunityChest{
+    implicit val communityWrites = Json.writes[CommunityChest]
+    implicit val communityReads = Json.reads[CommunityChest]
 }
 
-case class Elektrizitaetswerk(name: String, group: Int, price: Int, owner: Int, rent: Int, hypothek: Boolean) extends Cell{
-    override def onPlayerEntered(enteredPlayer: Int): String = {
-        println("\nplayer entered JailVisit")
-        "\nplayer entered JailVisit"
-    }
-
-    def setOwner(x: Int): Elektrizitaetswerk = Elektrizitaetswerk(name, group, price, x, rent, hypothek)
-
-
-    override def toString: String = {
-        name + " group: " + group + " price: " + price + " rent: " + rent + " hypothek: " + hypothek
-    }
-}
-
-
-case class Trainstation(name: String, group: Int, price: Int, owner: Int, rent: Int, hypothek: Boolean) extends Cell{
-    override def onPlayerEntered(enteredPlayer: Int): String = {
-        println("\nplayer entered " + name)
-        "\nplayer entered SouthTrainstation"
-    }
-
-    def setOwner(x: Int): Trainstation = Trainstation(name, group, price, x, rent, hypothek)
-
-    def getHypothek: Trainstation = Trainstation(name, group, price, owner, rent, hypothek = true)
-
-    def payHypothek: Trainstation = Trainstation(name, group, price, owner, rent, hypothek = false)
-
-    override def toString: String = {
-        name + " group: " + group + " price: " + price + " rent: " + rent + " hypothek: " + hypothek
-    }
-}
-
-case class Los(name: String) extends Cell{
+case class Los(name: String, group: Int, image: String) extends Cell {
     override def onPlayerEntered(enteredPlayer: Int): String = {
         println("\nplayer entered start")
         "\nplayer entered start"
@@ -113,10 +103,29 @@ case class Los(name: String) extends Cell{
         name
     }
 }
+object Los{
+    implicit val losWrites = Json.writes[Los]
+    implicit val losReads = Json.reads[Los]
+}
 
-case class GoToJail(name: String) extends Cell{
+case class IncomeTax(name: String, group: Int, image: String) extends Cell {
     override def onPlayerEntered(enteredPlayer: Int): String = {
-        println("\nplayer entered jail")
+        println("\nplayer entered IncomeTax")
+        "\nplayer entered IncomeTax"
+    }
+
+    override def toString: String = {
+        name
+    }
+}
+object IncomeTax{
+    implicit val incomeWrites = Json.writes[IncomeTax]
+    implicit val incomeReads = Json.reads[IncomeTax]
+}
+
+case class GoToJail(name: String, group: Int, image: String) extends Cell {
+    override def onPlayerEntered(enteredPlayer: Int): String = {
+        println("\nplayer entered go to jail")
         "\nplayer entered GoToJail"
     }
 
@@ -124,19 +133,12 @@ case class GoToJail(name: String) extends Cell{
         name
     }
 }
-
-case class Wasserwerk(name: String, group: Int, price: Int, owner: Int, rent: Int, hypothek: Boolean) extends Cell{
-    override def onPlayerEntered(enteredPlayer: Int): String = {
-        println("\nplayer entered Wasserwerk")
-        "\nplayer entered Wasserwerk"
-    }
-
-    override def toString: String = {
-        name + " group: " + group + " price: " + price + " rent: " + rent + " hypothek: " + hypothek
-    }
+object GoToJail{
+    implicit val toJailWrites = Json.writes[GoToJail]
+    implicit val toJailReads = Json.reads[GoToJail]
 }
 
-case class Jail(name: String) extends Cell{
+case class Jail(name: String, group: Int, image: String) extends Cell {
     override def onPlayerEntered(enteredPlayer: Int): String = {
         println("\nplayer entered jail")
         "\nplayer entered jail"
@@ -146,8 +148,12 @@ case class Jail(name: String) extends Cell{
         name
     }
 }
+object Jail{
+    implicit val jailWrites = Json.writes[Jail]
+    implicit val jailReads = Json.reads[Jail]
+}
 
-case class FreiParken(name: String) extends Cell{
+case class FreiParken(name: String, group: Int, image: String) extends Cell {
     override def onPlayerEntered(enteredPlayer: Int): String = {
         println("\nplayer entered FreiParken")
         "\nplayer entered FreiParken"
@@ -157,8 +163,12 @@ case class FreiParken(name: String) extends Cell{
         name
     }
 }
+object FreiParken{
+    implicit val freeParkingWrites = Json.writes[FreiParken]
+    implicit val freeParkingReads = Json.reads[FreiParken]
+}
 
-case class Zusatzsteuer(name: String) extends Cell{
+case class Zusatzsteuer(name: String, group: Int, image: String) extends Cell {
     override def onPlayerEntered(enteredPlayer: Int): String = {
         println("\nplayer entered Zusatzsteuer")
         "\nplayer entered Zusatzsteuer"
@@ -167,4 +177,8 @@ case class Zusatzsteuer(name: String) extends Cell{
     override def toString: String = {
         name
     }
+}
+object Zusatzsteuer{
+    implicit val zusatzWrites = Json.writes[Zusatzsteuer]
+    implicit val zusatzReads = Json.reads[Zusatzsteuer]
 }
